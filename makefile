@@ -19,6 +19,9 @@ all: main.o subdir
 run: all
 	./MyParser.out
 
+test:
+	echo 'No unit test available yet'
+
 subdir:
 	${MAKE} -C lex lex.o
 
