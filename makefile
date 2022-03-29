@@ -11,7 +11,7 @@ LFLAGS = -r
 
 RM = -@rm -f
 
-.PHONY: subdir all run test
+.PHONY: subdir all run
 
 all: main.o subdir 
 	${CC} ${CFLAGS} main.o lex/lex.o -o MyParser.out
@@ -19,7 +19,7 @@ all: main.o subdir
 run: all
 	./MyParser.out
 
-test: all
+test:
 	echo 'No unit test available yet'
 
 subdir:
