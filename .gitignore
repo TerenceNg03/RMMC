@@ -33,3 +33,6 @@
 
 # MacOS System Files
 .DS_Store
+
+# log files
+*.log
