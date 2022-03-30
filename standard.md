@@ -29,11 +29,11 @@ let b: *i32 = &a;
 ```
 #### 1.4 Array type
 
-**[  ]** is used for mark an array type.
+**[typename, size]** is used for mark an array type.
 ```rust 
-let array: i32[3] = {1,2,3};
-let string: char[] = "Hello, world.";
-let array2: i32[] = {1,2};
+let array: [i32, 3] = {1,2,3};
+let string: [char, ] = "Hello, world.";
+let array2: [i32, ] = {1,2};
 ```
 
 #### 1.5 Function type
