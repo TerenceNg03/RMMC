@@ -25,7 +25,7 @@ let a: i32 = 'c';
 **\*** is used to mark a pointer type;
 ```rust
 let a: i32 = 1;
-let b: *i32 = &a;
+let b: i32* = &a;
 ```
 #### 1.4 Array type
 
@@ -124,11 +124,30 @@ nullptr # Null pointer (zero)
 if else elif # branch control
 i32 u8 char f32 f64 bool #built-int type 
 true false # boolean values
+import # import modules
+from # specific where to import
+export # specific what to export
 ```
 
 Operators  
 
 The same as [C programming language](https://en.cppreference.com/w/c/language/operator_precedence).
+
+| Precedence | Operator | Associativity |  
+| :----: | :---- | :----: |  
+| 1 | **(  )**	Function call <br> **[  ]** Array subscripting | Left-to-right |  
+| 2 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **(type)**	Cast <br> **\***	Indirection (dereference) <br> **&** Address-of | 	Right-to-left |
+| 3 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
+| 4 | **+ -**	Addition and subtraction | Left-to-right |
+| 5 | **<< >>**	Bitwise left shift and right shift | Left-to-right |
+| 6 | **< <=**	For relational operators < and ≤ respectively <br> **> >=**	For relational operators > and ≥ respectively | Left-to-right |
+| 7 | **== !=**	For relational = and ≠ respectively | Left-to-right |
+| 8 | **&**	Bitwise AND | Left-to-right |
+| 9 | **^**	Bitwise XOR (exclusive or) | Left-to-right |
+| 10 | **\|**	Bitwise OR (inclusive or) | Left-to-right |
+| 11 | **\|\|**	Logical OR | Left-to-right |
+| 12 | **,**	Comma | Left-to-right |
+
 
 #### 4.2 Grammar
 
@@ -150,4 +169,27 @@ A function called as "**main**" and has type of "**(i32, char\**)->i32**" is req
 let main: auto = <argc: i32, argv: char**; i32>{
 	return 0;
 }
+```
+
+#### 4.5 Import and Export
+
+Use **import** keyword to import modules from standard library or from a local file.
+
+```python
+import stdio; # import a library
+import "src/hello_world.rmm"; # import a file
+```
+Only variable marked as **export** can be imported.
+
+```rust 
+# foo can not be imported
+let foo: auto = <a: i32*; i32>{
+	*a = *a + 1;
+};
+
+# bar can be imported
+let export bar: auto = <void ;void>{
+	let a: i32 = 0;
+	_foo();
+};
 ```

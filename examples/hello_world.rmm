@@ -1,0 +1,6 @@
+import stdio;
+
+let main: auto = <argc: i32, argv: char**; i32>{
+	print("Hello, world\n");
+	return 0;
+}
