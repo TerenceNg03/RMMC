@@ -47,6 +47,22 @@ let foo: (i32, char)->bool = <a: i32, b: char; bool>{
 }; # assign a function literal to a function named "foo"
 ```
 
+#### 1.6 Custom Types
+
+**type** keyword create an alias name for a data type. **comp** (short for **compound**) is used to compose a custom data type.
+```rust
+type int i32; # alias int for i32
+type type_name comp {
+	a: i32;
+	b: bool;
+	fun: (i32, u32)->bool;
+};
+
+# make the alias exportable
+type export int i32;
+```
+
+
 ## 2. Flow Control 
 
 #### 2.1 If-else statement
@@ -107,10 +123,76 @@ let bar: auto = <ptr1: char*, ptr2: char*; bool>{
 	return ptr1[0]==ptr2[0];
 };
 ```
+## 4. Namespace and module system
 
-## 4. Keywords, Grammar and trivial stuffs
+#### 4.1 Namespace
 
-#### 4.1 A list of keywords and operators
+**::** operator is used to identify namespace.  
+**mod** keyword is used to declare a namespace.  
+**use** keyword is used to add a namespace into search space.
+
+```rust 
+mod cat {
+	let meow: ()->void = <void;void>{};
+};
+
+let main: auto = <;i32>{
+	meow(); # error
+	cat::meow(); # ok
+
+	<;>{
+		let meow: auto = cat::meow();
+		meow(); # ok
+	};
+
+	<;>{
+		use cat;
+		meow(); # ok
+	};
+};
+```
+
+#### 4.2 Import and Export
+
+Use **import** keyword to import modules from standard library or from a local file.
+
+```python
+import std::io; # import a library
+import "src/hello_world.rmm"; # import a file
+```
+
+**from** keyword is used to import only a specific function.
+
+```python
+import std::io;
+from std::string import strlen;
+
+let _s1: [u8,] = "Hello";
+let s1: u8* = &_s1[0];
+std::string::strcat(s1, s1); # error not imported
+
+puts("some sting"); # error
+std::io::puts("some string"); # ok
+```
+Only variable marked as **export** can be imported.
+
+```rust 
+# foo can not be imported
+let foo: auto = <a: i32*; i32>{
+	*a = *a + 1;
+};
+
+# bar can be imported
+let export bar: auto = <void ;void>{
+	let a: i32 = 0;
+	_foo();
+};
+```
+
+
+## 5. Keywords, Grammar and trivial stuffs
+
+#### 5.1 A list of keywords and operators
 
 Keywords 
 
@@ -127,6 +209,9 @@ true false # boolean values
 import # import modules
 from # specific where to import
 export # specific what to export
+mod # namespace specifier
+type # type name alias
+comp # compound type
 ```
 
 Operators  
@@ -135,25 +220,26 @@ The same as [C programming language](https://en.cppreference.com/w/c/language/op
 
 | Precedence | Operator | Associativity |  
 | :----: | :---- | :----: |  
-| 1 | **(  )**	Function call <br> **[  ]** Array subscripting | Left-to-right |  
-| 2 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **(type)**	Cast <br> **\***	Indirection (dereference) <br> **&** Address-of | 	Right-to-left |
-| 3 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
-| 4 | **+ -**	Addition and subtraction | Left-to-right |
-| 5 | **<< >>**	Bitwise left shift and right shift | Left-to-right |
-| 6 | **< <=**	For relational operators < and ≤ respectively <br> **> >=**	For relational operators > and ≥ respectively | Left-to-right |
-| 7 | **== !=**	For relational = and ≠ respectively | Left-to-right |
-| 8 | **&**	Bitwise AND | Left-to-right |
-| 9 | **^**	Bitwise XOR (exclusive or) | Left-to-right |
-| 10 | **\|**	Bitwise OR (inclusive or) | Left-to-right |
-| 11 | **\|\|**	Logical OR | Left-to-right |
-| 12 | **,**	Comma | Left-to-right |
+| 1 | **::** Scope selector | Left-to-right |
+| 2 | **(  )**	Function call <br> **[  ]** Array subscripting | Left-to-right |  
+| 3 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **(type)**	Cast <br> **\***	Indirection (dereference) <br> **&** Address-of <br> **. ->**	Member access| 	Right-to-left |
+| 4 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
+| 5 | **+ -**	Addition and subtraction | Left-to-right |
+| 6 | **<< >>**	Bitwise left shift and right shift | Left-to-right |
+| 7 | **< <=**	For relational operators < and ≤ respectively <br> **> >=**	For relational operators > and ≥ respectively | Left-to-right |
+| 8 | **== !=**	For relational = and ≠ respectively | Left-to-right |
+| 9 | **&**	Bitwise AND | Left-to-right |
+| 10 | **^**	Bitwise XOR (exclusive or) | Left-to-right |
+| 11 | **\|**	Bitwise OR (inclusive or) | Left-to-right |
+| 12 | **\|\|**	Logical OR | Left-to-right |
+| 13 | **,**	Comma | Left-to-right |
 
 
-#### 4.2 Grammar
+#### 5.2 Grammar
 
 Every statement must be terminated by a "**;**".
 
-#### 4.3 Comments
+#### 5.3 Comments
 
 **#** is used to mark a single line comment.
 
@@ -161,7 +247,7 @@ Every statement must be terminated by a "**;**".
 # This is a line of comment. 
 ```
 
-#### 4.4 Main function
+#### 5.4 Main function
 
 A function called as "**main**" and has type of "**(i32, char\**)->i32**" is required as the entry point for the program.
 
@@ -169,27 +255,4 @@ A function called as "**main**" and has type of "**(i32, char\**)->i32**" is req
 let main: auto = <argc: i32, argv: char**; i32>{
 	return 0;
 }
-```
-
-#### 4.5 Import and Export
-
-Use **import** keyword to import modules from standard library or from a local file.
-
-```python
-import stdio; # import a library
-import "src/hello_world.rmm"; # import a file
-```
-Only variable marked as **export** can be imported.
-
-```rust 
-# foo can not be imported
-let foo: auto = <a: i32*; i32>{
-	*a = *a + 1;
-};
-
-# bar can be imported
-let export bar: auto = <void ;void>{
-	let a: i32 = 0;
-	_foo();
-};
 ```
