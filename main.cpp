@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, const char * argv[]) {
 
     //setup driver
-    MyParser::Driver driver;
+    rmmc::Driver driver;
 
     //run parser
     driver.parse();

@@ -5,7 +5,7 @@
 # include <string>
 # include <fstream>
 
-namespace MyParser
+namespace rmmc
 {
     /// Forward declarations of classes
     class Parser;
@@ -24,7 +24,7 @@ namespace MyParser
     private:
         Scanner*      scanner;
         Parser*       parser;
-        MyParser::location*     location;
+        rmmc::location*     location;
 
 
         /// Allows Parser and Scanner to access private attributes

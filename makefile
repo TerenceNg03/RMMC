@@ -14,10 +14,10 @@ RM = -@rm -f
 .PHONY: subdir all run
 
 all: main.o subdir 
-	${CC} ${CFLAGS} main.o lex/lex.o -o MyParser.out
+	${CC} ${CFLAGS} main.o lex/lex.o -o rmmc.out
 
 run: all
-	./MyParser.out
+	./rmmc.out
 
 test:
 	echo 'No unit test available yet'
@@ -32,4 +32,4 @@ clean:
 	${MAKE} -C lex clean
 	${RM} *.o
 	${RM} *.log
-	${RM} MyParser.out
+	${RM} rmmc.out

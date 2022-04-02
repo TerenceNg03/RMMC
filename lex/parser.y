@@ -17,7 +17,7 @@
 %code provides
 {
 
-    namespace MyParse
+    namespace rmmc 
     {
         // Forward declaration of the Driver class
         class Driver;
@@ -32,58 +32,86 @@
 }
 
 %locations
-%define api.namespace {MyParser}
+%define api.namespace {rmmc}
 %define api.parser.class {Parser}
-%lex-param {MyParser::Driver &driver}
-%parse-param {MyParser::Driver &driver}
+%lex-param {rmmc::Driver &driver}
+%parse-param {rmmc::Driver &driver}
 %define parse.error verbose
 %language "c++"
 %define api.value.type variant
 %define api.token.constructor
 
-%token NEWLINE PLUS MINUS 
-%token <int> NUM 
-%token END
-%token<std::string> ILLEGAL
+%token
+let for_ while_ void_ auto_ nullptr_ if_ else_ elif i32 u8 char_ f32 f64 bool_ true_ false_ import_ from export_ mod type comp 
 
-%type<float> EXPR
+%token 
+
+unknown "unknown character"
+newline "end of line"
+eof "end of file"
+
+%token<std::string> name rawstr rawchar
+
+%token <long> long_
+
+%token <double> float_
+
+%token
+minus "-"
+plus "+"
+div "/"
+mul "*"
+assign "="
+
+roundbl "("
+roundbr ")"
+boxbl "["
+boxnr "]"
+curlybl "{"
+curlybr "}"
+lt "<"
+gt ">"
+ge ">="
+le "<="
+shiftright ">>"
+shiftleft "<<"
+eq "=="
+noteq "!="
+point "."
+leftarror "->"
+colon ":"
+doublecolon "::"
+
+bitand_ "&"
+bitor_ "|"
+bitxor_ "^"
+bitnot_ "~"
+semicolon ";"
+
+and_ "&&"
+or_ "||"
+not_ "!"
+
+%left 
+"::"
+"."
+"->"
+
+%right
+"!"
+"~"
+
+
 %%
-STATEMENT : 
+STATEMENT:
 {  
-	printf("Enter expression:");
-}
-| STATEMENT EXPR NEWLINE
-{
-	printf("The result is %f\n",$2);
-	printf("Enter expression:");
-	driver.location->lines();
-    driver.location->step();
-    driver.scanner->reset_current_col();
-}
-| STATEMENT error NEWLINE
-{
-	driver.location->lines();
-    driver.location->step();
-    driver.scanner->reset_current_col();
-	printf("Enter expression:");
-}
-
-EXPR: NUM
-{
-	$$ = $1;
-}
-| NUM PLUS EXPR
-{
-	$$ = $1 + $3;
-}
-| NUM MINUS EXPR
-{
-	$$ = $1 - $3;
+	printf("parser called\n");
+	YYACCEPT;
 }
 
 %%
 
-namespace MyParser
+namespace rmmc
 {
     void Parser::error(const location& loc, const std::string& m)
     {

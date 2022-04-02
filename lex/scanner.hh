@@ -4,9 +4,9 @@
 # include "parser.hh"
 
 # ifndef YY_DECL
-#  define YY_DECL MyParser::Parser::symbol_type                         \
-MyParser::Scanner::lex(    \
-MyParser::Driver& driver)
+#  define YY_DECL rmmc::Parser::symbol_type                         \
+rmmc::Scanner::lex(    \
+rmmc::Driver& driver)
 # endif
 
 
@@ -15,7 +15,7 @@ MyParser::Driver& driver)
 # endif
 
 
-namespace MyParser
+namespace rmmc
 {
     
     class Scanner : public yyFlexLexer
