@@ -1,0 +1,2 @@
+let export putchar: (u8)->i32;
+let export puts: (u8*)->i32;
