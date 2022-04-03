@@ -24,12 +24,14 @@ test:
 
 subdir:
 	${MAKE} -C lex lex.o
+	${MAKE} -C frontend frontend.o
 
 main.o: main.cpp
 	${CC} ${FLAGS} -c main.cpp
 
 clean:
 	${MAKE} -C lex clean
+	${MAKE} -C frontend clean
 	${RM} *.o
 	${RM} *.log
 	${RM} rmmc.out

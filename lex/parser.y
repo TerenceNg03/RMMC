@@ -5,6 +5,7 @@
 #include <string>
 #include "parser.hh"
 #include "scanner.hh"
+#include "rmm_types.hh"
 #define yylex driver.scanner->lex
 %}
 
@@ -42,12 +43,12 @@
 %define api.token.constructor
 
 %token
-let for_ while_ void_ auto_ nullptr_ if_ else_ elif i32 u8 char_ f32 f64 bool_ true_ false_ import_ from export_ mod type comp 
+let for_ while_ void_ auto_ nullptr_ if_ else_ elif bool_ true_ false_ import_ from export_ mod type comp 
+u8 u16 u32 u64 i8 i16 i32 i64 f32 f64
 
 %token 
 
 unknown "unknown character"
-newline "end of line"
 eof "end of file"
 
 %token<std::string> name rawstr rawchar
@@ -103,11 +104,59 @@ not_ "!"
 
 
 %%
-STATEMENT:
+STATEMENTS: 
+STATEMENTS STATEMENT ";"
+| STATEMENT ";"
+| eof
 {  
 	printf("parser called\n");
 	YYACCEPT;
 }
+
+
+STATEMENT:
+| let name ":" typename_incomplete init_statement 
+
+
+init_statement:
+| "=" init_value
+
+init_value:
+long_
+| float_
+| rawstr
+| rawchar
+| true_
+| false_
+
+typename_incomplete:
+"[" typename "," "]"
+| auto_
+| typename
+
+typename:
+"[" typename "," long_ "]"
+| typename "*"
+| "(" typenamelist ")" "->" typename
+| basictype
+
+typenamelist:
+typenamelist "," typename
+| typename
+
+basictype:
+void_
+| u8
+| u16
+| u32
+| u64
+| i8
+| i16
+| i32
+| i64
+| f32
+| f64
+
 
 %%
 

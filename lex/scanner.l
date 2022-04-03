@@ -32,9 +32,14 @@ nullptr return Parser::make_nullptr_(loc);
 if return Parser::make_if_(loc);
 else return Parser::make_else_(loc);
 elif return Parser::make_elif(loc);
+i8 return Parser::make_i8(loc);
+i16 return Parser::make_i16(loc);
 i32 return Parser::make_i32(loc);
+i64 return Parser::make_i64(loc);
 u8 return Parser::make_u8(loc);
-char return Parser::make_char_(loc);
+u16 return Parser::make_u16(loc);
+u32 return Parser::make_u32(loc);
+u64 return Parser::make_u64(loc);
 f32 return Parser::make_f32(loc);
 f64 return Parser::make_f64(loc);
 bool return Parser::make_bool_(loc);
@@ -95,7 +100,7 @@ comp return Parser::make_comp(loc);
 "||" return Parser::make_or_(loc);
 "!" return Parser::make_not_(loc);
 
-\n return Parser::make_newline(loc);
+\n driver.location->lines();driver.location->step();driver.scanner->reset_current_col();
 
 <<EOF>> return Parser::make_eof(loc);
 
@@ -127,6 +132,7 @@ namespace rmmc
 
     size_t Scanner::LexerInput(char* buf, size_t max_size) {
         size_t avail = current_line_len - current_line_sent;
+		std::cout<<"LexerInput called"<<std::endl;
         if (!avail) {
             current_line_sent = 0;
             getline(yyin,current_line);
