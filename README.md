@@ -1,6 +1,17 @@
 # 2022-ZJU-Compiler-Team
 Course Project for 2022 ZJU Compiler Construction Principle and Practice 
 
+### RMMC command line options
+---
+
+| Short form | Long from | Require argument |Description |
+| :---: | :---: | :---: | :---: |
+| -o | --output | Yes | Specific output file name |
+|| --genAST | optional | Output AST in xml format.<br>Default filename is AST.xml. |
+|  | --stdpath | Yes | Standard library path (Enable stdlib) |
+| -I | --import | Yes | Specify modules search path |
+
+
 ### (Updated) Important: Docker Environment installation
 ----
 ### 1. Clone this Github Repository

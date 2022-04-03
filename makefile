@@ -11,7 +11,12 @@ LFLAGS = -r
 
 RM = -@rm -f
 
-.PHONY: subdir all run
+.PHONY: subdir all run debug release
+
+release: all
+
+debug: CFLAG += -g -DDEBUG=1
+debug: all
 
 all: main.o subdir 
 	${CC} ${CFLAGS} main.o lex/lex.o -o rmmc.out
