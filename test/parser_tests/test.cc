@@ -10,9 +10,16 @@ TEST(parser, import_test) {
 	EXPECT_EQ(result, 0);
 }
 
-TEST(parser, let_no_function) {
+TEST(parser, let) {
 	rmmc::Driver driver;
-	std::string filename = "cases/let_no_function.rmm";
+	std::string filename = "cases/let.rmm";
+	int result = driver.parse_file(filename);
+	EXPECT_EQ(result, 0);
+}
+
+TEST(parser, expression) {
+	rmmc::Driver driver;
+	std::string filename = "cases/expression.rmm";
 	int result = driver.parse_file(filename);
 	EXPECT_EQ(result, 0);
 }

@@ -25,6 +25,7 @@ using namespace rmmc;
 
 let  return Parser::make_let(loc);
 for return Parser::make_for_(loc);
+as return Parser::make_as(loc);
 while return Parser::make_while_(loc);
 void return Parser::make_void_(loc);
 auto return Parser::make_auto_(loc);
@@ -90,6 +91,8 @@ comp return Parser::make_comp(loc);
 "->" return Parser::make_leftarror(loc);
 ":" return Parser::make_colon(loc);
 "::" return Parser::make_doublecolon(loc);
+"%" return Parser::make_math_mod(loc);
+"?" return Parser::make_q_mark(loc);
 
 "&" return Parser::make_bitand_(loc);
 "|" return Parser::make_bitor_(loc);

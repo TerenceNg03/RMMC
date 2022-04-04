@@ -42,4 +42,4 @@ clean:
 	${RM} *.o
 	${RM} *.log
 	${RM} rmmc.out
-	${RM}
+	${RM} -r bin/
