@@ -9,7 +9,7 @@
 
 
 #define YY_USER_ACTION                                \
-{loc.columns(yyleng); driver.scanner->current_col =driver.scanner->current_col_end; driver.scanner->current_col_end += yyleng;}
+{loc.step(); loc.columns(yyleng); driver.scanner->current_col =driver.scanner->current_col_end; driver.scanner->current_col_end += yyleng;}
 
 using namespace rmmc;
 
@@ -53,7 +53,7 @@ type return Parser::make_type(loc);
 comp return Parser::make_comp(loc);
 
 
-[a-zA-Z]{1,}[0-9a-zA-Z]* return Parser::make_name(std::string(yytext),loc);
+[a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_name(std::string(yytext),loc);
 
 \"(\\.|[^\\"])*\"  return Parser::make_rawstr(std::string(yytext),loc);/* string literal (remove \") */
 \'(\\.|[^\\'])*\' return Parser::make_rawchar(std::string(yytext),loc);/* char literal (remove \r') */
@@ -69,6 +69,8 @@ comp return Parser::make_comp(loc);
 "/" return Parser::make_div(loc);
 "*" return Parser::make_mul(loc);
 "=" return Parser::make_assign(loc);
+
+"," return Parser::make_comma(loc);
 
 "(" return Parser::make_roundbl(loc);
 ")" return Parser::make_roundbr(loc);
@@ -100,7 +102,7 @@ comp return Parser::make_comp(loc);
 "||" return Parser::make_or_(loc);
 "!" return Parser::make_not_(loc);
 
-\n driver.location->lines();driver.location->step();driver.scanner->reset_current_col();
+\n driver.location->lines();driver.location->step();
 
 <<EOF>> return Parser::make_eof(loc);
 
@@ -114,25 +116,20 @@ namespace rmmc
 
     Scanner::Scanner()
     {
-        log = fopen(logfile,"w");
-        if(!log)perror("Scanner Error : Cannot create log!\n");
     }
 
     Scanner::~Scanner()
     {
-        fclose(log);
     }
 
     void Scanner::reset_current_col() {
         current_col = current_col_end = 0;
-        fprintf(log,"%s",current_line.c_str());
         current_line_sent = current_line_len = 0;
         current_line = "";
     }
 
     size_t Scanner::LexerInput(char* buf, size_t max_size) {
         size_t avail = current_line_len - current_line_sent;
-		std::cout<<"LexerInput called"<<std::endl;
         if (!avail) {
             current_line_sent = 0;
             getline(yyin,current_line);

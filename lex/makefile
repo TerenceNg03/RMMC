@@ -3,6 +3,8 @@
 lex.o: scanner.o parser.o driver.o scanner.o
 	
 	${LD} ${LFLAGS} scanner.o parser.o driver.o -o lex.o
+	mkdir -p ${OBJ_PATH}
+	cp lex.o ${OBJ_PATH}/
 	
 
 scanner.o: scanner.l scanner.hh parser.o

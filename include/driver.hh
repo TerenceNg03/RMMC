@@ -25,6 +25,7 @@ namespace rmmc
         Scanner*      scanner;
         Parser*       parser;
         rmmc::location*     location;
+		std::string curr_file;
 
 
         /// Allows Parser and Scanner to access private attributes

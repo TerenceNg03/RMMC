@@ -24,19 +24,19 @@ namespace rmmc
     int Driver::parse()
     {
         scanner->switch_streams(&std::cin, &std::cerr);
-        parser->parse();
-        return 0;
+        return parser->parse();
     }
 
     int Driver::parse_file (std::string& path)
     {
+		curr_file = path;
         std::ifstream s(path.c_str(), std::ifstream::in);
         scanner->switch_streams(&s, &std::cerr);
 
-        parser->parse();
+        int return_code = parser->parse();
 
         s.close();
 
-        return 0;
+        return return_code;
     }
 }

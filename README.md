@@ -11,6 +11,23 @@ Course Project for 2022 ZJU Compiler Construction Principle and Practice
 |  | --stdpath | Yes | Standard library path (Enable stdlib) |
 | -I | --import | Yes | Specify modules search path |
 
+### Google Test Framework Installation
+---
+#### 1. Grab source code
+```
+apt install libgtest-dev -y
+```
+
+#### 2. Install cmake
+```
+apt-get install cmake
+```
+
+#### 3. Compile the library
+```
+cd /usr/src/gtest
+cmake CMakeLists.txt
+```
 
 ### (Updated) Important: Docker Environment installation
 ----
