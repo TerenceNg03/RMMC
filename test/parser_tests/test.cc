@@ -4,24 +4,27 @@
 
 
 TEST(parser, import_test) {
-	rmmc::Driver driver;
 	std::string filename = "cases/import.rmm";
-	int result = driver.parse_file(filename);
-	EXPECT_EQ(result, 0);
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.failed(), false);
 }
 
-TEST(parser, let) {
-	rmmc::Driver driver;
+TEST(parser, let_test) {
 	std::string filename = "cases/let.rmm";
-	int result = driver.parse_file(filename);
-	EXPECT_EQ(result, 0);
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.failed(), false);
 }
 
-TEST(parser, expression) {
-	rmmc::Driver driver;
+TEST(parser, expression_test) {
 	std::string filename = "cases/expression.rmm";
-	int result = driver.parse_file(filename);
-	EXPECT_EQ(result, 0);
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.failed(), false);
+}
+
+TEST(parser, syntax_error_test) {
+	std::string filename = "cases/error.rmm";
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.failed(), true);
 }
 
 int main(int argc, char** argv){

@@ -6,37 +6,43 @@ using namespace std;
 
 namespace rmmc 
 {
-    Driver::Driver()
-    {
-        parser  = new Parser(*this);
-        scanner = new Scanner();
-        location = new class location();
-    }
+	Driver::Driver(const std::string& filename)
+	{
+		parser  = new Parser(*this);
+		scanner = new Scanner();
+		location = new class location();
+		is_failed = false;
+		parse_file(filename);
+	}
+
+	bool Driver::failed() const{
+		return is_failed;
+	}
 
 
-    Driver::~Driver()
-    {
-        delete parser;
-        delete scanner;
-        delete location;
-    }
+	Driver::~Driver()
+	{
+		delete parser;
+		delete scanner;
+		delete location;
+	}
 
-    int Driver::parse()
-    {
-        scanner->switch_streams(&std::cin, &std::cerr);
-        return parser->parse();
-    }
+	int Driver::parse()
+	{
+		scanner->switch_streams(&std::cin, &std::cerr);
+		return parser->parse();
+	}
 
-    int Driver::parse_file (std::string& path)
-    {
+	int Driver::parse_file (const std::string& path)
+	{
 		curr_file = path;
-        std::ifstream s(path.c_str(), std::ifstream::in);
-        scanner->switch_streams(&s, &std::cerr);
+		std::ifstream s(path.c_str(), std::ifstream::in);
+		scanner->switch_streams(&s, &std::cerr);
 
-        int return_code = parser->parse();
+		int return_code = parser->parse();
 
-        s.close();
+		s.close();
 
-        return return_code;
-    }
+		return return_code;
+	}
 }

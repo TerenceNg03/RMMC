@@ -101,29 +101,26 @@ int main(int argc, char* const* argv) {
 #endif
 		input_file = argv[optind];
 	}else{
-		printf("Error: No input file\n");
+		printf("Error33[1;31mErrorError33[0m: No input file\n");
 		return -1;
 	}
 
 	//validate files and pathes
 	if(!filesystem::is_regular_file(filesystem::path(input_file))){
-		printf("Error: Input file not valid\n");
+		printf("Error33[1;31mErrorError33[0m: Input file not valid\n");
 		return -1;
 	}
 	if(use_std && !filesystem::is_directory(filesystem::path(std_path))){
-		printf("Error: Standard library path not valid\n");
+		printf("Error33[1;31mErrorError33[0m: Standard library path not valid\n");
 		return -1;
 	}
 	if(use_import && !filesystem::is_directory(filesystem::path(import_path))){
-		printf("Error: Import path not valid\n");
+		printf("Error33[1;31mErrorError33[0m: Import path not valid\n");
 		return -1;
 	}
 
 	//setup driver
-	rmmc::Driver driver;
-
-	//run parser
-	driver.parse_file(input_file);
+	rmmc::Driver driver(input_file);
 
 	return 0;
 }

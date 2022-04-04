@@ -4,12 +4,14 @@ let compound: auto = {
 	{m, 0.9-8*7},
 	9&6
 };
-let structure: custom_type= "Hello world";
+let export structure: custom_type= "Hello world";
 let char: u8 = 'o' as i8;
-let fp : f32 = 4.0987;
+let export fp : f32 = 4.0987;
 let fp : f32 = -4.0987;
 let fp2 : f64 = .0986;
 let fp3: f32 = 123.;
 let var1: u64 = +987;
+let var1: u64 = 0x389;
+let var1: u64 = 0b1001;
 let var: bool = true;
 let always_false : bool = false;

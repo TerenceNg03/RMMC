@@ -52,11 +52,13 @@ u8 u16 u32 u64 i8 i16 i32 i64 f32 f64
 unknown "unknown character"
 eof "end of file"
 
-%token<std::string> name rawstr rawchar
+%token<std::string> name "identifier"
+rawstr "string"
+rawchar "character"
 
-%token <long> long_
+%token <long> long_ "integer constant"
 
-%token <double> float_
+%token <double> float_ " float constant"
 
 %token
 minus "-"
@@ -131,6 +133,7 @@ STATEMENT:
 declare_statement ";"
 | import_statement ";"
 | type_statement ";"
+| error ";"
 
 /* assign statement */
 declare_statement:
@@ -294,7 +297,7 @@ namespace rmmc
 	void Parser::error(const location& loc, const std::string& m)
 	{
 		std::cout << "line " << loc << ": " << m << "\n";
-
+		driver.is_failed = true;
 		int begin_line = loc.begin.line;
 		int begin_col = loc.begin.column;
 		int end_col = loc.end.column;
@@ -307,7 +310,7 @@ namespace rmmc
 		std::string line;
 		std::getline(file, line);
 		printf("\t");
-		for(size_t i=0; i<line.size(); ++i){
+		for(int i=0; i<(int)line.size(); ++i){
 			if(i == begin_col-1)printf("\033[1;31m");
 			if(i == end_col-1)printf("\033[0m");
 			putchar(line[i]);
