@@ -9,4 +9,4 @@ rmm_types.o: rmm_types.cc
 	${CC} ${FLAGS} -c rmm_types.cc
 
 clean:
-	rm *.o
+	${RM} *.o

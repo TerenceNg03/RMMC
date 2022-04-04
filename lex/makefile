@@ -1,10 +1,5 @@
 .PHONY: clean
 
-YFLAGS = -d -Wno-yacc
-ifeq ($(shell uname -s),Darwin)
-	YFLAGS += -Wcex
-endif
-
 lex.o: scanner.o parser.o driver.o scanner.o
 	
 	${LD} ${LFLAGS} scanner.o parser.o driver.o -o lex.o

@@ -5,6 +5,7 @@ CFLAG = -std=c++17 -Wall
 INCLUDE = -I$(shell pwd)/include
 DEFINE = -Dregister
 FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
+YFLAGS = -d -Wno-yacc
 OBJ_PATH = $(shell pwd)/bin
 
 LD = ld
@@ -17,6 +18,7 @@ RM = -@rm -f
 release: all
 
 debug: CFLAG += -g -DDEBUG=1
+debug: YFLAGS += -Wcex
 debug: all
 
 all: main.o subdir

@@ -7,17 +7,17 @@
 These types are built-int types.
 
 ```rust
-i32 : 32-bit integer
-char/u8 : 8-bit unsigned int
-bool : boolean value
-f32 : 32-bit float point
-f64 : 64-bit float point
+i8 i16 i32 i64: 8/16/32/64-bit integer
+u8 u16 u32 u64: 8/16/32/64-bit unsigned integer
+bool: boolean value
+f32 f64: 32/64-bit float point
 ```
 #### 1.2 Type casting
 
-Use operator **(typename)** to cast. Implicit cast is allowed.
+Use operator **as** to cast. Implicit cast is allowed.
 ```rust
-let a: i32 = 'c';
+let a: i32 = 'c'; #ok
+let b: bool = 9 as bool; #ok
 ```
 
 #### 1.3 Pointer type
@@ -38,13 +38,23 @@ let array2: [i32, ] = {1,2};
 
 #### 1.5 Function type
 
-**(T1, T2)->T3** defines a function type.
+**(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable.
 
 ```rust
 # foo takes an i32 and a char as input and returns a boolean value
 let foo: (i32, char)->bool = <a: i32, b: char; bool>{
 	return a==b;
 }; # assign a function literal to a function named "foo"
+
+# inc can be changed later
+# parameters a is mutable
+var inc: auto = <mut a: i32>{
+	a = a+1;
+	return a;
+}
+
+# mutable parameters does not affect type check
+inc = <a: i32>{ return a; } #ok
 ```
 
 #### 1.6 Custom Types
@@ -197,14 +207,16 @@ let export bar: auto = <void ;void>{
 Keywords 
 
 ```python
-let # declare a variable
+let # declare a immutable variable
+var # declare a mutable variable
+mut # declare a parameter is mutable
 for # not used 
 while # while loop 
 void # void type 
 auto # auto type
 nullptr # Null pointer (zero)
 if else elif # branch control
-i32 u8 char f32 f64 bool #built-int type 
+i8..i64 u8..u64 f32 f64 bool #built-int type 
 true false # boolean values
 import # import modules
 from # specific where to import
@@ -218,21 +230,23 @@ Operators
 
 The same as [C programming language](https://en.cppreference.com/w/c/language/operator_precedence).
 
-| Precedence | Operator | Associativity |  
-| :----: | :---- | :----: |  
+| Precedence | Operator | Associativity |
+| :----: | :---- | :----: |
 | 1 | **::** Scope selector | Left-to-right |
-| 2 | **(  )**	Function call <br> **[  ]** Array subscripting | Left-to-right |  
-| 3 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **(type)**	Cast <br> **\***	Indirection (dereference) <br> **&** Address-of <br> **. ->**	Member access| 	Right-to-left |
-| 4 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
-| 5 | **+ -**	Addition and subtraction | Left-to-right |
-| 6 | **<< >>**	Bitwise left shift and right shift | Left-to-right |
-| 7 | **< <=**	For relational operators < and ≤ respectively <br> **> >=**	For relational operators > and ≥ respectively | Left-to-right |
-| 8 | **== !=**	For relational = and ≠ respectively | Left-to-right |
-| 9 | **&**	Bitwise AND | Left-to-right |
-| 10 | **^**	Bitwise XOR (exclusive or) | Left-to-right |
-| 11 | **\|**	Bitwise OR (inclusive or) | Left-to-right |
-| 12 | **\|\|**	Logical OR | Left-to-right |
-| 13 | **,**	Comma | Left-to-right |
+| 2 | **(  )**	Function call <br> **[  ]** Array subscripting <br> **. ->**	Member access| Left-to-right |
+| 3 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **\***	Indirection (dereference) <br> **&** Address-of| 	Right-to-left |
+| 4 |  **as**	Type cast | Left-to-right | 
+| 5 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
+| 6 | **+ -**	Addition and subtraction | Left-to-right |
+| 7 | **<< >>**	Bitwise left shift and right shift | Left-to-right |
+| 8 | **< <=**	For relational operators < and ≤ respectively <br> **> >=**	For relational operators > and ≥ respectively | Left-to-right |
+| 9 | **== !=**	For relational = and ≠ respectively | Left-to-right |
+| 10 | **&**	Bitwise AND | Left-to-right |
+| 11 | **^**	Bitwise XOR (exclusive or) | Left-to-right |
+| 12 | **\|**	Bitwise OR (inclusive or) | Left-to-right |
+| 13 | **\|\|**	Logical OR | Left-to-right |
+| 14 | **a?b:c** Ternary conditional | Right-to-left |
+| 15 | **,**	Comma | Left-to-right |
 
 
 #### 5.2 Grammar

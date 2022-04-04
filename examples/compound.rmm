@@ -11,7 +11,7 @@ let fun: auto = <p: Point*; void>{
 };
 
 let main: auto = <argc: i32, argv: char**; i32>{
-	let p1: Point;
+	var p1: Point;
 	p1.x = 3;
 	p2.y = 3;
 	let ptr: Point* = &p1;

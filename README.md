@@ -1,7 +1,17 @@
 # 2022-ZJU-Compiler-Team
 Course Project for 2022 ZJU Compiler Construction Principle and Practice 
 
-### RMMC command line options
+## Introduction to RMM/R-\- (Rust Minus Minus)
+
+RMM is a rust-like but has much fewer restrictions.
+ - No borrow checker, ownership, lifetime
+ - Allow implicit type cast
+ - Allow raw pointer operation
+ - Functional programming: All function is treated as a variable.<br> Lambda expressions supported natively.
+
+Full documentation is available [here](standard.md).
+
+## RMMC command line options
 ---
 
 | Short form | Long from | Require argument |Description |
@@ -10,6 +20,12 @@ Course Project for 2022 ZJU Compiler Construction Principle and Practice
 || --genAST | optional | Output AST in xml format.<br>Default filename is AST.xml. |
 |  | --stdpath | Yes | Standard library path (Enable stdlib) |
 | -I | --import | Yes | Specify modules search path |
+
+## Environment and Support Packages
+
+ - **Architecture**: RMMC standard library only supports **[RISC-V](https://riscv.org/)**. However, it should compile on other architecture (Darwin or Linux). We recommend using a docker. See [Docker setup](#docker-environment-installation).
+ - **Flex/Bison**: Recommended **Bison > 3.8** and **flex > 2.6**. If you are using a old version of bison, you may need to remove **-Wcex** flex for debug build.
+ - **Google Test**: Google test is used for unit test only. Install only if you need to run tests. See [Google Test installation](#google-test-framework-installation).
 
 ### Google Test Framework Installation
 ---
@@ -29,7 +45,7 @@ cd /usr/src/gtest
 cmake CMakeLists.txt
 ```
 
-### (Updated) Important: Docker Environment installation
+### Docker Environment installation
 ----
 ### 1. Clone this Github Repository
 Clone this Repo into your local filesystem : 
