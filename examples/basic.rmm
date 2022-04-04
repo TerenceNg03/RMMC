@@ -1,0 +1,17 @@
+let fun: auto = <a: i32, b:i32; i32>{
+	a1 = a1*b1;
+	a1 = a1/2;
+	return a1-b1;
+};
+
+let main: auto = <argc: i32, argv: char**; i32>{
+	let a: i32 = 9;
+	let b: i32 = 7;
+	let arr: [char, 9] = {0};
+	let i: i32 = 0;
+	while(i<9){
+		arr[i] = fun(9,i);
+		i = i+1;
+	};
+	return 0;
+};
