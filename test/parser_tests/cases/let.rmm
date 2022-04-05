@@ -1,0 +1,20 @@
+let i: i8 = 9;
+let compound: auto = {
+    1,8,9,{8,9},
+	{m, 0.9-8*7},
+	9&6
+};
+let export structure: custom_type= "Hello world";
+let char: u8 = 'o' as i8;
+let char: *u8 = nullptr;
+var export fp : f32 = 4.0987;
+var fp : f32 = -4.0987;
+let fp2 : f64 = .0986;
+let fp3: f32 = 123.;
+var var1: u64 = +987;
+let var2: u64 = 0x389;
+let var3: u64 = 0b1001;
+let var4: bool = true;
+var var5: i32;
+var export var6: bool;
+let always_false : bool = false;

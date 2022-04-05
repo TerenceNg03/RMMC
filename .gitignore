@@ -33,3 +33,9 @@
 
 # MacOS System Files
 .DS_Store
+
+# log files
+*.log
+
+# unit test
+*.xml

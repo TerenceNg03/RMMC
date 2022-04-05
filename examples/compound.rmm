@@ -1,0 +1,22 @@
+from std::io import putI32, putchar;
+use std::io;
+type Point comp{
+	x: i32;
+	y: i32;
+};
+
+let fun: auto = <p: Point*; void>{
+	p->x = p->x + 1;
+	p->y = p->y + 2;
+};
+
+let main: auto = <argc: i32, argv: char**; i32>{
+	var p1: Point;
+	p1.x = 3;
+	p2.y = 3;
+	let ptr: Point* = &p1;
+	fun(ptr);
+	putI32(ptr->x);
+	putchar('\n');
+	putI32(ptr->y);
+};

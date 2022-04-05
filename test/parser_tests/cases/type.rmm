@@ -1,0 +1,42 @@
+# type alias
+type int i32;
+
+# complicated type
+var b: **(mut [**int, len], void)->*&bool;
+var a: [&([i32, 9],mut bool)->*bool, 9];
+var c: *(i32, comp {
+			a: i32;
+			b: u8;
+			c: [**f32, 9];
+		})->&[i8, 7] = nullptr;
+
+# compound type
+type empty comp {};
+type my_struct comp {
+	a: i32;
+	b: **u8;
+	c: (**int)->void;
+};
+
+type my_struct2 comp {
+	a: &mystruct;
+	b: **u8;
+	c: (**int)->void;
+	d: comp random_name{
+		a: i32;
+		b: &mystruct;
+		c: [*&int, 9];
+   };
+};
+
+type my_struct3 comp {
+	a: &mystruct;
+	b: **u8;
+	c: (**int)->void;
+	d: comp {
+		a: i32;
+		b: &mystruct;
+		c: my_struct2::random_name;
+   };
+};
+
