@@ -7,6 +7,7 @@ DEFINE = -Dregister
 FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
 YFLAGS = -d -Wno-yacc
 OBJ_PATH = $(shell pwd)/bin
+ROOT_DIR = $(shell pwd)
 
 LD = ld
 LFLAGS = -r
@@ -46,5 +47,6 @@ clean:
 	${MAKE} -C test clean
 	${RM} *.o
 	${RM} *.log
+	${RM} *.xml
 	${RM} rmmc.out
 	${RM} -r bin/

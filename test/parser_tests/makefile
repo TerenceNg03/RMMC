@@ -1,7 +1,7 @@
 .PHONY: run clean
 
 run: test.out
-	./test.out
+	./test.out --gtest_output=xml:${ROOT_DIR}/parser.xml
 
 test.out: test.o ${OBJ_PATH}/*.o
 	${CC} ${FLAGS} ${GFLAGS} test.o ${OBJ_PATH}/*.o -o test.out ${GLFLAGS}
