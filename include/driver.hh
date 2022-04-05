@@ -16,7 +16,8 @@ namespace rmmc
 	{
 	public:
 		Driver(const std::string& filename);
-		bool failed() const;
+		unsigned int get_error_count() const;
+		unsigned int get_warning_count() const;
 		~Driver();
 
 	private:
@@ -27,7 +28,8 @@ namespace rmmc
 		Parser*	   parser;
 		rmmc::location*	 location;
 		std::string curr_file;
-		bool is_failed;
+		unsigned int error_count;
+		unsigned int warning_count;
 
 
 		/// Allows Parser and Scanner to access private attributes

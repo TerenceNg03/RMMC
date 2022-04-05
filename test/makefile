@@ -2,9 +2,11 @@ export
 GFLAGS = -Igtest/include 
 GLFLAGS = -lgtest -lpthread
 
-.PHONY: all clean
+.PHONY: all clean parser 
 
-all:
+all: parser
+
+parser:
 	${MAKE} -C parser_tests
 
 clean:

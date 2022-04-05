@@ -13,7 +13,7 @@ LFLAGS = -r
 
 RM = -@rm -f
 
-.PHONY: subdir all run debug release test
+.PHONY: subdir all run debug release test test-parser
 
 release: all
 
@@ -29,6 +29,9 @@ run: all
 
 test: all
 	${MAKE} -C test
+
+test-parser: all
+	${MAKE} -C test parser
 
 subdir:
 	${MAKE} -C lex lex.o

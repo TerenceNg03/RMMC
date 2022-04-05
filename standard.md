@@ -1,5 +1,9 @@
 # Rust Minus Minus (R-\-) Standard
 
+Todo:
+ - [  ] **unique** keyword for heap memory
+ - [  ] **move(  )** keyword for rebind identifier
+
 ## 1. Types
 
 #### 1.1 Built-in types
@@ -20,12 +24,15 @@ let a: i32 = 'c'; #ok
 let b: bool = 9 as bool; #ok
 ```
 
-#### 1.3 Pointer type
+#### 1.3 Pointer and Reference type
 
-**\*** is used to mark a pointer type;
+**\*** is used to mark a pointer type.  **&** is used to create a reference.
 ```rust
 let a: i32 = 1;
-let b: i32* = &a;
+let b: i32* = &a; # warning
+let c: &i32 = a; # ok
+var d: i32 = 1;
+let e: i32* = &d; # ok
 ```
 #### 1.4 Array type
 
@@ -38,7 +45,7 @@ let array2: [i32, ] = {1,2};
 
 #### 1.5 Function type
 
-**(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable.
+**(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable. Mutable variable does not affect type-checking generally. But it affects function parameters' type-checking to prevent immutable refernce being changed.
 
 ```rust
 # foo takes an i32 and a char as input and returns a boolean value
@@ -48,13 +55,12 @@ let foo: (i32, char)->bool = <a: i32, b: char; bool>{
 
 # inc can be changed later
 # parameters a is mutable
-var inc: auto = <mut a: i32>{
+var inc: (mut i32)->i32 = <mut a: i32; i32>{
 	a = a+1;
 	return a;
 }
 
-# mutable parameters does not affect type check
-inc = <a: i32>{ return a; } #ok
+inc = <a: i32; i32>{ return a; } # compile error
 ```
 
 #### 1.6 Custom Types
@@ -103,12 +109,29 @@ while (i>0){
 };
 ```
 
+#### 2.4 Jump 
+
+**break** **continue** **return** are used to control jump in program.
+
+```rust
+var i: i32 = 0;
+while(1){
+	if(i>10){break;};
+	i = i+1;
+	if(i>3){continue;}
+	else {i = i+2;};
+};
+
+let to_unsigned: auto = <m: i32; u32>{
+	return m as u32;
+};
+```
+
 ## 3. Functions and variables
 
 #### 3.1 Variable declaration
 
-All variables are **mutable**.  
-**let** keyword is used for declaration. Type is **not optional**.  
+All variables are **immutable** if declared by **let**. Use **var** to declare mutable ones. Type is **not optional**.  
 "**;**" must be added at the end.
 
 ```rust 
@@ -120,7 +143,7 @@ let d = 32; # Illegal
 
 #### 3.2 Function declaration
 
-Functions in Rust Minus Minus is treated as a normal data type. Thus it also use **let** keyword to define.
+Functions in Rust Minus Minus is treated as a normal data type. Thus it also use **let** or **var** keyword to define. **Changing itself in function body is undefined behavior.** Also See [1.5 Function Type](#1.5-function-type).
 
 ```rust 
 # foo takes an i32 and a char as input and returns a boolean value
@@ -143,19 +166,19 @@ let bar: auto = <ptr1: char*, ptr2: char*; bool>{
 
 ```rust 
 mod cat {
-	let meow: ()->void = <void;void>{};
+	let meow: (void)->void = <void;void>{};
 };
 
 let main: auto = <;i32>{
 	meow(); # error
 	cat::meow(); # ok
 
-	<;>{
+	<void;void>{
 		let meow: auto = cat::meow();
 		meow(); # ok
 	};
 
-	<;>{
+	<void;void>{
 		use cat;
 		meow(); # ok
 	};
@@ -249,9 +272,16 @@ The same as [C programming language](https://en.cppreference.com/w/c/language/op
 | 15 | **,**	Comma | Left-to-right |
 
 
-#### 5.2 Grammar
+#### 5.2  Mutability
 
-Every statement must be terminated by a "**;**".
+Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is possible (and defined behavior) to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
+
+```rust
+let a: i32; # compile error
+let b: i32 = 0; # good
+let c: *i32 = &b; # warning: trying to get the address of immutable variable
+let d: &i32 = b; # good
+```
 
 #### 5.3 Comments
 
@@ -263,10 +293,10 @@ Every statement must be terminated by a "**;**".
 
 #### 5.4 Main function
 
-A function called as "**main**" and has type of "**(i32, char\**)->i32**" is required as the entry point for the program.
+A function called as "**main**" is required as the entry point for the program. Main function's return type must be either **void** or **i32**. Its parameter list must either **i32, \*\*char** (can be immutable) or **void**. Main itself must be immutable.
 
 ```rust
-let main: auto = <argc: i32, argv: char**; i32>{
+let main: auto = <argc: i32, argv: **char; i32>{
 	return 0;
-}
+};
 ```

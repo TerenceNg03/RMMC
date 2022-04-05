@@ -24,8 +24,14 @@ using namespace rmmc;
 %%
 
 let  return Parser::make_let(loc);
+var  return Parser::make_var(loc);
+mut  return Parser::make_mut(loc);
 for return Parser::make_for_(loc);
 as return Parser::make_as(loc);
+use return Parser::make_use(loc);
+break return Parser::make_break_(loc);
+contiune return Parser::make_continue_(loc);
+return  return Parser::make_return_(loc);
 while return Parser::make_while_(loc);
 void return Parser::make_void_(loc);
 auto return Parser::make_auto_(loc);
@@ -98,7 +104,7 @@ comp return Parser::make_comp(loc);
 "|" return Parser::make_bitor_(loc);
 "^" return Parser::make_bitxor_(loc);
 "~" return Parser::make_bitnot_(loc);
-"#"[^\n]*\n /* comments */
+"#"[^\n]*\n driver.location->lines();driver.location->step();/* comments */
 ";" return Parser::make_semicolon(loc);
 
 "&&" return Parser::make_and_(loc);

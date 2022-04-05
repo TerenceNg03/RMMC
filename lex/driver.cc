@@ -11,14 +11,18 @@ namespace rmmc
 		parser  = new Parser(*this);
 		scanner = new Scanner();
 		location = new class location();
-		is_failed = false;
+		error_count = 0;
+		warning_count = 0;
 		parse_file(filename);
 	}
 
-	bool Driver::failed() const{
-		return is_failed;
+	unsigned int Driver::get_error_count() const{
+		return error_count;
 	}
 
+	unsigned int Driver::get_warning_count() const{
+		return warning_count;
+	}
 
 	Driver::~Driver()
 	{
