@@ -4,39 +4,49 @@
 
 using namespace std;
 
-namespace MyParser 
+namespace rmmc 
 {
-    Driver::Driver()
-    {
-        parser  = new Parser(*this);
-        scanner = new Scanner();
-        location = new class location();
-    }
+	Driver::Driver(const std::string& filename)
+	{
+		parser  = new Parser(*this);
+		scanner = new Scanner();
+		location = new class location();
+		error_count = 0;
+		warning_count = 0;
+		parse_file(filename);
+	}
 
+	unsigned int Driver::get_error_count() const{
+		return error_count;
+	}
 
-    Driver::~Driver()
-    {
-        delete parser;
-        delete scanner;
-        delete location;
-    }
+	unsigned int Driver::get_warning_count() const{
+		return warning_count;
+	}
 
-    int Driver::parse()
-    {
-        scanner->switch_streams(&std::cin, &std::cerr);
-        parser->parse();
-        return 0;
-    }
+	Driver::~Driver()
+	{
+		delete parser;
+		delete scanner;
+		delete location;
+	}
 
-    int Driver::parse_file (std::string& path)
-    {
-        std::ifstream s(path.c_str(), std::ifstream::in);
-        scanner->switch_streams(&s, &std::cerr);
+	int Driver::parse()
+	{
+		scanner->switch_streams(&std::cin, &std::cerr);
+		return parser->parse();
+	}
 
-        parser->parse();
+	int Driver::parse_file (const std::string& path)
+	{
+		curr_file = path;
+		std::ifstream s(path.c_str(), std::ifstream::in);
+		scanner->switch_streams(&s, &std::cerr);
 
-        s.close();
+		int return_code = parser->parse();
 
-        return 0;
-    }
+		s.close();
+
+		return return_code;
+	}
 }

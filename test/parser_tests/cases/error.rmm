@@ -1,0 +1,40 @@
+let i = tmp;
+import filename as p;
+let p: s = 0X98PP;
+let r::s : i8 = 0B0109; 
+let va: i32;
+var va: [u8, ];
+var va: auto;
+let va: [u8, ];
+let va: auto;
+
+# 10th error case
+# not allow Qualified name in comp
+type a comp{ std::a: i32; };
+
+# 11th error case
+# mod not allowed in function body
+let a: auto = <void; void>{
+	mod cat{};
+};
+
+# 12th & 13th & 14th error case
+# Not allowed empty parameter or return type
+
+let a: auto = <void; >{};
+let a: auto = <;void>{};
+let a: auto = <;>{};
+
+# 15 - 18 error case
+# if related
+
+let a: auto = <void; void>{
+	if(1)a=9;
+};
+
+let a: auto = <void; void>{
+	var a: i32;
+	if(1){a=9;}
+	else a = 8;
+};
+
