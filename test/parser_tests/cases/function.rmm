@@ -36,12 +36,10 @@ let main: auto = <argc: i32, argv: **char; i32>{
 var a: auto = <void ;i32>{
 	meow(); # error
 	cat::meow(); # ok
-
 	<void;void>{
 		let meow: auto = cat::meow();
 		meow(); # ok
 	};
-
 	<void;void>{
 		use cat;
 		meow(); # ok

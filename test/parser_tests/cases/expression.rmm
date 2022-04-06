@@ -1,10 +1,18 @@
 let a: i8 = 9+8/5*7 - 4%5;
+
 let a: i8 = 9>>name + (8%r), 9+2<<m, p;
+
 let a: i8 = (i==2)? 5: -i;
+
 let a: i8 = a=b=c=9;
+
 let a: i8 = ( 9 || t-2 ) ? _ != 3 : (7|0 && p);
+
 let a: i8 = 3^u + o&8;
+
 let a: i8 = a as (i32, int_t)->bool + p[7] + *(p+2);
+
 let a: i8 = ptr->member(9, tmp);
+
 let a: i8 = list.size + vector.size() - 3.4;
 
