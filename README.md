@@ -1,22 +1,21 @@
-# 2022-ZJU-Compiler-Team
-Course Project for 2022 ZJU Compiler Construction Principle and Practice 
+# RMMC - Rust Minus Minus Compiler
 
-[![Unit Test badge](https://github.com/TerenceNg03/2022-ZJU-Compiler-Team/actions/workflows/AutoTest.yml/badge.svg)](https://github.com/TerenceNg03/2022-ZJU-Compiler-Team/actions/workflows/AutoTest.yml)
+[![Unit Test badge](https://github.com/TerenceNg03/RMMC/actions/workflows/AutoTest.yml/badge.svg)](https://github.com/TerenceNg03/RMMC/actions/workflows/AutoTest.yml)
 ![Ubuntu badge](https://badgen.net/badge/icon/Ubuntu?icon=terminal&label)
 ![macOS badge](https://badgen.net/badge/icon/macOS?icon=apple&label)
 ![RISC_V](https://badgen.net/badge/icon/RISC-V/purple?icon=atom&label)
-![Google Test](https://badgen.net/badge/icon/Google%20Test/cyan?icon=chrome&label)
-![docker](https://badgen.net/badge/icon/docker/cyan?icon=docker&label)
-
-
 
 ## Introduction to RMM/R-\- (Rust Minus Minus)
 
+RMM is an **intuitive**, **safe**, **functional** programming language.
+
 RMM is a rust-like but has much fewer restrictions.
- - No borrow checker, ownership, lifetime
- - Allow implicit type cast
- - Allow raw pointer operation
- - Functional programming: All function is treated as a variable.<br> Lambda expressions supported natively.
+ - Borrow checker only checks for life time.
+ - Allow implicit type cast.
+ - Allow raw pointer operation (No safety check for raw pointers).
+ - Functional programming: All function is treated as a variable.
+ - Implicit return is not allowed
+ - Auto memory management without Garbage collection.
 
 Full documentation is available [here](standard.md).
 
