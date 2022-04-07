@@ -137,33 +137,6 @@ namespace rmmc
         current_line = "";
     }
 
-    size_t Scanner::LexerInput(char* buf, size_t max_size) {
-        size_t avail = current_line_len - current_line_sent;
-        if (!avail) {
-            current_line_sent = 0;
-            getline(yyin,current_line);
-            avail = current_line.length();
-            if(yyin.bad()){
-                avail = 0;
-                return -1;
-            }else{
-                if(!yyin.eof()){
-                    current_line+='\n';
-                    avail++;
-                }
-            }
-            current_line_len = avail;
-        }
-        if (avail > max_size) avail = max_size;
-        memcpy(buf, current_line.c_str() + current_line_sent, avail);
-
-        current_line_sent += avail;
-        if (!avail) reset_current_col();
-        return avail;
-    }
-
-
-
 }
 
 #ifdef yylex

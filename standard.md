@@ -43,6 +43,21 @@ let string: [char, ] = "Hello, world.";
 let array2: [i32, ] = {1,2};
 ```
 
+##### 1.4.1 Variable length array
+
+**[typename, variable]** is used as declare a variable length array. Variable length array is treated as an incomplete type like **auto**. You can not pass variable length array to function or nest it into other types.
+
+```rust 
+let i: i32 = 0;
+var vla1: [i32, i];
+var val2: [[i32, i], 9]; # compile error
+type arr  [i32, i]; # compile error
+type my_struct comp{
+	a: [i32, i]; # compile error
+};
+let fun: auto = <a: [i32,i]; void>{}; # compile error
+```
+
 #### 1.5 Function type
 
 **(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable. Mutable variable does not affect type-checking generally. But it affects function parameters' type-checking to prevent immutable refernce being changed.

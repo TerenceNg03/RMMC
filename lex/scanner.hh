@@ -32,11 +32,7 @@ namespace rmmc
             ssize_t current_line_len = 0;
             ssize_t current_line_sent = 0;
 
-            virtual size_t LexerInput( char* buf, size_t max_size );
             void reset_current_col();
-            const char* logfile = "./history.log";
-            FILE* log;
-
     };
 }
 

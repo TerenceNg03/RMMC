@@ -181,27 +181,22 @@ let opt_export name ":" typename_incomplete init_statement
 | let opt_export name ":" typename
 {
 	error(*(driver.location), "Immutable variable must have an initial value");
-	YYERROR;
 }
 | let opt_export name ":" typename_incomplete
 {
 	error(*(driver.location), "Immutable variable must have an initial value");
-	YYERROR;
 }
 | var opt_export name ":" typename_incomplete
 {
 	error(*(driver.location), "Incomplete type must have an initial value");
-	YYERROR;
 }
 | let opt_export name
 {
 	error(*(driver.location), "Type must be specified");
-	YYERROR;
 }
 | let opt_export name init_statement
 {
 	error(*(driver.location), "Type must be specified");
-	YYERROR;
 }
 
 
@@ -246,10 +241,10 @@ init_list:
 typename_incomplete:
 "[" typename "," "]"
 | auto_
+| "[" typename "," var_name "]"
 
 typename:
 "[" typename "," long_ "]"
-| "[" typename "," var_name "]"
 | "*" typename
 | "&" typename
 | "(" typenamelist ")" "->" typename
@@ -271,7 +266,6 @@ name ":" typename ";"
 | name "::" var_name ":" typename ";"
 {
 	error(*(driver.location), "Qualified name not allowed here");
-	YYERROR;
 }
 
 typenamelist:
@@ -406,7 +400,6 @@ function_literal:
 | "<" ";" typename ">" "{" function_body "}"
 {
 	error(*(driver.location), "Parameter list cannot be empty. Use 'void' instead.");
-	YYERROR;
 }
 
 parameters_list:
@@ -438,19 +431,17 @@ if_statement
 
 if_statement: 
 if_ "(" exp ")" "{" function_body "}" elif_statement else_statement
-| if_ "(" exp ")" exp
+| if_ "(" exp ")" exp elif_statement else_statement
 {
 	error(*(driver.location), "if statement must be in a code block");
-	YYERROR;
 }
 
 elif_statement:
 /* empty */
 | elif_statement elif "(" exp ")"  "{" function_body "}"
-| elif_statement elif exp
+| elif_statement elif "(" exp ")" exp
 {
 	error(*(driver.location), "elif statement must be in a code block");
-	YYERROR;
 }
 
 else_statement:
@@ -459,7 +450,6 @@ else_statement:
 | else_ exp
 {
 	error(*(driver.location), "else statement must be in a code block");
-	YYERROR;
 }
 
 while_statement:

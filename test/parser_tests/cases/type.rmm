@@ -2,8 +2,10 @@
 type int i32;
 
 # complicated type
-var b: **(mut [**int, len], void)->*&bool;
+var b: **(mut [**int, 6], void)->*&bool;
+
 var a: [&([i32, 9],mut bool)->*bool, 9];
+
 var c: *(i32, comp {
 			a: i32;
 			b: u8;
@@ -12,6 +14,7 @@ var c: *(i32, comp {
 
 # compound type
 type empty comp {};
+
 type my_struct comp {
 	a: i32;
 	b: **u8;
