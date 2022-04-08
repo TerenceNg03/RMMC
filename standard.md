@@ -75,17 +75,18 @@ inc = <a: i32; i32>{ return a; } # compile error
 
 #### 1.6 Custom Types
 
-**type** keyword create an alias name for a data type. **comp** (short for **compound**) is used to compose a custom data type.
+**comp** (short for **compound**) is used to compose a custom data type. Another custom type is **union**. See [Union Section](#7.-union-and-match) for details.
 ```rust
-type int i32; # alias int for i32
 comp my_comp {
 	ref a: i32;
 	unique b: bool;
 	fun: (i32, u32)->bool;
 };
 
-# make the alias exportable
-type export int i32;
+# declare as exportable
+export comp my_comp2 {
+	ref a: i32;	
+};
 
 # initialization
 let i: i32 = 1;
@@ -97,6 +98,19 @@ let a: my_comp = my_comp {
 	};
 };
 ```
+
+#### 1.7 Type Alias
+
+**type** keyword is used for make an alias for a known type.
+
+```rust 
+type int i32; # alias int for i32
+
+# make the alias exportable
+type export int i32;
+```
+
+
 
 
 ## 2. Flow Control 
@@ -384,11 +398,15 @@ let d: &i32 = b; # good
 union my_union {
 	unique a: i23;
 	b: i32;
-}
+};
+
+export union my_union2{
+	a: i32;
+};
 
 let main: auto = <void; void>{
 	var o: my_union; # compile error, union must be initialized
-	var o: my_union = {a: 32}; # alloc memory for a
+	var o: my_union = my_union {a: 32}; # alloc memory for a
 	var i: i32;
 	var ref r: i32;
 	match o {
