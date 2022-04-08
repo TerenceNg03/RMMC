@@ -9,12 +9,14 @@
 
 RMM is an **intuitive**, **safe**, **functional** programming language.
 
-RMM is a rust-like but has much fewer restrictions.
- - Borrow checker only checks for life time.
- - Allow implicit type cast.
- - Allow raw pointer operation (No safety check for raw pointers).
+RMM is a rust-like language but has much fewer restrictions.
+ - Reference validator ensure references are always valid.
+ - No borrow concept. No check for data race. (Easy linked list)
+ - Move of ownership must be explicit.
+ - Allow implicit type cast. (Can be disabled by compiler option)
+ - Allow raw pointer operation but it is not necessary and not safe.
  - Functional programming: All function is treated as a variable.
- - Implicit return is not allowed
+ - No more implicit return
  - Auto memory management without Garbage collection.
 
 Full documentation is available [here](standard.md).

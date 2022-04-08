@@ -1,9 +1,5 @@
 # Rust Minus Minus (R-\-) Standard
 
-Todo:
- - [  ] **unique** keyword for heap memory
- - [  ] **move(  )** keyword for rebind identifier
-
 ## 1. Types
 
 #### 1.1 Built-in types
@@ -316,6 +312,15 @@ FUNCTION get_lifetime(var)BEGIN
 		END
 	END
 END
+
+FUNCTION validate_ref(var, r)BEGIN
+	IF(get_lifetime(var) >= get_lifetime(r))BEGIN
+		RETURN true
+	END
+	ELSE BEGIN
+		RETURN false
+	END
+END
 ```
 
 #### 5.4 Transfer of ownership
@@ -343,9 +348,11 @@ The compiler will check all execution path (even for `if(false)` case) to make s
 let create_string: auto = <void; unique [u8, 9]>{
 	let unique string: [u8, 9] = "Hello";
 	return string; # compile error can not copy unique value
-	return move unique; # ok
+	return move string; # ok
 };
 ```
+
+**Note: If unique failed to alloc memory, it will terminate the program. If you need to prevent such behaviors, you can use `std::mem::alloc` to manually alloc memory. Then free it with `std::mem::free`. This should only be necessary for some embedding systems whose memory is extremely limited.**
 
 ## 6. Mutability
 
@@ -385,35 +392,11 @@ let main: auto = <void; void>{
 }
 ```
 
-## 8. Keywords, Grammar and trivial stuffs
+## 8. Trivial stuffs
 
-#### 8.1 A list of keywords and operators
+#### 8.1 Operators Precedence
 
-Keywords 
-
-```python
-let # declare a immutable variable
-var # declare a mutable variable
-mut # declare a parameter is mutable
-for # not used 
-while # while loop 
-void # void type 
-auto # auto type
-nullptr # Null pointer (zero)
-if else elif # branch control
-i8..i64 u8..u64 f32 f64 bool #built-int type 
-true false # boolean values
-import # import modules
-from # specific where to import
-export # specific what to export
-mod # namespace specifier
-type # type name alias
-comp # compound type
-```
-
-Operators  
-
-The same as [C programming language](https://en.cppreference.com/w/c/language/operator_precedence).
+Almost the same as [C programming language](https://en.cppreference.com/w/c/language/operator_precedence).
 
 | Precedence | Operator | Associativity |
 | :----: | :---- | :----: |
@@ -433,7 +416,7 @@ The same as [C programming language](https://en.cppreference.com/w/c/language/op
 | 14 | **a?b:c** Ternary conditional | Right-to-left |
 | 15 | **,**	Comma | Left-to-right |
 
-#### 8.3 Comments
+#### 8.2 Comments
 
 **#** is used to mark a single line comment.
 
@@ -441,7 +424,7 @@ The same as [C programming language](https://en.cppreference.com/w/c/language/op
 # This is a line of comment. 
 ```
 
-#### 8.4 Main function
+#### 8.3 Main function
 
 A function called as "**main**" is required as the entry point for the program. Main function's return type must be either **void** or **i32**. Its parameter list must either **i32, \*\*char** (can be immutable) or **void**. Main itself must be immutable.
 
