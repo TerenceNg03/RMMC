@@ -237,10 +237,157 @@ let export bar: auto = <void ;void>{
 };
 ```
 
+## 5. Lifetime, Reference and Auto memory managment
 
-## 5. Keywords, Grammar and trivial stuffs
+#### 5.1 Lifetime and Reference
 
-#### 5.1 A list of keywords and operators
+The lifetime of a variable is defined as the scope where the variable is available.See [Rust's definition of lifetime](https://doc.rust-lang.org/rust-by-example/scope/lifetime.html).
+
+In RMM, keyword **ref** is used to indicate that a variable is a reference. Mutable reference can only reference a mutable variable. A reference is like a pointer but it is **guaranteed to be always valid**.
+
+```rust 
+let a: i32 = 0;
+let ref b: i32 = a; # ok
+var ref c: i32 = a; # compile error
+```
+
+Reference is **a trait of variable**. That means it is not a type nor does it affect type checking. If a variable has this trait, it has some limitations.
+
+ - Can not be moved as it does not has the ownership.
+ - Return a reference will return the value. This is because reference is a variable trait and you can not return a variable.
+ - Can not reference a immutable variable if the reference is mutable.
+#### 5.2 The Reference Validator
+
+To make sure every reference is valid. RMM use a reference validator that checks variable lifetime. A reference can only reference a variable that has a lifetime no shorter than the reference it self.
+
+```rust 
+# Invalid in rust
+let main: auto = <void; i32>{
+	var i: i32 = a;
+	let ref r1: auto = a;
+	var ref r2: auto = a;
+}
+
+```
+
+Reference can not be referenced. Instead, assign a reference variable to a reference variable just duplicate itself.
+
+```rust 
+let inc: auto = <mut ref a: i32; void>{
+	a = a+1;
+};
+
+# assign a to inc's parameter
+let dummy: auto = <mut ref a: i32; void>{
+	inc(a);
+
+# Recursion
+let recursive_fun: auto = <mut ref a: i32; void>{
+	if(a>0){
+		recursive_fun(a-1);
+	}else{
+		return a;
+	};
+};
+
+let main: auto = <void; void>{
+	var a: i32 = 9;	
+	dummy(a);
+	recursive_fun(a);
+};
+```
+#### 5.3 Reference Validator's Algorithm
+
+```
+CHECKED_FUNCTION = {}
+
+FUNCTION get_lifetime(var)BEGIN
+	FOR all assgin as pass BEGIN
+		IF(assigned to another reference r)BEGIN
+			var.lifetime += r.lifetime
+		END
+		IF(passed to a function f as parameter para)BEGIN
+			// Detect recursive call
+			IF( f.para in CHECKED_FUNCTION )BREAK
+			ELSE BEGIN
+				ADD f.para to CHECKED_FUNCTION
+				var.lifetime += get_lifetime(f.para)
+			END
+		END
+	END
+END
+```
+
+#### 5.4 Transfer of ownership
+
+**move** keyword is used to transfer ownership. Once a variable is moved, it can not be used again. What **move** does is that it rebind the value to another variable. Thus **move** is just a renaming (if move to another scope copy would be applied) and have zero overhead (given not moved to another scope).
+
+```rust 
+let main: auto = <void; void>{
+	let a: i32 = 9;
+	var b:i32;
+	if(false){
+		b = move a;
+	};
+	a = a+1; # compile error
+};
+```
+
+The compiler will check all execution path (even for `if(false)` case) to make sure a variable can not be used once moved.
+
+#### 5.5 Auto memory management
+
+**unique** keyword is used to alloc memory on heap. **unique** variable can not be copied to another **unique** variable. Assign to a normal variable will copy the value. To transfer the ownership, use keyword **move**. Once the lifetime of a unique variable ends, its memory is freed.
+
+```rust
+let create_string: auto = <void; unique [u8, 9]>{
+	let unique string: [u8, 9] = "Hello";
+	return string; # compile error can not copy unique value
+	return move unique; # ok
+};
+```
+
+## 6. Mutability
+
+Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is possible (and defined behavior) to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
+
+```rust
+let a: i32; # compile error
+let b: i32 = 0; # good
+let c: *i32 = &b; # warning: trying to get the address of immutable variable
+let d: &i32 = b; # good
+```
+
+## 7. Union and Match
+
+**union** and **match** keywords are used to create a union. A union is **internally tagged** to prevent undefined behavior. A union's member can only be accessed by **match** keyword.
+
+```rust 
+type my_union union {
+	unique a: i23;
+	b: i32;
+}
+
+let main: auto = <void; void>{
+	var o: my_union; # compile error, union must be initialized
+	var o: my_union = {a: 32}; # alloc memory for a
+	var i: i32;
+	var ref r: i32;
+	match o {
+		a: {
+			i = b; # compile error, b not valid in this scope
+			i = a; # ok 
+			r = a; # compile error can not reference a union member
+		};
+		b: {}; # can be ignored
+	};
+	o.b = 1; # union switch to b, a's memory is freed
+}
+```
+
+## 8. Keywords, Grammar and trivial stuffs
+
+#### 8.1 A list of keywords and operators
 
 Keywords 
 
@@ -286,19 +433,7 @@ The same as [C programming language](https://en.cppreference.com/w/c/language/op
 | 14 | **a?b:c** Ternary conditional | Right-to-left |
 | 15 | **,**	Comma | Left-to-right |
 
-
-#### 5.2  Mutability
-
-Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is possible (and defined behavior) to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
-
-```rust
-let a: i32; # compile error
-let b: i32 = 0; # good
-let c: *i32 = &b; # warning: trying to get the address of immutable variable
-let d: &i32 = b; # good
-```
-
-#### 5.3 Comments
+#### 8.3 Comments
 
 **#** is used to mark a single line comment.
 
@@ -306,7 +441,7 @@ let d: &i32 = b; # good
 # This is a line of comment. 
 ```
 
-#### 5.4 Main function
+#### 8.4 Main function
 
 A function called as "**main**" is required as the entry point for the program. Main function's return type must be either **void** or **i32**. Its parameter list must either **i32, \*\*char** (can be immutable) or **void**. Main itself must be immutable.
 
