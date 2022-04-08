@@ -20,13 +20,12 @@ let a: i32 = 'c'; #ok
 let b: bool = 9 as bool; #ok
 ```
 
-#### 1.3 Pointer and Reference type
+#### 1.3 Pointer type
 
 **\*** is used to mark a pointer type.  **&** is used to create a reference.
 ```rust
 let a: i32 = 1;
 let b: i32* = &a; # warning
-let c: &i32 = a; # ok
 var d: i32 = 1;
 let e: i32* = &d; # ok
 ```
@@ -56,7 +55,7 @@ let fun: auto = <a: [i32,i]; void>{}; # compile error
 
 #### 1.5 Function type
 
-**(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable. Mutable variable does not affect type-checking generally. But it affects function parameters' type-checking to prevent immutable refernce being changed.
+**(T1, T2)->T3** defines a function type. Function parameters are default to be **immutable**. Use **mut** keyword to mark them as mutable. Since function parameters are variables, they also have variable traits. Allowed traits are **ref**, **mut** and **unique**.
 
 ```rust
 # foo takes an i32 and a char as input and returns a boolean value
@@ -79,14 +78,24 @@ inc = <a: i32; i32>{ return a; } # compile error
 **type** keyword create an alias name for a data type. **comp** (short for **compound**) is used to compose a custom data type.
 ```rust
 type int i32; # alias int for i32
-type type_name comp {
-	a: i32;
-	b: bool;
+comp my_comp {
+	ref a: i32;
+	unique b: bool;
 	fun: (i32, u32)->bool;
 };
 
 # make the alias exportable
 type export int i32;
+
+# initialization
+let i: i32 = 1;
+let a: my_comp = my_comp {
+	a = i;
+	b = true;
+	fun = <a: i32, b: u32; bool>{
+		return a == b as i32;
+	};
+};
 ```
 
 
@@ -152,6 +161,8 @@ let c: auto = 'c'; # use auto keyword
 let d = 32; # Illegal
 ```
 
+Variable must be initialized before being used. Otherwise will rise a compile error.
+
 #### 3.2 Function declaration
 
 Functions in Rust Minus Minus is treated as a normal data type. Thus it also use **let** or **var** keyword to define. **Changing itself in function body is undefined behavior.** Also See [1.5 Function Type](#1.5-function-type).
@@ -180,7 +191,7 @@ mod cat {
 	let meow: (void)->void = <void;void>{};
 };
 
-let main: auto = <;i32>{
+let main: auto = <void ;i32>{
 	meow(); # error
 	cat::meow(); # ok
 
@@ -356,7 +367,7 @@ let create_string: auto = <void; unique [u8, 9]>{
 
 ## 6. Mutability
 
-Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is possible (and defined behavior) to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
+Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is an undifined behavior to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
 
 ```rust
 let a: i32; # compile error
@@ -370,7 +381,7 @@ let d: &i32 = b; # good
 **union** and **match** keywords are used to create a union. A union is **internally tagged** to prevent undefined behavior. A union's member can only be accessed by **match** keyword.
 
 ```rust 
-type my_union union {
+union my_union {
 	unique a: i23;
 	b: i32;
 }
