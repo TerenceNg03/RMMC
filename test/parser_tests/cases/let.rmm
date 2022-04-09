@@ -1,10 +1,24 @@
 let i: i8 = 9;
 
-let compound: auto = {
-    1,8,9,{8,9},
-	{m, 0.9-8*7},
-	9&6
+let compound: auto = mycomp {
+	a = 32;
+	b = 'c';
+	c = [m, 0.9-8*7];
+	d = 9&6;
+	e = m+n;
+	g = "Hello";
 };
+
+let arr: auto = [32, 32, "init"];
+
+let arr: auto = [];
+
+let arr: auto = [
+	my_comp {
+		a = 98;
+		b = [9,0];
+	}
+];
 
 let export structure: custom_type= "Hello world";
 

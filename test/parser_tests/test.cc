@@ -35,69 +35,53 @@ std::vector<std::string> split_files(std::string filename){
 }
 
 void create_case(const std::string s){
-		std::fstream is(case_file, std::ios::out);
-		is<<s;
-		is.close();
+	std::fstream is(case_file, std::ios::out);
+	is<<s;
+	is.close();
 }
 
 TEST(parser, import_test) {
 	std::string filename = "cases/import.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
 
 TEST(parser, let_test) {
 	std::string filename = "cases/let.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
 
 TEST(parser, type_test) {
 	std::string filename = "cases/type.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
 
 TEST(parser, expression_test) {
 	std::string filename = "cases/expression.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
 
 TEST(parser, function_test) {
 	std::string filename = "cases/function.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
+
+
+TEST(parser, match_test) {
+	std::string filename = "cases/linked_list.rmm";
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
+}
+
 
 TEST(parser, mod_test) {
 	std::string filename = "cases/mod.rmm";
-	auto cases = split_files(filename);
-	for(auto tcase: cases){
-		create_case(tcase);
-		rmmc::Driver driver(case_file);
-		EXPECT_EQ(driver.get_error_count(), 0);
-	}
+	rmmc::Driver driver(filename);
+	EXPECT_EQ(driver.get_error_count(), 0);
 }
 
 TEST(parser, syntax_error_test) {

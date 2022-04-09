@@ -6,7 +6,7 @@ let p: s = 0X98PP;
 
 let r::s : i8 = 0B0109; 
 
-let va: i32;
+let r::s : i8 = 0B010; 
 
 var va: [u8, ];
 
@@ -44,4 +44,6 @@ let a: auto = <void; void>{
 	else a = 8;
 };
 
-var b: **(mut [**int, len], void)->*&bool;
+var b: **(mut [**int, len], void)->*bool;
+
+var f: (export ref a)->bool;

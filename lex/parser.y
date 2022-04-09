@@ -79,6 +79,11 @@ i64 "keyword i64"
 f32 "keyword f32"
 f64 "keyword f64"
 nullptr_ "nullptr"
+move "keyword move"
+unique "keyword unique"
+union_ "keyword union"
+ref "keyword ref"
+match "keyword match"
 
 %token
 
@@ -173,41 +178,37 @@ declare_statement ";"
 
 /* assign statement */
 declare_statement:
-let opt_export name ":" typename_incomplete init_statement
-| let opt_export name ":" typename init_statement
-| var opt_export name ":" typename_incomplete init_statement
-| var opt_export name ":" typename init_statement
-| var opt_export name ":" typename
-| let opt_export name ":" typename
-{
-	error(*(driver.location), "Immutable variable must have an initial value");
-}
-| let opt_export name ":" typename_incomplete
-{
-	error(*(driver.location), "Immutable variable must have an initial value");
-}
-| var opt_export name ":" typename_incomplete
+declare variable_traits name ":" typename_incomplete init_statement
+| declare variable_traits name ":" typename optional_init_statement
+| opt_export comp name
+| opt_export union_ name;
+| declare variable_traits name ":" typename_incomplete
 {
 	error(*(driver.location), "Incomplete type must have an initial value");
 }
-| let opt_export name
-{
-	error(*(driver.location), "Type must be specified");
-}
-| let opt_export name init_statement
+| declare variable_traits name
 {
 	error(*(driver.location), "Type must be specified");
 }
 
+/* declare keyword*/
+declare:
+let
+| var
 
 /* string preprocess */
 str: rawstr
 
 character: rawchar
 
-/* optional export */
-opt_export:
-| export_
+/* variable trait*/
+variable_traits:
+| variable_traits variable_trait
+
+variable_trait:
+export_
+| unique
+| ref
 
 /* namespace */
 var_name: 
@@ -215,9 +216,12 @@ var_name "::" name
 | name
 
 /* This part deal with init value */
+optional_init_statement:
+/* empty */
+| init_statement
+
 init_statement:
 "=" exp
-| "=" init_compound
 
 const_value:
 long_
@@ -228,14 +232,6 @@ long_
 | false_
 | nullptr_
 
-init_compound:
-"{" init_list "}"
-
-init_list:
-| init_list "," init_compound
-| init_compound
-| init_list "," assignment_exp
-| assignment_exp
 
 /* This part deal with typename */
 typename_incomplete:
@@ -246,35 +242,41 @@ typename_incomplete:
 typename:
 "[" typename "," long_ "]"
 | "*" typename
-| "&" typename
-| "(" typenamelist ")" "->" typename
+| "(" func_para_typelist ")" "->" func_para_traits typename
 | basictype
 | var_name /* defined by type keyword */
 | comp_type
+| union_type
 
 
 comp_type:
-comp "{" comp_decl_list "}" /* anonymous comp */
-| comp name "{" comp_decl_list "}" /* named comp */
+comp name "{" comp_decl_list "}" /* named comp */
+
+union_type:
+union_ name "{" comp_decl_list "}"
 
 comp_decl_list:
 /* empty */
 | comp_decl_list comp_decl_item
 
 comp_decl_item:
-name ":" typename ";"
-| name "::" var_name ":" typename ";"
+func_para_traits name ":" typename ";"
+| func_para_traits name "::" var_name ":" typename ";"
 {
 	error(*(driver.location), "Qualified name not allowed here");
 }
 
-typenamelist:
-typenamelist "," mutable_typename
-| mutable_typename
+func_para_typelist:
+func_para_typelist "," func_para_traits typename
+| func_para_traits typename
 
-mutable_typename:
-mut typename
-| typename
+func_para_traits:
+| func_para_traits func_para_trait
+
+func_para_trait:
+unique
+| ref
+| mut
 
 basictype:
 void_
@@ -299,7 +301,13 @@ from var_name import_ var_name
 
 /* type statement */
 type_statement:
-type name typename
+type opt_export name typename
+| opt_export comp_type
+| opt_export union_type
+
+opt_export:
+/* empty */
+| export_
 
 /* mod_statement */ 
 mod_statement:
@@ -320,14 +328,12 @@ declare_statement ";"
 use_statement:
 use var_name
 
-
 /* expression */ 
 exp: assignment_exp
 | exp "," assignment_exp
 
 assignment_exp: conditional_exp
 | unary_exp "=" assignment_exp
-
 
 conditional_exp: logical_or_exp
 | logical_or_exp "?" exp ":" conditional_exp
@@ -376,7 +382,7 @@ cast_exp: unary_exp
 unary_exp: postfix_exp
 | unary_operator unary_exp 
 
-unary_operator: "&" | "*" | "+" | "-" | "~" | "!"
+unary_operator: "&" | "*" | "+" | "-" | "~" | "!" | move
 
 postfix_exp: primary_exp
 | postfix_exp "[" exp "]"
@@ -385,18 +391,35 @@ postfix_exp: primary_exp
 | postfix_exp "." name
 | postfix_exp "->" name
 
+argument_exp_list: assignment_exp
+| argument_exp_list "," assignment_exp
+
 primary_exp: var_name
 | const_value
 | "(" exp ")"
 | function_literal
+| array_literal
+| compound_literal
 
-argument_exp_list: assignment_exp
-| argument_exp_list "," assignment_exp
+array_literal:
+"[" init_list_array "]"
+| "[" "]"
+
+init_list_array:
+assignment_exp
+| init_list_array "," assignment_exp
+
+compound_literal:
+var_name "{" init_list_comp "}"
+
+init_list_comp:
+/* empty */
+| init_list_comp name init_statement ";"
 
 /* functional */ 
 function_literal:
-"<" parameters_list ";" typename ">" "{" function_body "}"
-| "<" void_ ";" typename ">" "{" function_body "}"
+"<" parameters_list ";" func_para_traits typename ">" "{" function_body "}"
+| "<" void_ ";" func_para_traits typename ">" "{" function_body "}"
 | "<" ";" typename ">" "{" function_body "}"
 {
 	error(*(driver.location), "Parameter list cannot be empty. Use 'void' instead.");
@@ -407,8 +430,7 @@ parameters_list "," parameter_decl
 | parameter_decl
 
 parameter_decl:
-mut name ":" typename
-| name ":" typename
+func_para_traits name ":" typename
 
 function_body:
 /* empty */
@@ -428,6 +450,7 @@ branch_statement ";"
 branch_statement:
 if_statement
 | while_statement
+| match_statement
 
 if_statement: 
 if_ "(" exp ")" "{" function_body "}" elif_statement else_statement
@@ -454,6 +477,21 @@ else_statement:
 
 while_statement:
 while_  "(" exp ")" "{" function_body "}"
+
+match_statement:
+match exp "{" match_list "}"
+
+match_list:
+/* empty */
+| match_list match_item
+
+match_item:
+match_type ":" "{" function_body "}" ";"
+
+match_type:
+/* empty */
+| name
+| move name
 
 /* jump_statement */
 jump_statement:
