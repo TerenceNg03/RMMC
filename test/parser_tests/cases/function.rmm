@@ -22,7 +22,7 @@ let sort: auto = <len: u32, mut arr: *i32; void>{
 };
 
 let main: auto = <argc: i32, argv: **char; i32>{
-	var array: [i32, 6] = {6,1,3,5,2,0};
+	var array: [i32, 6] = [6,1,3,5,2,0];
 	sort(6, &array[0]);
 	var i: i32 = 0;
 	while(i<6){

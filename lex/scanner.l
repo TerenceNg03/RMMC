@@ -58,7 +58,11 @@ export return Parser::make_export_(loc);
 mod return Parser::make_mod(loc);
 type return Parser::make_type(loc);
 comp return Parser::make_comp(loc);
-
+move return Parser::make_move(loc);
+unique return Parser::make_unique(loc);
+union return Parser::make_union_(loc);
+ref return Parser::make_ref(loc);
+match return Parser::make_match(loc);
 
 [a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_name(std::string(yytext),loc);
 

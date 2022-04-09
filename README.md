@@ -60,7 +60,7 @@ cmake CMakeLists.txt
 ### 1. Clone this Github Repository
 Clone this Repo into your local filesystem : 
 ```
-git clone https://github.com/TerenceNg03/2022-ZJU-Compiler-Team.git
+git clone https://github.com/TerenceNg03/RMMC.git
 ```
 
 ### 2. Pull Ubuntu 20.04 (RISC-V) version from Official Image  
@@ -71,9 +71,9 @@ docker pull riscv64/ubuntu:20.04
 
 ### 3. Create a Container from the  Image and Mount Local Files
 **Execute this command in your cloned directory!**  
-Create a container named `Yacc` and mount current directory as `/home/2022-ZJU-Compiler`: 
+Create a container named `Yacc` and mount current directory as `/home/RMMC`: 
 ```
-docker create -it -v `pwd`:/home/2022-ZJU-Compiler --name Yacc -w /home riscv64/ubuntu:20.04
+docker create -it -v `pwd`:/home/RMMC --name Yacc -w /home riscv64/ubuntu:20.04
 ```
 
 ### 4. Start and Enter the Container
@@ -90,7 +90,7 @@ Note: Please execute these commands inside docker.
 
 ```
 apt update
-apt-get install bison flex make g++ vim
+apt-get install bison flex make g++ vim clang llvm
 ```
 
 ### 6. Test Your Installation

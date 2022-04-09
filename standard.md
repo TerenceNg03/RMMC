@@ -33,9 +33,9 @@ let e: i32* = &d; # ok
 
 **[typename, size]** is used for mark an array type.
 ```rust 
-let array: [i32, 3] = {1,2,3};
+let array: [i32, 3] = [1,2,3];
 let string: [char, ] = "Hello, world.";
-let array2: [i32, ] = {1,2};
+let array2: [i32, ] = [1,2];
 ```
 
 ##### 1.4.1 Variable length array
@@ -175,7 +175,7 @@ let c: auto = 'c'; # use auto keyword
 let d = 32; # Illegal
 ```
 
-Variable must be initialized before being used. Otherwise will rise a compile error.
+Variable must be initialized before being used. Otherwise will rise a compile error. It is possible to declare one and initialize it later. But for **Global variables** they must be initialized as soon as they are declared. 
 
 #### 3.2 Function declaration
 
@@ -338,6 +338,21 @@ FUNCTION get_lifetime(var)BEGIN
 	END
 END
 
+FUNCTION get_lifetime(ref) BEGIN
+	IF ref is lvalue BEGIN // is a variable
+		RETURN get_lifetime(var)
+	END
+	ELSE // return by a function BEGIN
+		CASE: is function's local variable
+			//not allowed to return by the function
+			RETURN
+		CASE: is passed by parameter
+			RETURN get_lifetime(PARAMETER[i])
+		CASE: is global variable
+			RETURN get_lifetime(var)
+	END
+END
+
 FUNCTION validate_ref(var, r)BEGIN
 	IF(get_lifetime(var) >= get_lifetime(r))BEGIN
 		RETURN true
@@ -357,13 +372,19 @@ let main: auto = <void; void>{
 	let a: i32 = 9;
 	var b:i32;
 	if(false){
-		b = move a;
-	};
-	a = a+1; # compile error
+		b = move a; # compile error : move before die
+	};``
+};
+
+let correct: auto = <void; mut unique i32>{
+	var unique a: i32 = 0;	
+	return move a; # ok
 };
 ```
 
-The compiler will check all execution path (even for `if(false)` case) to make sure a variable can not be used once moved.
+A variable can only be moved when its lifetime ends since **move** will cause all reference to it become invalid. Otherwise, you should use a **union** to contain the value which can hold an empty value.
+
+A **ref** can never be moved due to it does not have required ownership.
 
 #### 5.5 Auto memory management
 
@@ -381,18 +402,18 @@ let create_string: auto = <void; unique [u8, 9]>{
 
 ## 6. Mutability
 
-Mutability is **a trait of variable** and is **not** in **type system**. All non-const (const is not implemented for now) variables are guaranteed to have a real memory location. It is an undifined behavior to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
+Mutability is **a trait of variable** and is **not** in **type system**. It is an undefined behavior to change a immutable variable's value by using a pointer. However, this is not recommended. Trying to get the address of immutable variable will cause a warning. Immutable pointers do can change the content. But immutable reference can not. All immutable variable must be initialized. **Mutability is preserved when [passed to a function](#1.5-function-type)**.
 
 ```rust
-let a: i32; # compile error
-let b: i32 = 0; # good
+let a: i32; # ok
+let b: i32 = 0; # ok
 let c: *i32 = &b; # warning: trying to get the address of immutable variable
-let d: &i32 = b; # good
+let d: &i32 = b; # ok
 ```
 
 ## 7. Union and Match
 
-**union** and **match** keywords are used to create a union. A union is **internally tagged** to prevent undefined behavior. A union's member can only be accessed by **match** keyword.
+**union** and **match** keywords are used to create a union. A union is **internally tagged** to prevent undefined behavior. A union's member can only be accessed by **match** keyword which gets its value. By default match copy the value to a variable name the same as the union member. If use **move** on the variable, match will move the value and leave the union holds no value as it is not initialized.
 
 ```rust 
 union my_union {
@@ -405,7 +426,7 @@ export union my_union2{
 };
 
 let main: auto = <void; void>{
-	var o: my_union; # compile error, union must be initialized
+	var o: my_union; # This cause union hold no value
 	var o: my_union = my_union {a: 32}; # alloc memory for a
 	var i: i32;
 	var ref r: i32;
@@ -415,7 +436,13 @@ let main: auto = <void; void>{
 			i = a; # ok 
 			r = a; # compile error can not reference a union member
 		};
-		b: {}; # can be ignored
+		move b: {
+			# now o no longer holds b
+			# it holds no value
+		};
+		: {
+			# No value 
+		};
 	};
 	o.b = 1; # union switch to b, a's memory is freed
 }
@@ -431,7 +458,7 @@ Almost the same as [C programming language](https://en.cppreference.com/w/c/lang
 | :----: | :---- | :----: |
 | 1 | **::** Scope selector | Left-to-right |
 | 2 | **(  )**	Function call <br> **[  ]** Array subscripting <br> **. ->**	Member access| Left-to-right |
-| 3 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **\***	Indirection (dereference) <br> **&** Address-of| 	Right-to-left |
+| 3 | **+ -** Unary plus and minus <br> **! ~** Logical NOT and bitwise NOT <br> **\***	Indirection (dereference) <br> **&** Address-of <br> **move** Move a variable| 	Right-to-left |
 | 4 |  **as**	Type cast | Left-to-right | 
 | 5 | **\* / %**	Multiplication, division, and remainder | Left-to-right |
 | 6 | **+ -**	Addition and subtraction | Left-to-right |
