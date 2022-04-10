@@ -3,6 +3,8 @@
 lex.o: scanner.o parser.o driver.o scanner.o
 	
 	${LD} ${LFLAGS} scanner.o parser.o driver.o -o lex.o
+	mkdir -p ${OBJ_PATH}
+	cp lex.o ${OBJ_PATH}/
 	
 
 scanner.o: scanner.l scanner.hh parser.o
@@ -12,7 +14,7 @@ scanner.o: scanner.l scanner.hh parser.o
 
 parser.o: parser.y
 
-	${YACC} -d -Wno-yacc parser.y -o parser.cc
+	${YACC} ${YFLAGS} parser.y -o parser.cc
 	${CC} ${FLAGS} -c parser.cc -o parser.o
 
 driver.o: driver.cc scanner.o parser.o

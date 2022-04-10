@@ -1,0 +1,71 @@
+# type alias
+type int i32;
+
+# complicated type
+var b: **(mut [**int, 6], void)->*bool;
+
+var a: [([i32, 9],mut bool)->*bool, 9];
+
+var c: *(i32, comp my_comp {
+			a: i32;
+			b: u8;
+			c: [**f32, 9];
+		})->[i8, 7] = nullptr;
+
+# compound type
+comp empty {};
+
+type my_struct comp _ {
+	a: i32;
+	b: **u8;
+	c: (**int)->void;
+};
+
+type export my_struct2 comp _my_struct2 {
+	ref a: mystruct;
+	unique b: **u8;
+	c: (**int)->void;
+	mut d: comp random_name{
+		a: i32;
+		b: mystruct;
+		c: [*int, 9];
+   };
+};
+
+comp my_struct3 {
+	a: mystruct;
+	b: **u8;
+	c: (**int)->void;
+	d: comp _ {
+		a: i32;
+		b: mystruct;
+		c: my_struct2::random_name;
+   };
+};
+
+export comp my_struct3 {
+	a: mystruct;
+	b: **u8;
+	c: (**int)->void;
+	d: comp _{
+		a: i32;
+		b: mystruct;
+		c: my_struct2::random_name;
+   };
+};
+
+# union type
+union my_union {
+	ref mut a: i32;
+	unique mut b: [char, 9];
+	c: i32;
+	mut d: bool; 
+};
+
+export union my_union {
+	ref mut a: i32;
+	unique mut b: [char, 9];
+	c: i32;
+	mut d: bool; 
+};
+

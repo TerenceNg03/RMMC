@@ -1,0 +1,11 @@
+use std::io;
+
+mod cat {
+	let meow: (void)->void = <void;void>{};
+	mod body{
+		type int i32;
+		use dog::mouth;
+	};
+};
+
+mod empty {};

@@ -5,33 +5,38 @@
 # include <string>
 # include <fstream>
 
-namespace MyParser
+namespace rmmc
 {
-    /// Forward declarations of classes
-    class Parser;
-    class Scanner;
-    class location;
+	/// Forward declarations of classes
+	class Parser;
+	class Scanner;
+	class location;
 
-    class Driver
-    {
-    public:
-        Driver();
-        ~Driver();
+	class Driver
+	{
+	public:
+		Driver(const std::string& filename);
+		unsigned int get_error_count() const;
+		unsigned int get_warning_count() const;
+		~Driver();
 
-        int parse();
-        int parse_file(std::string& path);
+	private:
+		int parse();
+		int parse_file(const std::string& path);
 
-    private:
-        Scanner*      scanner;
-        Parser*       parser;
-        MyParser::location*     location;
+		Scanner*	  scanner;
+		Parser*	   parser;
+		rmmc::location*	 location;
+		std::string curr_file;
+		unsigned int error_count;
+		unsigned int warning_count;
 
 
-        /// Allows Parser and Scanner to access private attributes
-        /// of the Driver class
-        friend class  Parser;
-        friend class  Scanner;
-    };
+		/// Allows Parser and Scanner to access private attributes
+		/// of the Driver class
+		friend class  Parser;
+		friend class  Scanner;
+	};
 }
 
 #endif /* !DRIVER_HH_ */

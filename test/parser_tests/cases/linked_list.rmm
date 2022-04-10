@@ -1,0 +1,51 @@
+comp list_node;
+
+union optional {
+	unique content: list_node;
+};
+
+comp list_node {
+	mut val: i32;
+	mut next: optional;
+};
+
+let create_list: auto = <value: i32; mut unique list_node>{
+	var unique root: auto = list_node {
+		val = value;
+		next = optional{};
+	};
+	return move root;
+};
+
+let insert: auto = <root: *list_node, unique to_insert: list_node; i32>{
+	if(!root){return -1;};
+	match *root.next {
+		move content:{
+			# error
+			*root.next = optional{content = move list_node;};
+			return -1;
+		};
+		:{
+			*root.next = optional{content = move list_node;};
+			return 0;
+		};
+	};
+
+};
+
+let delete_next: auto = <root: *list_node; i32>{
+	if(!root){return -1;};
+	*root.next = optional{ empty = true; };
+	return 0;
+};
+
+let main: auto = <void; void>{
+	var root: list_node = create_list(0);
+	var i: i32 = 1;
+	while(i<9){
+		var unique node: list_node = create_list(i);
+
+	};
+};
+
+
