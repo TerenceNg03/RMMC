@@ -119,7 +119,7 @@ match return Parser::make_match(loc);
 
 <<EOF>> return Parser::make_eof(loc);
 
-[ \t]+ /* ignore whitespace */
+[ \t\r]+ /* ignore whitespace */
 . return Parser::make_unknown(loc);
 
 %%
