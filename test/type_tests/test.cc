@@ -30,6 +30,32 @@ TEST(Basic, built_in_types){
 	}
 }
 
+TEST(Advanced, pointer) {
+	rmm_type t = make_pointer(make_array(make_i8(), 9));
+	rmm_type t1 = make_pointer(make_array(make_i32(), 9));
+
+	EXPECT_TRUE(t != t1);
+}
+
+TEST(Advanced, array) {
+	rmm_type t = make_array(make_u8(), 9);
+	rmm_type t1 = make_array(make_u8(), 3);
+	rmm_type t2 = make_array(make_bool(), 9);
+	rmm_type t3 = make_array(make_i32());
+	rmm_type t4 = make_array(make_i32());
+	rmm_type t5 = make_array(make_u8(), 9);
+	rmm_type t6 = make_array(make_i8());
+
+	EXPECT_EQ(t, t5);
+	EXPECT_EQ(t3, t4);
+
+	EXPECT_TRUE(t != t1);
+	EXPECT_TRUE(t != t2);
+	EXPECT_TRUE(t3 != t6);
+}
+
+
+
 TEST(Basic, traits){
 	/* unique and ref not compatible */
 	EXPECT_EQ(make_traits(true, true, true), std::nullopt);
@@ -40,29 +66,7 @@ TEST(Basic, traits){
 	EXPECT_TRUE(make_traits(true, false, true)!=std::nullopt);
 }
 
-TEST(Advanced, array){
-	rmm_type t = make_array(make_u8() ,9);
-	rmm_type t1 = make_array(make_u8() ,3);
-	rmm_type t2 = make_array(make_bool() ,9);
-	rmm_type t3 = make_array(make_i32());
-	rmm_type t4 = make_array(make_i32());
-	rmm_type t5 = make_array(make_u8() ,9);
-	rmm_type t6 = make_array(make_i8());
 
-	EXPECT_EQ(t, t5);
-	EXPECT_EQ(t3, t4);
-
-	EXPECT_TRUE(t!=t1);
-	EXPECT_TRUE(t!=t2);
-	EXPECT_TRUE(t3!=t6);
-}
-
-TEST(Advanced, pointer){
-	rmm_type t = make_pointer(make_array(make_i8(), 9));
-	rmm_type t1 = make_pointer(make_array(make_i32(), 9));
-
-	EXPECT_TRUE(t!=t1);
-}
 
 int main(int argc, char** argv){
 	testing::InitGoogleTest(&argc, argv);

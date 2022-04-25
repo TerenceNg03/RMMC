@@ -17,7 +17,16 @@ namespace rmmc{
 
 	class rmm_type;
 
-	class var_traits{};
+	class var_traits{
+		bool mut;
+		bool ref;
+		bool unique;
+		public:
+		var_traits(const bool mut, const bool ref, const bool unique);
+		var_traits(const var_traits& var_t);
+		~var_traits();
+
+	};
 
 	class array_type{
 		size_t length;
@@ -25,7 +34,8 @@ namespace rmmc{
 		public:
 		array_type(const size_t length, const rmm_type& t);
 		array_type(const array_type& arr_t);
-		bool operator==(const array_type& x);
+		bool operator==(const array_type& x) const;
+		bool operator!=(const array_type& x) const;
 		~array_type();
 	};
 
@@ -37,7 +47,7 @@ namespace rmmc{
 		compound_type(const compound_type& t);
 		std::string get_name() const;
 		/* only compare name */
-		bool operator==(const compound_type& x);
+		bool operator==(const compound_type& x) const;
 		~compound_type();
 	};
 
@@ -46,7 +56,7 @@ namespace rmmc{
 		public:
 		pointer_type(const rmm_type& t);
 		pointer_type(const pointer_type& t);
-		bool operator==(const pointer_type& x);
+		bool operator==(const pointer_type& x) const;
 		~pointer_type();
 	};
 
@@ -56,12 +66,20 @@ namespace rmmc{
 		public:
 		function_type(const std::vector<rmm_type>& pars, const rmm_type& ret);
 		function_type(const function_type& t);
-		bool operator==(const function_type& x);
+		bool operator==(const function_type& x) const;
 		~function_type();
 	};
 
 	class union_type{
-
+		std::vector<std::pair<rmm_type*, std::string>> type_list;
+		std::string name;
+	public:
+		union_type(const std::string& name, const std::vector<std::pair<rmm_type, std::string>>& t);
+		union_type(const union_type& t);
+		std::string get_name() const;
+		/* only compare name */
+		bool operator==(const union_type& x) const;
+		~union_type();
 	};
 
 	/* this class represents all possible variable type */
@@ -92,8 +110,8 @@ namespace rmmc{
 		rmm_type(const basic_type& t);
 		rmm_type(const rmm_type & t);
 
-		bool operator==(const rmm_type& x);
-		bool operator!=(const rmm_type& x);
+		bool operator==(const rmm_type& x) const;
+		bool operator!=(const rmm_type& x) const;
 
 		~rmm_type();
 	};
