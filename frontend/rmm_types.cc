@@ -182,6 +182,7 @@ namespace rmmc{
 		this->unique = var_t.unique;
 	}
 
+
 	var_traits::~var_traits()
 	{
 
@@ -300,44 +301,7 @@ namespace rmmc{
 		rmm_type x = rmm_type(t);
 		return x;
 	}
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_comp(Iter begin, Iter end)
-	{
-		std::vector<std::pair<rmm_type*, std::string>> tv;
-		Iter k = begin;
-		tv.push_back(k);
-		while (k != end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		std::string name = " ";
-		compound_type t = compound_type(name, tv);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_union(Iter begin, Iter end)
-	{
-		std::vector<std::pair<rmm_type*, std::string>> tv;
-		Iter k = begin;
-		tv.push_back(k);
-		while (k != end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		std::string name = " ";
-		union_type t = union_type(name, tv);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
+	
 
 	rmm_type make_array(const rmm_type& inner_type, size_t array_size)
 	{
@@ -355,27 +319,12 @@ namespace rmmc{
 
 	std::optional<var_traits> make_traits(bool mut, bool ref, bool unique) noexcept
 	{
-
+		if (ref && unique) return {};
+		var_traits t = var_traits(mut, ref, unique);
+		return t;
 	}
 
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits, std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_function(Iter para_begin, Iter para_end, const typename std::iterator_traits<Iter>::value_type& return_type)
-	{
-		std::vector<rmm_type*> tv;
-		Iter k = para_begin;
-		tv.push_back(k);
-		while (k != para_end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		function_type t = function_type(tv, return_type);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
+	
 
 	rmm_type make_pointer(const rmm_type& t)
 	{

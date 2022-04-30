@@ -159,5 +159,63 @@ namespace rmmc{
 	rmm_type make_function(Iter para_begin, Iter para_end, const typename std::iterator_traits<Iter>::value_type& return_type);
 
 	rmm_type make_pointer(const rmm_type& t);
+
+	template <
+		typename Iter,
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+	>
+		rmm_type make_comp(Iter begin, Iter end)
+	{
+		std::vector<std::pair<rmm_type*, std::string>> tv;
+		Iter k = begin;
+		tv.push_back(k);
+		while (k != end)
+		{
+			k++;
+			tv.push_back(k);
+		}
+		std::string name = " ";
+		compound_type t = compound_type(name, tv);
+		rmm_type x = rmm_type(t);
+		return x;
+	}
+	template <
+		typename Iter,
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+	>
+		rmm_type make_union(Iter begin, Iter end)
+	{
+		std::vector<std::pair<rmm_type*, std::string>> tv;
+		Iter k = begin;
+		tv.push_back(k);
+		while (k != end)
+		{
+			k++;
+			tv.push_back(k);
+		}
+		std::string name = " ";
+		union_type t = union_type(name, tv);
+		rmm_type x = rmm_type(t);
+		return x;
+	}
+
+	template <
+		typename Iter,
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits, std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+	>
+		rmm_type make_function(Iter para_begin, Iter para_end, const typename std::iterator_traits<Iter>::value_type& return_type)
+	{
+		std::vector<rmm_type*> tv;
+		Iter k = para_begin;
+		tv.push_back(k);
+		while (k != para_end)
+		{
+			k++;
+			tv.push_back(k);
+		}
+		function_type t = function_type(tv, return_type);
+		rmm_type x = rmm_type(t);
+		return x;
+	}
 }
 

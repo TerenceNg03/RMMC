@@ -30,13 +30,6 @@ TEST(Basic, built_in_types){
 	}
 }
 
-TEST(Advanced, pointer) {
-	rmm_type t = make_pointer(make_array(make_i8(), 9));
-	rmm_type t1 = make_pointer(make_array(make_i32(), 9));
-
-	EXPECT_TRUE(t != t1);
-}
-
 TEST(Advanced, array) {
 	rmm_type t = make_array(make_u8(), 9);
 	rmm_type t1 = make_array(make_u8(), 3);
@@ -53,6 +46,15 @@ TEST(Advanced, array) {
 	EXPECT_TRUE(t != t2);
 	EXPECT_TRUE(t3 != t6);
 }
+TEST(Advanced, pointer) {
+	rmm_type t = make_pointer(make_array(make_i8(), 9));
+	rmm_type t1 = make_pointer(make_array(make_i32(), 9));
+
+	EXPECT_TRUE(t != t1);
+}
+
+
+
 
 
 
