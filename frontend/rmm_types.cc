@@ -50,6 +50,7 @@ namespace rmmc{
 	}
 
 	bool rmm_type::operator==(const rmm_type& x) const{
+		printf("compare rmm type\n");
 		if(x.tag != tag)return false;
 		switch (tag){
 			case rmm_type::TAG::basic:
@@ -108,6 +109,7 @@ namespace rmmc{
 	}
 
 	bool array_type::operator!=(const array_type& x) const {
+		printf("compare array tag\n");
 		if (*(x.content_type) != *(this->content_type))return true;
 		if (x.length != length)return true;
 		return false;

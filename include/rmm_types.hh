@@ -166,7 +166,7 @@ namespace rmmc{
 	>
 		rmm_type make_comp(Iter begin, Iter end)
 	{
-		std::vector<std::pair<rmm_type*, std::string>> tv;
+		std::vector<std::pair<rmm_type, std::string>> tv;
 		Iter k = begin;
 		tv.push_back(k);
 		while (k != end)
@@ -185,7 +185,7 @@ namespace rmmc{
 	>
 		rmm_type make_union(Iter begin, Iter end)
 	{
-		std::vector<std::pair<rmm_type*, std::string>> tv;
+		std::vector<std::pair<rmm_type, std::string>> tv;
 		Iter k = begin;
 		tv.push_back(k);
 		while (k != end)
