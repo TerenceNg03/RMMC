@@ -146,14 +146,14 @@ namespace rmmc{
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_comp(Iter begin, Iter end);
+	rmm_type make_comp(std::string name ,Iter begin, Iter end);
 
 	/* Accepts a iterator with type std::pair<std::string, rmm_type> */
 	template <
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_union(Iter begin, Iter end);
+	rmm_type make_union(std::string name, Iter begin, Iter end);
 
 	/* normal array */
 	rmm_type make_array(const rmm_type& inner_type, size_t array_size);
@@ -163,12 +163,12 @@ namespace rmmc{
 	/* return if invalid */
 	std::optional<var_traits> make_traits(bool mut, bool ref, bool unique) noexcept;
 
-	/* Accept a Iterator with type std::tuple<var_traits, std::string, rmm_type> */
+	/* Accept a Iterator with type std::pair<var_traits, rmm_type> */
 	template <
 		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits ,std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<var_traits , rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_function(Iter para_begin, Iter para_end, const typename std::iterator_traits<Iter>::value_type& return_type);
+	rmm_type make_function(Iter para_begin, Iter para_end, const std::optional<rmm_type> return_type);
 
 	rmm_type make_pointer(const rmm_type& t);
 

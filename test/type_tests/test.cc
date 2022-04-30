@@ -54,9 +54,62 @@ TEST(Advanced, pointer) {
 	EXPECT_TRUE(t != t1);
 }
 
+TEST(Advanced, function){
+	auto tr1 = *make_traits(false, false, false);
+	auto tr2 = *make_traits(false, true, false);
+	std::vector<std::pair<var_traits, rmm_type>> para1 = {
+		{tr1, make_bool()}, 
+		{tr2, make_array(make_f64(), 8)},
+		{tr1, make_pointer(make_u8())}
+	};
+	std::vector<std::pair<var_traits, rmm_type>> para2 = {
+		{tr1, make_bool()}, 
+		{tr2, make_array(make_f64(), 8)},
+		{tr1, make_pointer(make_u8())}
+	};
 
+	rmm_type func1 = make_function(para1.begin(), para1.end(), {});
+	rmm_type func2 = make_function(para1.begin(), para1.end(), {});
+	rmm_type func3 = make_function(para1.begin(), para1.end(), make_pointer(make_u8()));
+	rmm_type func4 = make_function(para2.begin(), para2.end(), {});
 
+	EXPECT_EQ(func1, func2);
+	EXPECT_NE(func1, func3);
+	EXPECT_NE(func1, func4);
 
+}
+
+TEST(Advanced, compound) {
+	auto tr = *make_traits(false, false, false);
+	std::vector<std::pair<var_traits, rmm_type>> func_para = {
+		{tr, make_bool()}, 
+		{tr, make_array(make_f64(), 8)},
+		{tr, make_pointer(make_u8())}
+	};
+	
+	std::vector<std::pair<std::string, rmm_type>> cmp_types = {
+		{"a", make_array(make_i32(), 8)},
+		{"b", make_pointer(make_f64())},
+		{"func", make_function(
+				func_para.begin(),
+				func_para.end(),
+				make_f64()
+				)
+		}
+	};
+
+	std::vector<std::pair<std::string, rmm_type>> cmp_types2 = {
+		{"a3", make_array(make_u32(), 8)},
+		{"f4", make_pointer(make_f64())}
+	};
+
+	rmm_type comp1 = make_comp("comp1", cmp_types.begin(), cmp_types.end());
+	rmm_type comp2 = make_comp("comp1", cmp_types.begin(), cmp_types2.end());
+	rmm_type comp3 = make_comp("comp2", cmp_types.begin(), cmp_types2.end());
+
+	EXPECT_EQ(comp1, comp2);
+	EXPECT_NE(comp2, comp3);
+}
 
 
 TEST(Basic, traits){
