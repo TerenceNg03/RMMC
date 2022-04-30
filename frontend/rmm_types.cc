@@ -50,7 +50,6 @@ namespace rmmc{
 	}
 
 	bool rmm_type::operator==(const rmm_type& x) const{
-		printf("compare rmm type\n");
 		if(x.tag != tag)return false;
 		switch (tag){
 			case rmm_type::TAG::basic:
@@ -69,6 +68,50 @@ namespace rmmc{
 
 	bool rmm_type::operator!=(const rmm_type& x) const{
 		return !(*this == x);
+	}
+
+	std::string rmm_type::str() const{
+		switch(tag){
+			case rmm_type::TAG::basic:
+				switch(bas){
+					case rmmc::basic_type::u8:
+						return "u8";
+					case rmmc::basic_type::u16:
+						return "u16";
+					case rmmc::basic_type::u32:
+						return "u32";
+					case rmmc::basic_type::u64:
+						return "u64";
+					case rmmc::basic_type::i8:
+						return "i8";
+					case rmmc::basic_type::i16:
+						return "i16";
+					case rmmc::basic_type::i32:
+						return "i32";
+					case rmmc::basic_type::i64:
+						return "i64";
+					case rmmc::basic_type::f32:
+						return "f32";
+					case rmmc::basic_type::f64:
+						return "f64";
+					case rmmc::basic_type::boolean:
+						return "bool";
+				};
+				break;
+			case rmm_type::TAG::array:
+				return arr.str();	
+				break;
+			case rmm_type::TAG::compound:
+				return comp.str();
+				break;
+			case rmm_type::TAG::pointer:
+				return ptr.str();
+				break;
+			case rmm_type::TAG::function:
+				return func.str();
+				break;
+		}
+		return "unknown type";
 	}
 
 	rmm_type::~rmm_type(){
@@ -109,10 +152,13 @@ namespace rmmc{
 	}
 
 	bool array_type::operator!=(const array_type& x) const {
-		printf("compare array tag\n");
 		if (*(x.content_type) != *(this->content_type))return true;
 		if (x.length != length)return true;
 		return false;
+	}
+
+	std::string array_type::str() const {
+		return "[" + content_type->str() + "," + std::to_string(length) + "]";
 	}
 
 	array_type::~array_type(){
@@ -139,6 +185,15 @@ namespace rmmc{
 		return name == x.name;
 	}
 
+	std::string compound_type::str() const {
+		std::string tmp = "comp " + name + "{";
+		for(auto t: type_list){
+			tmp += t.first->str() + "," + t.second + ";";
+		}
+		tmp += "}";
+		return tmp;
+	};
+
 	compound_type::~compound_type(){
 		for(auto &p: type_list){
 			delete p.first;
@@ -164,6 +219,15 @@ namespace rmmc{
 	bool union_type::operator==(const union_type& x) const {
 		return name == x.name;
 	}
+
+	std::string union_type::str() const {
+		std::string tmp = "comp " + name + "{";
+		for(auto t: type_list){
+			tmp += t.first->str() + "," + t.second + ";";
+		}
+		tmp += "}";
+		return tmp;
+	};
 
 	union_type::~union_type() {
 		for (auto& p : type_list) {
@@ -202,6 +266,10 @@ namespace rmmc{
 		return *content_type == *(x.content_type);
 	}
 
+	std::string pointer_type::str() const {
+		return "*" + content_type->str();
+	}
+
 	pointer_type::~pointer_type(){
 		delete content_type;
 	}
@@ -229,6 +297,15 @@ namespace rmmc{
 			if(*(x.parameters[i])!=*(parameters[i]))return false;
 		}
 		return true;
+	}
+
+	std::string function_type::str() const {
+		std::string tmp = "<";
+		for(auto t: parameters){
+			tmp += t->str() + ",";
+		}
+		tmp += ";" + return_type->str() + ">";
+		return tmp;
 	}
 
 	function_type::~function_type(){

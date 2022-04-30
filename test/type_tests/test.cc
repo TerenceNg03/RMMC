@@ -39,6 +39,8 @@ TEST(Advanced, array) {
 	rmm_type t5 = make_array(make_u8(), 9);
 	rmm_type t6 = make_array(make_i8());
 
+	std::cout<<"t: "<<t.str()<<std::endl;
+	std::cout<<"t2: "<<t2.str()<<std::endl;
 	EXPECT_EQ(t, t5);
 	EXPECT_EQ(t3, t4);
 
