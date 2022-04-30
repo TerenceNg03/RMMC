@@ -1,4 +1,5 @@
 #include "rmm_types.hh"
+#include <iostream>
 
 namespace rmmc{
 
@@ -70,6 +71,29 @@ namespace rmmc{
 		return !(*this == x);
 	}
 
+	rmm_type& rmm_type::operator=(const rmm_type& t){
+		tag = t.tag;
+		switch(tag) {
+			case rmm_type::TAG::basic:
+				bas = t.bas;
+				break;
+			case rmm_type::TAG::array:
+				arr = t.arr;
+				break;
+			case rmm_type::TAG::compound:
+				comp = t.comp;
+				break;
+			case rmm_type::TAG::pointer:
+				ptr = t.ptr;
+				break;
+			case rmm_type::TAG::function:
+				func = t.func;
+				break;
+		}
+		return *this;
+	}
+	
+
 	std::string rmm_type::str() const{
 		switch(tag){
 			case rmm_type::TAG::basic:
@@ -97,6 +121,7 @@ namespace rmmc{
 					case rmmc::basic_type::boolean:
 						return "bool";
 				};
+				return "Unknown base_type" + std::to_string((int)bas);
 				break;
 			case rmm_type::TAG::array:
 				return arr.str();	
@@ -110,8 +135,10 @@ namespace rmmc{
 			case rmm_type::TAG::function:
 				return func.str();
 				break;
+			default:
+				return "unknown type" + std::to_string((int)tag); 		
 		}
-		return "unknown type";
+		return "Error: type incorrect";
 	}
 
 	rmm_type::~rmm_type(){
@@ -151,11 +178,12 @@ namespace rmmc{
 		return true;
 	}
 
-	bool array_type::operator!=(const array_type& x) const {
-		if (*(x.content_type) != *(this->content_type))return true;
-		if (x.length != length)return true;
-		return false;
-	}
+	array_type& array_type::operator =(const array_type& arr_t) {
+		length = arr_t.length;
+		content_type = new rmm_type(*(arr_t.content_type));
+		return *this;	
+	};
+	
 
 	std::string array_type::str() const {
 		return "[" + content_type->str() + "," + std::to_string(length) + "]";
@@ -183,6 +211,15 @@ namespace rmmc{
 
 	bool compound_type::operator==(const compound_type& x) const{
 		return name == x.name;
+	}
+
+	compound_type& compound_type::operator=(const compound_type& t){
+		name = t.name;
+		for(auto &p: t.type_list){
+			rmm_type* tmp = new rmm_type(*(p.first));
+			type_list.push_back(make_pair(tmp, p.second));
+		}
+		return *this;
 	}
 
 	std::string compound_type::str() const {
@@ -219,6 +256,16 @@ namespace rmmc{
 	bool union_type::operator==(const union_type& x) const {
 		return name == x.name;
 	}
+
+	union_type& union_type::operator=(const union_type& t){
+		name = t.name;
+		for (auto& p : t.type_list) {
+			rmm_type* tmp = new rmm_type(*(p.first));
+			type_list.push_back(make_pair(tmp, p.second));
+		}
+		return *this;
+	}
+	
 
 	std::string union_type::str() const {
 		std::string tmp = "comp " + name + "{";
@@ -266,6 +313,11 @@ namespace rmmc{
 		return *content_type == *(x.content_type);
 	}
 
+	pointer_type& pointer_type::operator=(const pointer_type& t) {
+		content_type = new rmm_type(*(t.content_type));
+		return *this;
+	}
+
 	std::string pointer_type::str() const {
 		return "*" + content_type->str();
 	}
@@ -297,6 +349,15 @@ namespace rmmc{
 			if(*(x.parameters[i])!=*(parameters[i]))return false;
 		}
 		return true;
+	}
+
+	function_type& function_type::operator=(const function_type& t){
+		return_type = new rmm_type(*(t.return_type));
+		for(auto &p: t.parameters){
+			rmm_type* ptr = new rmm_type(*p);
+			parameters.push_back(ptr);
+		}
+		return *this;
 	}
 
 	std::string function_type::str() const {
@@ -384,9 +445,8 @@ namespace rmmc{
 
 	rmm_type make_array(const rmm_type& inner_type, size_t array_size)
 	{
-		array_type t = array_type(array_size,inner_type);
-		rmm_type x = rmm_type(t);
-		return x;
+		array_type t = array_type(array_size, inner_type);
+		return t;
 	}
 
 	rmm_type make_array(const rmm_type& inner_type)

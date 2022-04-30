@@ -39,15 +39,14 @@ TEST(Advanced, array) {
 	rmm_type t5 = make_array(make_u8(), 9);
 	rmm_type t6 = make_array(make_i8());
 
-	std::cout<<"t: "<<t.str()<<std::endl;
-	std::cout<<"t2: "<<t2.str()<<std::endl;
 	EXPECT_EQ(t, t5);
 	EXPECT_EQ(t3, t4);
 
-	EXPECT_TRUE(t != t1);
-	EXPECT_TRUE(t != t2);
-	EXPECT_TRUE(t3 != t6);
+	EXPECT_NE(t, t1);
+	EXPECT_NE(t, t2);
+	EXPECT_NE(t3, t6);
 }
+
 TEST(Advanced, pointer) {
 	rmm_type t = make_pointer(make_array(make_i8(), 9));
 	rmm_type t1 = make_pointer(make_array(make_i32(), 9));

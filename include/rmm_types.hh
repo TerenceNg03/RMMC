@@ -35,7 +35,7 @@ namespace rmmc{
 		array_type(const size_t length, const rmm_type& t);
 		array_type(const array_type& arr_t);
 		bool operator==(const array_type& x) const;
-		bool operator!=(const array_type& x) const;
+		array_type& operator =(const array_type& b);
 		std::string str() const;
 		~array_type();
 	};
@@ -49,6 +49,7 @@ namespace rmmc{
 		std::string get_name() const;
 		/* only compare name */
 		bool operator==(const compound_type& x) const;
+		compound_type& operator=(const compound_type& x);
 		std::string str() const;
 		~compound_type();
 	};
@@ -59,6 +60,7 @@ namespace rmmc{
 		pointer_type(const rmm_type& t);
 		pointer_type(const pointer_type& t);
 		bool operator==(const pointer_type& x) const;
+		pointer_type& operator=(const pointer_type& x);
 		std::string str() const;
 		~pointer_type();
 	};
@@ -70,6 +72,7 @@ namespace rmmc{
 		function_type(const std::vector<rmm_type>& pars, const rmm_type& ret);
 		function_type(const function_type& t);
 		bool operator==(const function_type& x) const;
+		function_type& operator=(const function_type& x);
 		std::string str() const;
 		~function_type();
 	};
@@ -83,6 +86,7 @@ namespace rmmc{
 		std::string get_name() const;
 		/* only compare name */
 		bool operator==(const union_type& x) const;
+		union_type& operator=(const union_type& x);
 		std::string str() const;
 		~union_type();
 	};
@@ -117,6 +121,7 @@ namespace rmmc{
 
 		bool operator==(const rmm_type& x) const;
 		bool operator!=(const rmm_type& x) const;
+		rmm_type& operator=(const rmm_type& t);
 
 		std::string str() const;
 
