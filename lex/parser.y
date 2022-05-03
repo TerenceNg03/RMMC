@@ -372,7 +372,10 @@ additive_exp: mult_exp
 | additive_exp "-" mult_exp
 
 mult_exp: cast_exp
-| mult_exp "*" cast_exp
+| mult_exp "*" cast_exp 
+{
+	$$ = expression($1, $3);
+}
 | mult_exp "/" cast_exp
 | mult_exp "%" cast_exp
 
@@ -380,9 +383,14 @@ cast_exp: unary_exp
 | cast_exp as typename
 
 unary_exp: postfix_exp
-| unary_operator unary_exp 
+| unary_operator unary_exp{
+	$$ = uary_exp($1, $2)
+} 
 
 unary_operator: "&" | "*" | "+" | "-" | "~" | "!" | move
+{
+	$$ = identifier("")
+}
 
 postfix_exp: primary_exp
 | postfix_exp "[" exp "]"
