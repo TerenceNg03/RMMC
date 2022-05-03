@@ -4,111 +4,46 @@
 namespace rmmc{
 
 
-	rmm_type::rmm_type(const array_type& t){
+	rmm_type::rmm_type(const array_type& t) : content(t){
 		tag = rmm_type::TAG::array;
-		arr = t;
 	}
 
-	rmm_type::rmm_type(const compound_type& t){
+	rmm_type::rmm_type(const compound_type& t) : content(t){
 		tag = rmm_type::TAG::compound;
-		comp = t;
 	}
 
-	rmm_type::rmm_type(const pointer_type& t){
+	rmm_type::rmm_type(const pointer_type& t) : content(t){
 		tag = rmm_type::TAG::pointer;
-		ptr = t;
 	}
 
-	rmm_type::rmm_type(const function_type& t) : func(t){
+	rmm_type::rmm_type(const function_type& t) : content(t){
 		tag = rmm_type::TAG::function;
 	}
 
-	rmm_type::rmm_type(const basic_type& t){
+	rmm_type::rmm_type(const basic_type& t) : content(t){
 		tag = rmm_type::TAG::basic;
-		bas = t;
 	}
 
-	rmm_type::rmm_type(const union_type& t){
+	rmm_type::rmm_type(const union_type& t) : content(t){
 		tag = rmm_type::TAG::union_;
-		uni = t;
 	}
 
-	rmm_type::rmm_type(const rmm_type& t){
+	rmm_type::rmm_type(const rmm_type& t) : content(t.content){
 		tag = t.tag;
-		switch(tag) {
-			case rmm_type::TAG::basic:
-				bas = t.bas;
-				break;
-			case rmm_type::TAG::array:
-				arr = t.arr;
-				break;
-			case rmm_type::TAG::compound:
-				comp = t.comp;
-				break;
-			case rmm_type::TAG::pointer:
-				ptr = t.ptr;
-				break;
-			case rmm_type::TAG::function:
-				func = t.func;
-				break;
-			case rmm_type::TAG::union_:
-				uni = t.uni;
-		}
 	}
 
 	bool rmm_type::operator==(const rmm_type& x) const{
-		if(x.tag != tag)return false;
-		switch (tag){
-			case rmm_type::TAG::basic:
-				return bas == x.bas;
-			case rmm_type::TAG::array:
-				return arr == x.arr;
-			case rmm_type::TAG::compound:
-				return comp == x.comp;
-			case rmm_type::TAG::pointer:
-				return ptr == x.ptr;
-			case rmm_type::TAG::function:
-				return func == x.func;
-			case rmm_type::TAG::union_:
-				return uni == x.uni;
-		}
-		return true;
+		return content == x.content;
 	}
 
 	bool rmm_type::operator!=(const rmm_type& x) const{
 		return !(*this == x);
 	}
 
-	rmm_type& rmm_type::operator=(const rmm_type& t){
-		tag = t.tag;
-		switch(tag) {
-			case rmm_type::TAG::basic:
-				bas = t.bas;
-				break;
-			case rmm_type::TAG::array:
-				arr = t.arr;
-				break;
-			case rmm_type::TAG::compound:
-				comp = t.comp;
-				break;
-			case rmm_type::TAG::pointer:
-				ptr = t.ptr;
-				break;
-			case rmm_type::TAG::function:
-				func = t.func;
-				break;
-			case rmm_type::TAG::union_:
-				uni = t.uni;
-				break;
-		}
-		return *this;
-	}
-	
-
 	std::string rmm_type::str() const{
 		switch(tag){
 			case rmm_type::TAG::basic:
-				switch(bas){
+				switch(std::get<basic_type>(content)){
 					case rmmc::basic_type::u8:
 						return "u8";
 					case rmmc::basic_type::u16:
@@ -132,22 +67,22 @@ namespace rmmc{
 					case rmmc::basic_type::boolean:
 						return "bool";
 				};
-				return "Unknown base_type" + std::to_string((int)bas);
+				return "Unknown base_type" + std::to_string((int)std::get<basic_type>(content));
 				break;
 			case rmm_type::TAG::array:
-				return arr.str();	
+				return std::get<array_type>(content).str();	
 				break;
 			case rmm_type::TAG::compound:
-				return comp.str();
+				return std::get<compound_type>(content).str();
 				break;
 			case rmm_type::TAG::pointer:
-				return ptr.str();
+				return std::get<pointer_type>(content).str();
 				break;
 			case rmm_type::TAG::function:
-				return func.str();
+				return std::get<function_type>(content).str();
 				break;
 			case rmm_type::TAG::union_:
-				return uni.str();
+				return std::get<union_type>(content).str();
 			default:
 				return "unknown type" + std::to_string((int)tag); 		
 		}
@@ -155,25 +90,6 @@ namespace rmmc{
 	}
 
 	rmm_type::~rmm_type(){
-		switch(tag){
-			case rmm_type::TAG::basic:
-				break;
-			case rmm_type::TAG::array:
-				arr.~array_type();	
-				break;
-			case rmm_type::TAG::compound:
-				comp.~compound_type();
-				break;
-			case rmm_type::TAG::pointer:
-				ptr.~pointer_type();
-				break;
-			case rmm_type::TAG::function:
-				func.~function_type();
-				break;
-			case rmm_type::TAG::union_:
-				uni.~union_type();
-				break;
-		}
 	}
 
 
@@ -193,13 +109,6 @@ namespace rmmc{
 		if(x.length != length)return false;
 		return true;
 	}
-
-	array_type& array_type::operator =(const array_type& arr_t) {
-		length = arr_t.length;
-		content_type = new rmm_type(*(arr_t.content_type));
-		return *this;	
-	};
-	
 
 	std::string array_type::str() const {
 		return "[" + content_type->str() + "," + std::to_string(length) + "]";
@@ -229,19 +138,10 @@ namespace rmmc{
 		return name == x.name;
 	}
 
-	compound_type& compound_type::operator=(const compound_type& t){
-		name = t.name;
-		for(auto &p: t.type_list){
-			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(std::make_pair(tmp, p.second));
-		}
-		return *this;
-	}
-
 	std::string compound_type::str() const {
 		std::string tmp = "comp " + name + "{";
 		for(auto t: type_list){
-			tmp += t.first->str() + "," + t.second + ";";
+			tmp += t.second + ":" + t.first->str() +  ";";
 		}
 		tmp += "}";
 		return tmp;
@@ -273,20 +173,10 @@ namespace rmmc{
 		return name == x.name;
 	}
 
-	union_type& union_type::operator=(const union_type& t){
-		name = t.name;
-		for (auto& p : t.type_list) {
-			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(std::make_pair(tmp, p.second));
-		}
-		return *this;
-	}
-	
-
 	std::string union_type::str() const {
-		std::string tmp = "comp " + name + "{";
+		std::string tmp = "union " + name + "{";
 		for(auto t: type_list){
-			tmp += t.first->str() + "," + t.second + ";";
+			tmp += t.second + ":" + t.first->str() +  ";";
 		}
 		tmp += "}";
 		return tmp;
@@ -344,11 +234,6 @@ namespace rmmc{
 		return *content_type == *(x.content_type);
 	}
 
-	pointer_type& pointer_type::operator=(const pointer_type& t) {
-		content_type = new rmm_type(*(t.content_type));
-		return *this;
-	}
-
 	std::string pointer_type::str() const {
 		return "*" + content_type->str();
 	}
@@ -392,32 +277,18 @@ namespace rmmc{
 		
 	}
 
-	function_type& function_type::operator=(const function_type& t){
-		std::cout<<"function assign begin "<<t.str()<<std::endl;
-		if(t.return_type)return_type = new rmm_type(*(t.return_type));
-		else return_type = nullptr;
-		parameters = std::vector<std::pair<var_traits, rmm_type*>>();
-		 
-		for(auto p: t.parameters){
-			rmm_type* ptr = new rmm_type(*(p.second));
-			parameters.push_back(std::make_pair(p.first, ptr));
-		}
-		std::cout<<"function assign done "<<this->str()<<std::endl;
-		return *this;
-	}
-
 	std::string function_type::str() const {
 		std::string tmp = "<";
 		for(auto t: parameters){
 			tmp += t.first.str() + t.second->str() + ",";
 		}
+		tmp.pop_back();
 		if(return_type)tmp += ";" + return_type->str() + ">";
 		else tmp += ";void>";
 		return tmp;
 	}
 
 	function_type::~function_type(){
-		std::cout<<this->str()<<" freed"<<std::endl;
 		for(auto& p: parameters){
 			delete p.second;
 		}

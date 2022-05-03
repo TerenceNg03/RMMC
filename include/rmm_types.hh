@@ -38,7 +38,7 @@ namespace rmmc{
 		array_type(const size_t length, const rmm_type& t);
 		array_type(const array_type& arr_t);
 		bool operator==(const array_type& x) const;
-		array_type& operator =(const array_type& b);
+		array_type& operator =(const array_type& b) = delete;
 		std::string str() const;
 		~array_type();
 	};
@@ -52,7 +52,7 @@ namespace rmmc{
 		std::string get_name() const;
 		/* only compare name */
 		bool operator==(const compound_type& x) const;
-		compound_type& operator=(const compound_type& x);
+		compound_type& operator=(const compound_type& x) = delete;
 		std::string str() const;
 		~compound_type();
 	};
@@ -63,7 +63,7 @@ namespace rmmc{
 		pointer_type(const rmm_type& t);
 		pointer_type(const pointer_type& t);
 		bool operator==(const pointer_type& x) const;
-		pointer_type& operator=(const pointer_type& x);
+		pointer_type& operator=(const pointer_type& x) = delete;
 		std::string str() const;
 		~pointer_type();
 	};
@@ -75,7 +75,7 @@ namespace rmmc{
 		function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const std::optional<rmm_type>& ret);
 		function_type(const function_type& t);
 		bool operator==(const function_type& x) const;
-		function_type& operator=(const function_type& x);
+		function_type& operator=(const function_type& x) = delete;
 		std::string str() const;
 		~function_type();
 	};
@@ -89,7 +89,7 @@ namespace rmmc{
 		std::string get_name() const;
 		/* only compare name */
 		bool operator==(const union_type& x) const;
-		union_type& operator=(const union_type& x);
+		union_type& operator=(const union_type& x) = delete;
 		std::string str() const;
 		~union_type();
 	};
@@ -108,15 +108,7 @@ namespace rmmc{
 
 		TAG tag;
 
-		union{
-			array_type arr;
-			compound_type comp;
-			pointer_type ptr;
-			function_type func;
-			basic_type bas;
-			union_type uni;
-		};
-		
+		std::variant<array_type, compound_type, pointer_type, function_type, basic_type, union_type> content;
 		public:
 		rmm_type(const array_type& t);
 		rmm_type(const compound_type& t);
@@ -128,7 +120,7 @@ namespace rmmc{
 
 		bool operator==(const rmm_type& x) const;
 		bool operator!=(const rmm_type& x) const;
-		rmm_type& operator=(const rmm_type& t);
+		//rmm_type& operator=(const rmm_type& t);
 
 		std::string str() const;
 
@@ -201,7 +193,6 @@ namespace rmmc{
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<var_traits , rmm_type>>::value), std::nullptr_t> = nullptr
 	>
 	rmm_type make_function(Iter para_begin, Iter para_end, const std::optional<rmm_type> return_type){
-		std::cout<<"make func begin"<<std::endl;
 		std::vector<std::pair<var_traits, rmm_type>> tv;
 		Iter k = para_begin;
 		while (k != para_end)
@@ -210,17 +201,8 @@ namespace rmmc{
 			++k;
 		}
 		
-		rmm_type x = make_i8();
-		std::cout<<x.str()<<std::endl;
-		{
-			function_type t(tv, return_type);
-			std::cout<<x.str()<<std::endl;
-			x = rmm_type(t);
-			std::cout<<t.str()<<std::endl;
-		}
-		std::cout<<x.str()<<std::endl;
-		std::cout<<"make func done"<<std::endl;
-		return x;
+		function_type t(tv, return_type);
+		return t;
 	}
 	
 
