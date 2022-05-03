@@ -30,6 +30,9 @@ run: all
 
 test: all
 	${MAKE} -C test
+	
+test-type: all
+	${MAKE} -C test type
 
 test-parser: all
 	${MAKE} -C test parser
