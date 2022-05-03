@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <optional>
+#include <iostream>
 
 
 namespace rmmc{
@@ -24,6 +25,8 @@ namespace rmmc{
 		public:
 		var_traits(const bool mut, const bool ref, const bool unique);
 		var_traits(const var_traits& var_t);
+		std::string str() const;
+		bool operator==(const var_traits& v) const;
 		~var_traits();
 
 	};
@@ -44,7 +47,7 @@ namespace rmmc{
 		std::vector<std::pair<rmm_type*, std::string>> type_list;
 		std::string name;
 		public:
-		compound_type(const std::string& name, const std::vector<std::pair<rmm_type, std::string>>& t);
+		compound_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t);
 		compound_type(const compound_type& t);
 		std::string get_name() const;
 		/* only compare name */
@@ -66,10 +69,10 @@ namespace rmmc{
 	};
 
 	class function_type{
-		std::vector<rmm_type*> parameters;
-		rmm_type* return_type;
+		std::vector<std::pair<var_traits, rmm_type*>> parameters;
+		rmm_type* return_type; //null if is void
 		public:
-		function_type(const std::vector<rmm_type>& pars, const rmm_type& ret);
+		function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const std::optional<rmm_type>& ret);
 		function_type(const function_type& t);
 		bool operator==(const function_type& x) const;
 		function_type& operator=(const function_type& x);
@@ -81,7 +84,7 @@ namespace rmmc{
 		std::vector<std::pair<rmm_type*, std::string>> type_list;
 		std::string name;
 	public:
-		union_type(const std::string& name, const std::vector<std::pair<rmm_type, std::string>>& t);
+		union_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t);
 		union_type(const union_type& t);
 		std::string get_name() const;
 		/* only compare name */
@@ -98,6 +101,7 @@ namespace rmmc{
 			basic,
 			array,
 			compound,
+			union_,
 			pointer,
 			function
 		};
@@ -110,12 +114,15 @@ namespace rmmc{
 			pointer_type ptr;
 			function_type func;
 			basic_type bas;
+			union_type uni;
 		};
+		
 		public:
 		rmm_type(const array_type& t);
 		rmm_type(const compound_type& t);
 		rmm_type(const pointer_type& t);
 		rmm_type(const function_type& t);
+		rmm_type(const union_type& t);
 		rmm_type(const basic_type& t);
 		rmm_type(const rmm_type & t);
 
@@ -146,14 +153,39 @@ namespace rmmc{
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_comp(std::string name ,Iter begin, Iter end);
+	rmm_type make_comp(std::string name ,Iter begin, Iter end)
+	{
+		std::vector<std::pair<std::string, rmm_type>> tv;
+		Iter k = begin;
+		while (k != end)
+		{
+			tv.push_back(*k);
+			++k;
+		}
+		compound_type t = compound_type(name, tv);
+		rmm_type x = rmm_type(t);
+		return x;
+	}
+	
 
 	/* Accepts a iterator with type std::pair<std::string, rmm_type> */
 	template <
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_union(std::string name, Iter begin, Iter end);
+	rmm_type make_union(std::string name, Iter begin, Iter end){
+		std::vector<std::pair<std::string, rmm_type>> tv;
+		Iter k = begin;
+		while (k != end)
+		{
+			tv.push_back(*k);
+			++k;
+		}
+		union_type t = union_type(name, tv);
+		rmm_type x = rmm_type(t);
+		return x;
+	}
+	
 
 	/* normal array */
 	rmm_type make_array(const rmm_type& inner_type, size_t array_size);
@@ -168,66 +200,31 @@ namespace rmmc{
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<var_traits , rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_function(Iter para_begin, Iter para_end, const std::optional<rmm_type> return_type);
+	rmm_type make_function(Iter para_begin, Iter para_end, const std::optional<rmm_type> return_type){
+		std::cout<<"make func begin"<<std::endl;
+		std::vector<std::pair<var_traits, rmm_type>> tv;
+		Iter k = para_begin;
+		while (k != para_end)
+		{
+			tv.push_back(*k);
+			++k;
+		}
+		
+		rmm_type x = make_i8();
+		std::cout<<x.str()<<std::endl;
+		{
+			function_type t(tv, return_type);
+			std::cout<<x.str()<<std::endl;
+			x = rmm_type(t);
+			std::cout<<t.str()<<std::endl;
+		}
+		std::cout<<x.str()<<std::endl;
+		std::cout<<"make func done"<<std::endl;
+		return x;
+	}
+	
 
 	rmm_type make_pointer(const rmm_type& t);
 
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_comp(Iter begin, Iter end)
-	{
-		std::vector<std::pair<rmm_type, std::string>> tv;
-		Iter k = begin;
-		tv.push_back(k);
-		while (k != end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		std::string name = " ";
-		compound_type t = compound_type(name, tv);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_union(Iter begin, Iter end)
-	{
-		std::vector<std::pair<rmm_type, std::string>> tv;
-		Iter k = begin;
-		tv.push_back(k);
-		while (k != end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		std::string name = " ";
-		union_type t = union_type(name, tv);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
-
-	template <
-		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits, std::string, rmm_type>>::value), std::nullptr_t> = nullptr
-	>
-		rmm_type make_function(Iter para_begin, Iter para_end, const typename std::iterator_traits<Iter>::value_type& return_type)
-	{
-		std::vector<rmm_type*> tv;
-		Iter k = para_begin;
-		tv.push_back(k);
-		while (k != para_end)
-		{
-			k++;
-			tv.push_back(k);
-		}
-		function_type t = function_type(tv, return_type);
-		rmm_type x = rmm_type(t);
-		return x;
-	}
 }
 

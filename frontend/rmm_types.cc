@@ -19,14 +19,18 @@ namespace rmmc{
 		ptr = t;
 	}
 
-	rmm_type::rmm_type(const function_type& t){
+	rmm_type::rmm_type(const function_type& t) : func(t){
 		tag = rmm_type::TAG::function;
-		func = t;
 	}
 
 	rmm_type::rmm_type(const basic_type& t){
 		tag = rmm_type::TAG::basic;
 		bas = t;
+	}
+
+	rmm_type::rmm_type(const union_type& t){
+		tag = rmm_type::TAG::union_;
+		uni = t;
 	}
 
 	rmm_type::rmm_type(const rmm_type& t){
@@ -47,6 +51,8 @@ namespace rmmc{
 			case rmm_type::TAG::function:
 				func = t.func;
 				break;
+			case rmm_type::TAG::union_:
+				uni = t.uni;
 		}
 	}
 
@@ -63,6 +69,8 @@ namespace rmmc{
 				return ptr == x.ptr;
 			case rmm_type::TAG::function:
 				return func == x.func;
+			case rmm_type::TAG::union_:
+				return uni == x.uni;
 		}
 		return true;
 	}
@@ -88,6 +96,9 @@ namespace rmmc{
 				break;
 			case rmm_type::TAG::function:
 				func = t.func;
+				break;
+			case rmm_type::TAG::union_:
+				uni = t.uni;
 				break;
 		}
 		return *this;
@@ -135,6 +146,8 @@ namespace rmmc{
 			case rmm_type::TAG::function:
 				return func.str();
 				break;
+			case rmm_type::TAG::union_:
+				return uni.str();
 			default:
 				return "unknown type" + std::to_string((int)tag); 		
 		}
@@ -156,6 +169,9 @@ namespace rmmc{
 				break;
 			case rmm_type::TAG::function:
 				func.~function_type();
+				break;
+			case rmm_type::TAG::union_:
+				uni.~union_type();
 				break;
 		}
 	}
@@ -193,11 +209,11 @@ namespace rmmc{
 		delete content_type;
 	}
 
-	compound_type::compound_type(const std::string& name, const std::vector<std::pair<rmm_type, std::string>>& t){
+	compound_type::compound_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t){
 		this->name = name;
 		for(auto &p: t){
-			rmm_type* tmp = new rmm_type(p.first);
-			type_list.push_back(make_pair(tmp, p.second));
+			rmm_type* tmp = new rmm_type(p.second);
+			type_list.push_back(std::make_pair(tmp, p.first));
 		}
 	}
 
@@ -205,7 +221,7 @@ namespace rmmc{
 		name = t.name;
 		for(auto &p: t.type_list){
 			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(make_pair(tmp, p.second));
+			type_list.push_back(std::make_pair(tmp, p.second));
 		}
 	}
 
@@ -217,7 +233,7 @@ namespace rmmc{
 		name = t.name;
 		for(auto &p: t.type_list){
 			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(make_pair(tmp, p.second));
+			type_list.push_back(std::make_pair(tmp, p.second));
 		}
 		return *this;
 	}
@@ -237,11 +253,11 @@ namespace rmmc{
 		}
 	}
 
-	union_type::union_type(const std::string& name, const std::vector<std::pair<rmm_type, std::string>>& t) {
+	union_type::union_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t) {
 		this->name = name;
 		for (auto& p : t) {
-			rmm_type* tmp = new rmm_type(p.first);
-			type_list.push_back(make_pair(tmp, p.second));
+			rmm_type* tmp = new rmm_type(p.second);
+			type_list.push_back(std::make_pair(tmp, p.first));
 		}
 	}
 
@@ -249,7 +265,7 @@ namespace rmmc{
 		name = t.name;
 		for (auto& p : t.type_list) {
 			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(make_pair(tmp, p.second));
+			type_list.push_back(std::make_pair(tmp, p.second));
 		}
 	}
 
@@ -261,7 +277,7 @@ namespace rmmc{
 		name = t.name;
 		for (auto& p : t.type_list) {
 			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(make_pair(tmp, p.second));
+			type_list.push_back(std::make_pair(tmp, p.second));
 		}
 		return *this;
 	}
@@ -288,6 +304,7 @@ namespace rmmc{
 		this->ref = ref;
 		this->unique = unique;
 	}
+
 	var_traits::var_traits(const var_traits& var_t)
 	{
 		this->mut = var_t.mut;
@@ -295,7 +312,21 @@ namespace rmmc{
 		this->unique = var_t.unique;
 	}
 
+	std::string var_traits::str() const{
+		std::string tmp = "";
+		if(mut) tmp += "mut ";
+		if(ref) tmp += "ref ";
+		if(unique) tmp += "unique ";
+		return tmp;
+	}
 
+	bool var_traits::operator==(const var_traits& v) const{
+		if(mut != v.mut)return false;
+		if(ref != v.ref)return false;
+		if(unique != v.unique) return false;
+		return true;
+	}
+	
 	var_traits::~var_traits()
 	{
 
@@ -326,53 +357,71 @@ namespace rmmc{
 		delete content_type;
 	}
 
-	function_type::function_type(const std::vector<rmm_type>& pars, const rmm_type& ret){
+	function_type::function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const std::optional<rmm_type>& ret){
 		for(auto& p: pars){
-			rmm_type* ptr = new rmm_type(p);
-			parameters.push_back(ptr);
+			rmm_type* ptr = new rmm_type(p.second);
+			parameters.push_back(std::make_pair(p.first, ptr));
 		}
-		return_type = new rmm_type(ret);
+		if(ret)return_type = new rmm_type(*ret);
+		else return_type = nullptr;
 	}
 
 	function_type::function_type(const function_type& t){
-		return_type = new rmm_type(*(t.return_type));
+		if(t.return_type)return_type = new rmm_type(*(t.return_type));
+		else return_type = nullptr;
 		for(auto &p: t.parameters){
-			rmm_type* ptr = new rmm_type(*p);
-			parameters.push_back(ptr);
+			rmm_type* ptr = new rmm_type(*(p.second));
+			parameters.push_back(std::make_pair(p.first, ptr));
 		}
 	}
 
 	bool function_type::operator==(const function_type& x) const{
 		if(x.parameters.size()!=parameters.size())return false;
-		if(*(x.return_type) != *return_type)return false;
 		for(size_t i=0; i<parameters.size(); ++i){
-			if(*(x.parameters[i])!=*(parameters[i]))return false;
+			if(!(x.parameters[i].first==parameters[i].first))return false;
+			if(*(x.parameters[i].second)!=*(parameters[i].second))return false;
 		}
-		return true;
+
+		if(!x.return_type){
+			if(return_type)return false;
+			else return true;
+		}else{
+			if(return_type && (*(x.return_type) == *return_type))return true;
+			return false;
+		}
+		
 	}
 
 	function_type& function_type::operator=(const function_type& t){
-		return_type = new rmm_type(*(t.return_type));
-		for(auto &p: t.parameters){
-			rmm_type* ptr = new rmm_type(*p);
-			parameters.push_back(ptr);
+		std::cout<<"function assign begin "<<t.str()<<std::endl;
+		if(t.return_type)return_type = new rmm_type(*(t.return_type));
+		else return_type = nullptr;
+		parameters = std::vector<std::pair<var_traits, rmm_type*>>();
+		 
+		for(auto p: t.parameters){
+			rmm_type* ptr = new rmm_type(*(p.second));
+			parameters.push_back(std::make_pair(p.first, ptr));
 		}
+		std::cout<<"function assign done "<<this->str()<<std::endl;
 		return *this;
 	}
 
 	std::string function_type::str() const {
 		std::string tmp = "<";
 		for(auto t: parameters){
-			tmp += t->str() + ",";
+			tmp += t.first.str() + t.second->str() + ",";
 		}
-		tmp += ";" + return_type->str() + ">";
+		if(return_type)tmp += ";" + return_type->str() + ">";
+		else tmp += ";void>";
 		return tmp;
 	}
 
 	function_type::~function_type(){
+		std::cout<<this->str()<<" freed"<<std::endl;
 		for(auto& p: parameters){
-			delete p;
+			delete p.second;
 		}
+		delete return_type;
 	}
 
 	rmm_type make_u8(void)

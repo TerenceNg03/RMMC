@@ -30,6 +30,16 @@ TEST(Basic, built_in_types){
 	}
 }
 
+TEST(Basic, traits){
+	/* unique and ref not compatible */
+	EXPECT_EQ(make_traits(true, true, true), std::nullopt);
+	EXPECT_EQ(make_traits(false, true, true), std::nullopt);
+
+	EXPECT_TRUE(make_traits(false, false, true)!=std::nullopt);
+	EXPECT_TRUE(make_traits(false, true, false)!=std::nullopt);
+	EXPECT_TRUE(make_traits(true, false, true)!=std::nullopt);
+}
+
 TEST(Advanced, array) {
 	rmm_type t = make_array(make_u8(), 9);
 	rmm_type t1 = make_array(make_u8(), 3);
@@ -68,7 +78,11 @@ TEST(Advanced, function){
 		{tr1, make_pointer(make_u8())}
 	};
 
+	for(auto i: para1){
+		std::cout<<i.first.str()<<i.second.str()<<std::endl;
+	}
 	rmm_type func1 = make_function(para1.begin(), para1.end(), {});
+	std::cout<<func1.str()<<std::endl;
 	rmm_type func2 = make_function(para1.begin(), para1.end(), {});
 	rmm_type func3 = make_function(para1.begin(), para1.end(), make_pointer(make_u8()));
 	rmm_type func4 = make_function(para2.begin(), para2.end(), {});
@@ -111,16 +125,6 @@ TEST(Advanced, compound) {
 	EXPECT_NE(comp2, comp3);
 }
 
-
-TEST(Basic, traits){
-	/* unique and ref not compatible */
-	EXPECT_EQ(make_traits(true, true, true), std::nullopt);
-	EXPECT_EQ(make_traits(false, true, true), std::nullopt);
-
-	EXPECT_TRUE(make_traits(false, false, true)!=std::nullopt);
-	EXPECT_TRUE(make_traits(false, true, false)!=std::nullopt);
-	EXPECT_TRUE(make_traits(true, false, true)!=std::nullopt);
-}
 
 
 
