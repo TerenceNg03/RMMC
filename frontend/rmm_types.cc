@@ -183,9 +183,6 @@ namespace rmmc{
 			delete p;
 		}
 	}
-
-
-
 }
 
 
