@@ -1,3 +1,6 @@
+#ifndef RMM_TYPES_HH
+#define RMM_TYPES_HH
+
 #include <variant>
 #include <vector>
 #include <utility>
@@ -209,3 +212,5 @@ namespace rmmc{
 	rmm_type make_pointer(const rmm_type& t);
 
 }
+
+#endif
