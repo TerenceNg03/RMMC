@@ -37,6 +37,9 @@ test-type: all
 test-parser: all
 	${MAKE} -C test parser
 
+test-SDT: all
+	${MAKE} -C test SDT
+
 subdir:
 	${MAKE} -C lex lex.o
 	${MAKE} -C frontend frontend.o
