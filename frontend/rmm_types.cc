@@ -118,19 +118,19 @@ namespace rmmc{
 		delete content_type;
 	}
 
-	compound_type::compound_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t){
+	compound_type::compound_type(const std::string& name, const std::vector<std::tuple<var_traits, std::string, rmm_type>>& t){
 		this->name = name;
 		for(auto &p: t){
-			rmm_type* tmp = new rmm_type(p.second);
-			type_list.push_back(std::make_pair(tmp, p.first));
+			rmm_type* tmp = new rmm_type(std::get<2>(p));
+			type_list.push_back(std::make_tuple(std::get<0>(p), tmp, std::get<1>(p)));
 		}
 	}
 
 	compound_type::compound_type(const compound_type& t){
 		name = t.name;
 		for(auto &p: t.type_list){
-			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(std::make_pair(tmp, p.second));
+			rmm_type* tmp = new rmm_type(*(std::get<1>(p)));
+			type_list.push_back(std::make_tuple(std::get<0>(p), tmp, std::get<2>(p)));
 		}
 	}
 
@@ -141,7 +141,7 @@ namespace rmmc{
 	std::string compound_type::str() const {
 		std::string tmp = "comp " + name + "{";
 		for(auto t: type_list){
-			tmp += t.second + ":" + t.first->str() +  ";";
+			tmp += std::get<0>(t).str() + std::get<2>(t) + ":" +  std::get<1>(t)->str() +  ";";
 		}
 		tmp += "}";
 		return tmp;
@@ -149,23 +149,23 @@ namespace rmmc{
 
 	compound_type::~compound_type(){
 		for(auto &p: type_list){
-			delete p.first;
+			delete std::get<1>(p);
 		}
 	}
 
-	union_type::union_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t) {
+	union_type::union_type(const std::string& name, const std::vector<std::tuple<var_traits, std::string, rmm_type>>& t) {
 		this->name = name;
 		for (auto& p : t) {
-			rmm_type* tmp = new rmm_type(p.second);
-			type_list.push_back(std::make_pair(tmp, p.first));
+			rmm_type* tmp = new rmm_type(std::get<2>(p));
+			type_list.push_back(std::make_tuple(std::get<0>(p), tmp, std::get<1>(p)));
 		}
 	}
 
 	union_type::union_type(const union_type& t) {
 		name = t.name;
 		for (auto& p : t.type_list) {
-			rmm_type* tmp = new rmm_type(*(p.first));
-			type_list.push_back(std::make_pair(tmp, p.second));
+			rmm_type* tmp = new rmm_type(*(std::get<1>(p)));
+			type_list.push_back(std::make_tuple(std::get<0>(p), tmp, std::get<2>(p)));
 		}
 	}
 
@@ -176,7 +176,7 @@ namespace rmmc{
 	std::string union_type::str() const {
 		std::string tmp = "union " + name + "{";
 		for(auto t: type_list){
-			tmp += t.second + ":" + t.first->str() +  ";";
+			tmp += std::get<0>(t).str() + std::get<2>(t) + ":" +  std::get<1>(t)->str() +  ";";
 		}
 		tmp += "}";
 		return tmp;
@@ -184,7 +184,7 @@ namespace rmmc{
 
 	union_type::~union_type() {
 		for (auto& p : type_list) {
-			delete p.first;
+			delete std::get<1>(p);
 		}
 	}
 
@@ -242,7 +242,7 @@ namespace rmmc{
 		delete content_type;
 	}
 
-	function_type::function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const std::optional<rmm_type>& ret){
+	function_type::function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const var_traits& ret_traits, const std::optional<rmm_type>& ret):return_traits(ret_traits){
 		for(auto& p: pars){
 			rmm_type* ptr = new rmm_type(p.second);
 			parameters.push_back(std::make_pair(p.first, ptr));
@@ -251,7 +251,7 @@ namespace rmmc{
 		else return_type = nullptr;
 	}
 
-	function_type::function_type(const function_type& t){
+	function_type::function_type(const function_type& t):return_traits(t.return_traits){
 		if(t.return_type)return_type = new rmm_type(*(t.return_type));
 		else return_type = nullptr;
 		for(auto &p: t.parameters){
@@ -271,7 +271,7 @@ namespace rmmc{
 			if(return_type)return false;
 			else return true;
 		}else{
-			if(return_type && (*(x.return_type) == *return_type))return true;
+			if(return_type && (*(x.return_type) == *return_type) && (x.return_traits == return_traits))return true;
 			return false;
 		}
 		
@@ -283,7 +283,7 @@ namespace rmmc{
 			tmp += t.first.str() + t.second->str() + ",";
 		}
 		tmp.pop_back();
-		if(return_type)tmp += ";" + return_type->str() + ">";
+		if(return_type)tmp += ";" + return_traits.str() + return_type->str() + ">";
 		else tmp += ";void>";
 		return tmp;
 	}
@@ -392,5 +392,3 @@ namespace rmmc{
 		return x;
 	}
 }
-
-
