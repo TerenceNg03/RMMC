@@ -209,4 +209,3 @@ namespace rmmc{
 	rmm_type make_pointer(const rmm_type& t);
 
 }
-

@@ -392,5 +392,3 @@ namespace rmmc{
 		return x;
 	}
 }
-
-
