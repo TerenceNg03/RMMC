@@ -5,8 +5,6 @@
 #include <string>
 #include "parser.hh"
 #include "scanner.hh"
-#include "rmm_types.hh"
-#include "rmm_utility.hh"
 #include <fstream>
 #define yylex driver.scanner->lex
 %}
@@ -15,6 +13,8 @@
 	#include "driver.hh"
 	#include "location.hh"
 	#include "position.hh"
+	#include "rmm_types.hh"
+	#include "rmm_utility.hh"
 }
 
 %code provides
@@ -149,7 +149,7 @@ as
 "!"
 "~"
 
-%type <std::string> str
+%type <std::string> str var_name
 
 
 %%
@@ -218,8 +218,8 @@ export_
 
 /* namespace */
 var_name: 
-var_name "::" id
-| id
+var_name "::" id { $$ = $1 + "::" + $3; }
+| id { $$ = $1; }
 
 /* This part deal with init value */
 optional_init_statement:

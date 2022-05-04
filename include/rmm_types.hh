@@ -47,10 +47,10 @@ namespace rmmc{
 	};
 
 	class compound_type{
-		std::vector<std::pair<rmm_type*, std::string>> type_list;
+		std::vector<std::tuple<var_traits, rmm_type*, std::string>> type_list;
 		std::string name;
 		public:
-		compound_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t);
+		compound_type(const std::string& name, const std::vector<std::tuple<var_traits, std::string, rmm_type>>& t);
 		compound_type(const compound_type& t);
 		std::string get_name() const;
 		/* only compare name */
@@ -73,9 +73,10 @@ namespace rmmc{
 
 	class function_type{
 		std::vector<std::pair<var_traits, rmm_type*>> parameters;
+		var_traits return_traits;
 		rmm_type* return_type; //null if is void
 		public:
-		function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const std::optional<rmm_type>& ret);
+		function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const var_traits& return_traits, const std::optional<rmm_type>& ret);
 		function_type(const function_type& t);
 		bool operator==(const function_type& x) const;
 		function_type& operator=(const function_type& x) = delete;
@@ -84,10 +85,10 @@ namespace rmmc{
 	};
 
 	class union_type{
-		std::vector<std::pair<rmm_type*, std::string>> type_list;
+		std::vector<std::tuple<var_traits, rmm_type*, std::string>> type_list;
 		std::string name;
 	public:
-		union_type(const std::string& name, const std::vector<std::pair<std::string, rmm_type>>& t);
+		union_type(const std::string& name, const std::vector<std::tuple<var_traits, std::string, rmm_type>>& t);
 		union_type(const union_type& t);
 		std::string get_name() const;
 		/* only compare name */
@@ -143,14 +144,14 @@ namespace rmmc{
 	rmm_type make_f64(void);
 	rmm_type make_bool(void);
 
-	/* Accepts a iterator with type std::pair<std::string, rmm_type> */
+	/* Accepts a iterator with type std::tuple<var_traits, std::string, rmm_type> */
 	template <
 		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits, std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
 	rmm_type make_comp(std::string name ,Iter begin, Iter end)
 	{
-		std::vector<std::pair<std::string, rmm_type>> tv;
+		std::vector<std::tuple<var_traits, std::string, rmm_type>> tv;
 		Iter k = begin;
 		while (k != end)
 		{
@@ -163,13 +164,13 @@ namespace rmmc{
 	}
 	
 
-	/* Accepts a iterator with type std::pair<std::string, rmm_type> */
+	/* Accepts a iterator with type std::tuple<var_traits, std::string, rmm_type> */
 	template <
 		typename Iter,
-		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<std::string, rmm_type>>::value), std::nullptr_t> = nullptr
+		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::tuple<var_traits, std::string, rmm_type>>::value), std::nullptr_t> = nullptr
 	>
 	rmm_type make_union(std::string name, Iter begin, Iter end){
-		std::vector<std::pair<std::string, rmm_type>> tv;
+		std::vector<std::tuple<var_traits, std::string, rmm_type>> tv;
 		Iter k = begin;
 		while (k != end)
 		{
@@ -195,7 +196,7 @@ namespace rmmc{
 		typename Iter,
 		std::enable_if_t<(std::is_same<typename std::iterator_traits<Iter>::value_type, std::pair<var_traits , rmm_type>>::value), std::nullptr_t> = nullptr
 	>
-	rmm_type make_function(Iter para_begin, Iter para_end, const std::optional<rmm_type> return_type){
+	rmm_type make_function(Iter para_begin, Iter para_end, const var_traits& ret_traits,const std::optional<rmm_type> return_type){
 		std::vector<std::pair<var_traits, rmm_type>> tv;
 		Iter k = para_begin;
 		while (k != para_end)
@@ -204,7 +205,7 @@ namespace rmmc{
 			++k;
 		}
 		
-		function_type t(tv, return_type);
+		function_type t(tv, ret_traits, return_type);
 		return t;
 	}
 	
