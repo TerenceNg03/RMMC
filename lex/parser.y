@@ -5,7 +5,6 @@
 #include <string>
 #include "parser.hh"
 #include "scanner.hh"
-#include "rmm_types.hh"
 #include <fstream>
 #define yylex driver.scanner->lex
 %}
@@ -14,6 +13,8 @@
 	#include "driver.hh"
 	#include "location.hh"
 	#include "position.hh"
+	#include "rmm_types.hh"
+	#include "rmm_utility.hh"
 }
 
 %code provides
@@ -90,7 +91,7 @@ match "keyword match"
 unknown "unknown character"
 eof "end of file"
 
-%token<std::string> name "identifier"
+%token<std::string> id "identifier"
 rawstr "string"
 rawchar "character"
 
@@ -148,6 +149,8 @@ as
 "!"
 "~"
 
+%type <std::string> str var_name
+
 
 %%
 STATEMENTS:
@@ -178,15 +181,15 @@ declare_statement ";"
 
 /* assign statement */
 declare_statement:
-declare variable_traits name ":" typename_incomplete init_statement
-| declare variable_traits name ":" typename optional_init_statement
-| opt_export comp name
-| opt_export union_ name;
-| declare variable_traits name ":" typename_incomplete
+declare variable_traits id ":" typename_incomplete init_statement
+| declare variable_traits id ":" typename optional_init_statement
+| opt_export comp id
+| opt_export union_ id;
+| declare variable_traits id ":" typename_incomplete
 {
 	error(*(driver.location), "Incomplete type must have an initial value");
 }
-| declare variable_traits name
+| declare variable_traits id
 {
 	error(*(driver.location), "Type must be specified");
 }
@@ -198,6 +201,9 @@ let
 
 /* string preprocess */
 str: rawstr
+{
+	$$ = str_process($1);	
+}
 
 character: rawchar
 
@@ -212,8 +218,8 @@ export_
 
 /* namespace */
 var_name: 
-var_name "::" name
-| name
+var_name "::" id { $$ = $1 + "::" + $3; }
+| id { $$ = $1; }
 
 /* This part deal with init value */
 optional_init_statement:
@@ -250,20 +256,20 @@ typename:
 
 
 comp_type:
-comp name "{" comp_decl_list "}" /* named comp */
+comp id "{" comp_decl_list "}" /* named comp */
 
 union_type:
-union_ name "{" comp_decl_list "}"
+union_ id "{" comp_decl_list "}"
 
 comp_decl_list:
 /* empty */
 | comp_decl_list comp_decl_item
 
 comp_decl_item:
-func_para_traits name ":" typename ";"
-| func_para_traits name "::" var_name ":" typename ";"
+func_para_traits id ":" typename ";"
+| func_para_traits id "::" var_name ":" typename ";"
 {
-	error(*(driver.location), "Qualified name not allowed here");
+	error(*(driver.location), "Qualified id not allowed here");
 }
 
 func_para_typelist:
@@ -301,7 +307,7 @@ from var_name import_ var_name
 
 /* type statement */
 type_statement:
-type opt_export name typename
+type opt_export id typename
 | opt_export comp_type
 | opt_export union_type
 
@@ -311,7 +317,7 @@ opt_export:
 
 /* mod_statement */ 
 mod_statement:
-mod name "{" inmod_satements "}"
+mod id "{" inmod_satements "}"
 
 inmod_satements:
 /* empty */
@@ -373,9 +379,6 @@ additive_exp: mult_exp
 
 mult_exp: cast_exp
 | mult_exp "*" cast_exp 
-{
-	$$ = expression($1, $3);
-}
 | mult_exp "/" cast_exp
 | mult_exp "%" cast_exp
 
@@ -383,21 +386,16 @@ cast_exp: unary_exp
 | cast_exp as typename
 
 unary_exp: postfix_exp
-| unary_operator unary_exp{
-	$$ = uary_exp($1, $2)
-} 
+| unary_operator unary_exp
 
 unary_operator: "&" | "*" | "+" | "-" | "~" | "!" | move
-{
-	$$ = identifier("")
-}
 
 postfix_exp: primary_exp
 | postfix_exp "[" exp "]"
 | postfix_exp "(" argument_exp_list ")"
 | postfix_exp "("			")"
-| postfix_exp "." name
-| postfix_exp "->" name
+| postfix_exp "." id
+| postfix_exp "->" id
 
 argument_exp_list: assignment_exp
 | argument_exp_list "," assignment_exp
@@ -422,7 +420,7 @@ var_name "{" init_list_comp "}"
 
 init_list_comp:
 /* empty */
-| init_list_comp name init_statement ";"
+| init_list_comp id init_statement ";"
 
 /* functional */ 
 function_literal:
@@ -438,7 +436,7 @@ parameters_list "," parameter_decl
 | parameter_decl
 
 parameter_decl:
-func_para_traits name ":" typename
+func_para_traits id ":" typename
 
 function_body:
 /* empty */
@@ -487,7 +485,7 @@ while_statement:
 while_  "(" exp ")" "{" function_body "}"
 
 match_statement:
-match exp "{" match_list "}"
+match  "(" exp ")" "{" match_list "}"
 
 match_list:
 /* empty */
@@ -498,8 +496,8 @@ match_type ":" "{" function_body "}" ";"
 
 match_type:
 /* empty */
-| name
-| move name
+| id
+| move id
 
 /* jump_statement */
 jump_statement:

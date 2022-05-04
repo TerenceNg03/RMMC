@@ -430,7 +430,7 @@ let main: auto = <void; void>{
 	var o: my_union = my_union {a: 32}; # alloc memory for a
 	var i: i32;
 	var ref r: i32;
-	match o {
+	match (o) {
 		a: {
 			i = b; # compile error, b not valid in this scope
 			i = a; # ok 

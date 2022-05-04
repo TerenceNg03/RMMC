@@ -19,7 +19,7 @@ let create_list: auto = <value: i32; mut unique list_node>{
 
 let insert: auto = <root: *list_node, unique to_insert: list_node; i32>{
 	if(!root){return -1;};
-	match *root.next {
+	match (*root.next) {
 		move content:{
 			# error
 			*root.next = optional{content = move list_node;};
