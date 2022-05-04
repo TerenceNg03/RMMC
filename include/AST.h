@@ -11,14 +11,9 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include "location.hh"
 
-using std::cout;
-using std::endl;
-using std::make_shared;
-using std::string;
-using std::vector;
-using std::unique_ptr;
-using std::move;
+namespace rmmc{
 
 class Statement;
 class Expression;
@@ -33,34 +28,32 @@ typedef std::vector<std::unique_ptr<FunctionDeclarationStatement>> FunctionList;
 class ASTNode
 {
 public:
-    ASTNode() = default;
-    virtual ~ASTNode() = default;
-    virtual void print()
-    {
-        cout << "ASTNode" << endl;
-    }
-    virtual void toXML()
-    {
-        
-    }
-    virtual llvm::Value *codeGen()
-    {
-        return (llvm::Value *)0;
-    }
+    location loc;
+    virtual ~ASTNode();
+
+    virtual void print() =0; 
+    virtual void toXML() =0;
+    virtual llvm::Value *codeGen() =0;
 };
 
 class Statement : public ASTNode
 {
 public:
-    Statement() = default;
     virtual ~Statement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class Expression : public ASTNode
 {
-public:
-    Expression() = default;
+public:    
     virtual ~Expression() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 /***
@@ -72,12 +65,10 @@ class DoubleExpr : public Expression
 public:
     double Value;
 
-    DoubleExpr() {}
-    DoubleExpr(double _value): Value(_value) {}
-    ~DoubleExpr() {}
-    virtual void print(){
-        std::cout<<"Double Expression"<<endl;
+    DoubleExpr(double _value, location _loc): Value(_value){
+        loc=_loc;
     }
+    ~DoubleExpr() {}
 };
 
 class IntegerExpr : public Expression
@@ -85,9 +76,14 @@ class IntegerExpr : public Expression
 public:
     long long Value;
 
-    IntegerExpr() {}
-    IntegerExpr(long long _value): Value(_value) {}
+    IntegerExpr(long long _value, location _loc): Value(_value) {
+        loc=_loc;
+    }
     ~IntegerExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class UnsignedIntegerExpr : public Expression
@@ -95,9 +91,14 @@ class UnsignedIntegerExpr : public Expression
 public:
     unsigned long long Value;
 
-    UnsignedIntegerExpr() {}
-    UnsignedIntegerExpr(unsigned long long _value): Value(_value) {}
+    UnsignedIntegerExpr(unsigned long long _value, location _loc): Value(_value) {
+        loc=_loc;
+    }
     ~UnsignedIntegerExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class BooleanExpr : public Expression
@@ -105,9 +106,14 @@ class BooleanExpr : public Expression
 public:
     bool Value;
 
-    BooleanExpr() {}
-    BooleanExpr(bool _value): Value(_value) {}
+    BooleanExpr(bool _value, location _loc): Value(_value) {
+        loc=_loc;
+    }
     ~BooleanExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class CharExpr : public Expression
@@ -115,18 +121,28 @@ class CharExpr : public Expression
 public:
     char Value;
 
-    CharExpr() {}
-    CharExpr(char _value) : Value(_value) {}
+    CharExpr(char _value, location _loc) : Value(_value) {
+        loc=_loc;
+    }
     ~CharExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class IdentifierExpr : public Expression
 {
 public:
-    string Name;
+    std::string Name;
 
-    IdentifierExpr() {}
-    IdentifierExpr(string _name): Name(_name) {}
+    IdentifierExpr(std::string _name, location _loc): Name(_name) {
+        loc=_loc;
+    }
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 enum BinaryOperator
@@ -175,12 +191,16 @@ public:
     SingleOperator Type;
     std::unique_ptr<Expression> Expr;
 
-    SingleOperatorExpr() {}
-    SingleOperatorExpr(std::unique_ptr<Expression> _Expr, SingleOperator _Type)
-            : Expr(move(_Expr)) ,
+    SingleOperatorExpr(std::unique_ptr<Expression> _Expr, SingleOperator _Type, location _loc)
+            : Expr(std::move(_Expr)) ,
               Type(_Type) {
+        loc=_loc;
     }
     ~SingleOperatorExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class BinaryOperatorExpr : public Expression
@@ -190,13 +210,17 @@ public:
     std::unique_ptr<Expression> LHS;
     std::unique_ptr<Expression> RHS;
 
-    BinaryOperatorExpr() {}
-    BinaryOperatorExpr(unique_ptr<Expression> _LHS, unique_ptr<Expression> _RHS, BinaryOperator _Type)
-            : LHS{ move(_LHS) } ,
-              RHS{ move(_RHS) } ,
+    BinaryOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _RHS, BinaryOperator _Type, location _loc)
+            : LHS{ std::move(_LHS) } ,
+              RHS{ std::move(_RHS) } ,
               Type(_Type){
+        loc=_loc;
     }
     ~BinaryOperatorExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class ThreeOperatorExpr : public Expression
@@ -207,15 +231,18 @@ public:
     std::unique_ptr<Expression> MHS;
     std::unique_ptr<Expression> RHS;
 
-    ThreeOperatorExpr() {}
-    ThreeOperatorExpr(unique_ptr<Expression> _LHS, unique_ptr<Expression> _MHS, unique_ptr<Expression> _RHS, ThreeOperator _Type)
-            : LHS{move(_LHS)},
-              MHS{move(_MHS)},
-              RHS{move(_RHS)},
-              Type(_Type)
-    {
+    ThreeOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _MHS, std::unique_ptr<Expression> _RHS, ThreeOperator _Type, location _loc)
+            : LHS{std::move(_LHS)},
+              MHS{std::move(_MHS)},
+              RHS{std::move(_RHS)},
+              Type(_Type){
+        loc=_loc;
     }
     ~ThreeOperatorExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class FunctionCallExpr : public Expression
@@ -224,15 +251,20 @@ public:
     std::unique_ptr<IdentifierExpr> FunctionName;
     std::unique_ptr<ExpressionList> Args ;
 
-    FunctionCallExpr() {}
-    FunctionCallExpr(unique_ptr<IdentifierExpr> _FunctionName)
-            : FunctionName{move(_FunctionName)} {
+    FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, location _loc)
+            : FunctionName{std::move(_FunctionName)} {
+        loc=_loc;
     }
-    FunctionCallExpr(unique_ptr<IdentifierExpr> _FunctionName, unique_ptr<ExpressionList> _Args)
-            : FunctionName{move(_FunctionName)},
-              Args{move(_Args)} {
+    FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, std::unique_ptr<ExpressionList> _Args, location _loc)
+            : FunctionName{std::move(_FunctionName)},
+              Args{std::move(_Args)} {
+        loc=_loc;
     }
     ~FunctionCallExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 /***
@@ -244,8 +276,11 @@ public:
 class VariableDeclarationStatement : public Statement
 {
 public:
-    VariableDeclarationStatement() {}
     virtual ~VariableDeclarationStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class SingleVariableDeclarationStatement : public VariableDeclarationStatement
@@ -254,12 +289,16 @@ public:
     std::unique_ptr<IdentifierExpr> VariableType;
     std::unique_ptr<IdentifierExpr> VariableName;
 
-    SingleVariableDeclarationStatement() {}
-    SingleVariableDeclarationStatement(unique_ptr<IdentifierExpr> _VariableType, unique_ptr<IdentifierExpr> _VariableName)
-            : VariableType{ move(_VariableType) } ,
-              VariableName{ move(_VariableName) } {
+    SingleVariableDeclarationStatement(std::unique_ptr<IdentifierExpr> _VariableType, std::unique_ptr<IdentifierExpr> _VariableName, location _loc)
+            : VariableType{ std::move(_VariableType) } ,
+              VariableName{ std::move(_VariableName) } {
+        loc=_loc;
     }
     ~SingleVariableDeclarationStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class ArrayDeclarationStatement : public VariableDeclarationStatement
@@ -269,14 +308,17 @@ public:
     std::unique_ptr<IdentifierExpr> ArrayName;
     std::unique_ptr<IntegerExpr> ArraySize;
 
-    ArrayDeclarationStatement() {}
-    ArrayDeclarationStatement(unique_ptr<IdentifierExpr> _ArrayType, unique_ptr<IdentifierExpr> _ArrayName, unique_ptr<IntegerExpr> _ArraySize)
-        : ArrayType{move(_ArrayType)},
-          ArrayName{move(_ArrayName)},
-          ArraySize{move(_ArraySize)}
-    {
+    ArrayDeclarationStatement(std::unique_ptr<IdentifierExpr> _ArrayType, std::unique_ptr<IdentifierExpr> _ArrayName, std::unique_ptr<IntegerExpr> _ArraySize, location _loc)
+        : ArrayType{std::move(_ArrayType)},
+          ArrayName{std::move(_ArrayName)},
+          ArraySize{std::move(_ArraySize)}{
+        loc=_loc;
     }
     ~ArrayDeclarationStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class AssignmentStatement : public Statement
@@ -285,12 +327,16 @@ public:
     std::unique_ptr<Expression> LHS;
     std::unique_ptr<Expression> RHS;
 
-    AssignmentStatement() {}
-    AssignmentStatement(unique_ptr<Expression> _LHS, unique_ptr<Expression> _RHS)
-            : LHS{ move(_LHS) } ,
-              RHS{ move(_RHS) } {
+    AssignmentStatement(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _RHS, location _loc)
+            : LHS{ std::move(_LHS) } ,
+              RHS{ std::move(_RHS) } {
+        loc=_loc;
     }
     ~AssignmentStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 
@@ -302,16 +348,21 @@ public:
     std::unique_ptr<VariableList> Args;
     std::unique_ptr<StatementList> Content;
 
-    FunctionDeclarationStatement() {}
-    FunctionDeclarationStatement(unique_ptr<IdentifierExpr> _ReturnType,
-                                 unique_ptr<IdentifierExpr> _FunctionName,
-                                 unique_ptr<VariableList> _Args,
-                                 unique_ptr<StatementList> _Content)
-            : ReturnType{move(_ReturnType)},
-              FunctionName{move(_FunctionName)},
-              Args{move(_Args)},
-              Content{move(_Content)} {
+    FunctionDeclarationStatement(std::unique_ptr<IdentifierExpr> _ReturnType,
+                                 std::unique_ptr<IdentifierExpr> _FunctionName,
+                                 std::unique_ptr<VariableList> _Args,
+                                 std::unique_ptr<StatementList> _Content,
+                                 location _loc)
+            : ReturnType{std::move(_ReturnType)},
+              FunctionName{std::move(_FunctionName)},
+              Args{std::move(_Args)},
+              Content{std::move(_Content)} {
+        loc=_loc;
     }
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class StructDeclarationStatement : public Statement
@@ -321,15 +372,20 @@ public:
     std::unique_ptr<VariableList> Members ;
     std::unique_ptr<FunctionList> FuncMembers;
 
-    StructDeclarationStatement() = default;
-    StructDeclarationStatement(unique_ptr<IdentifierExpr> Name,
-                               unique_ptr<VariableList> Members,
-                               unique_ptr<FunctionList> FuncMembers)
-            : Name{move(Name)},
-              Members{move(Members)},
-              FuncMembers{move(FuncMembers)}
-    {}
+    StructDeclarationStatement(std::unique_ptr<IdentifierExpr> Name,
+                               std::unique_ptr<VariableList> Members,
+                               std::unique_ptr<FunctionList> FuncMembers,
+                               location _loc)
+        : Name{std::move(Name)},
+          Members{std::move(Members)},
+          FuncMembers{std::move(FuncMembers)}{
+        loc=_loc;
+    }
     ~StructDeclarationStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class TypedefStatement: public Statement
@@ -338,13 +394,16 @@ public:
     std::unique_ptr<IdentifierExpr> LHS;
     std::unique_ptr<IdentifierExpr> RHS;
 
-    TypedefStatement() = default;
-    TypedefStatement(unique_ptr<IdentifierExpr> LHS, unique_ptr<IdentifierExpr> RHS)
-            : LHS{move(LHS)},
-              RHS{move(RHS)}
-    {
+    TypedefStatement(std::unique_ptr<IdentifierExpr> LHS, std::unique_ptr<IdentifierExpr> RHS, location _loc)
+        : LHS{std::move(LHS)},
+          RHS{std::move(RHS)}{
+        loc=_loc;
     }
     ~TypedefStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class IfStatement : public Statement
@@ -354,16 +413,20 @@ public:
     std::unique_ptr<StatementList> TrueBlock ;
     std::unique_ptr<StatementList> FalseBlock ;
 
-    IfStatement() = default;
-    IfStatement(unique_ptr<Expression> Condition,
-                unique_ptr<StatementList> TrueBlock,
-                unique_ptr<StatementList> FalseBlock)
-            : Condition{move(Condition)},
-              TrueBlock{move(TrueBlock)},
-              FalseBlock{move(FalseBlock)}
-    {
+    IfStatement(std::unique_ptr<Expression> Condition,
+                std::unique_ptr<StatementList> TrueBlock,
+                std::unique_ptr<StatementList> FalseBlock,
+                location _loc)
+        : Condition{std::move(Condition)},
+          TrueBlock{std::move(TrueBlock)},
+          FalseBlock{std::move(FalseBlock)}{
+        loc=_loc;
     }
     ~IfStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class WhileStatement : public Statement
@@ -372,26 +435,38 @@ public:
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<StatementList> Block;
 
-    WhileStatement() = default;
-    WhileStatement(unique_ptr<Expression> Condition,
-                   unique_ptr<StatementList> Block)
-            : Condition{move(Condition)},
-              Block{move(Block)}
-    {
+    WhileStatement(std::unique_ptr<Expression> Condition,
+                   std::unique_ptr<StatementList> Block,
+                   location _loc)
+        : Condition{std::move(Condition)},
+          Block{std::move(Block)}{
+        loc=_loc;
     }
     ~WhileStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class BreakStatement : public Statement
 {
 public:
     BreakStatement() = default;
+    BreakStatement(location _loc){
+        loc=_loc;
+    }
+    virtual ~BreakStatement() {}
 };
 
 class ContinueStatement : public Statement
 {
 public:
     ContinueStatement() = default;
+    ContinueStatement(location _loc){
+        loc=_loc;
+    }
+    virtual ~ContinueStatement() {}
 };
 
 class NameSpaceStatement : public Statement
@@ -400,14 +475,18 @@ public:
     std::unique_ptr<IdentifierExpr> Name;
     std::unique_ptr<StatementList> Block;
 
-    NameSpaceStatement() = default;
-    NameSpaceStatement(unique_ptr<IdentifierExpr> Name,
-                       unique_ptr<StatementList> Block)
-            : Name{move(Name)},
-              Block{move(Block)}
-    {
+    NameSpaceStatement(std::unique_ptr<IdentifierExpr> Name,
+                       std::unique_ptr<StatementList> Block,
+                       location _loc)
+        : Name{std::move(Name)},
+          Block{std::move(Block)}{
+        loc=_loc;
     }
     ~NameSpaceStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class UseStatement : public Statement
@@ -415,12 +494,15 @@ class UseStatement : public Statement
 public:
     std::unique_ptr<IdentifierExpr> Name;
 
-    UseStatement() = default;
-    UseStatement(unique_ptr<IdentifierExpr> Name)
-            : Name{move(Name)}
-    {
+    UseStatement(std::unique_ptr<IdentifierExpr> Name, location _loc)
+        : Name{std::move(Name)}{
+        loc=_loc;
     }
     ~UseStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class ImportStatement : public Statement
@@ -428,12 +510,15 @@ class ImportStatement : public Statement
 public:
     std::unique_ptr<Expression> Name;
 
-    ImportStatement() = default;
-    ImportStatement(unique_ptr<Expression> Name)
-            : Name{move(Name)}
-    {
+    ImportStatement(std::unique_ptr<Expression> Name, location _loc)
+        : Name{std::move(Name)}{
+        loc=_loc;
     }
     ~ImportStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class FromStatement : public Statement
@@ -442,14 +527,18 @@ public:
     std::unique_ptr<Expression> FromName;
     std::unique_ptr<Expression> ImportName;
 
-    FromStatement() = default;
-    FromStatement(unique_ptr<Expression> FromName,
-                  unique_ptr<Expression> ImportName)
-            : FromName{move(FromName)},
-              ImportName{move(ImportName)}
-    {
+    FromStatement(std::unique_ptr<Expression> FromName,
+                  std::unique_ptr<Expression> ImportName,
+                  location _loc)
+        : FromName{std::move(FromName)},
+          ImportName{std::move(ImportName)}{
+        loc=_loc;
     }
     ~FromStatement() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
 };
 
 class ExportStatement : public Statement
@@ -457,14 +546,17 @@ class ExportStatement : public Statement
 public:
     std::unique_ptr<Expression> Name;
 
-    ExportStatement() = default;
-    ExportStatement(unique_ptr<Expression> Name)
-            : Name{move(Name)}
-    {
+    ExportStatement(std::unique_ptr<Expression> Name, location _loc)
+        : Name{std::move(Name)}{
+        loc=_loc;
     }
     ~ExportStatement() {}
-};
 
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value *codeGen();
+};
+}
 
 
 #endif
