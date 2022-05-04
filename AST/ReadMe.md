@@ -34,3 +34,7 @@ namespace :: 作为二元运算符
 
 union and match 
 
+```
+clang++ test.cpp -I /include `llvm-config --cxxflags --ldflags --system-libs --libs core` -o test.out
+```
+

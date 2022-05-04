@@ -5,7 +5,7 @@
 #ifndef __AST_H__
 #define __AST_H__
 
-#include <llvm/IR/Value.h>
+#include "llvm/IR/Value.h"
 #include <iostream>
 #include <cstdlib>
 #include <memory>
@@ -41,7 +41,7 @@ public:
     }
     virtual void toXML()
     {
-
+        
     }
     virtual llvm::Value *codeGen()
     {
@@ -265,13 +265,16 @@ public:
 class ArrayDeclarationStatement : public VariableDeclarationStatement
 {
 public:
+    std::unique_ptr<IdentifierExpr> ArrayType;
     std::unique_ptr<IdentifierExpr> ArrayName;
     std::unique_ptr<IntegerExpr> ArraySize;
 
     ArrayDeclarationStatement() {}
-    ArrayDeclarationStatement(unique_ptr<IdentifierExpr> _ArrayName, unique_ptr<IntegerExpr> _ArraySize)
-            : ArrayName{move(_ArrayName)},
-              ArraySize{move(_ArraySize)}{
+    ArrayDeclarationStatement(unique_ptr<IdentifierExpr> _ArrayType, unique_ptr<IdentifierExpr> _ArrayName, unique_ptr<IntegerExpr> _ArraySize)
+        : ArrayType{move(_ArrayType)},
+          ArrayName{move(_ArrayName)},
+          ArraySize{move(_ArraySize)}
+    {
     }
     ~ArrayDeclarationStatement() {}
 };
