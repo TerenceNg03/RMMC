@@ -69,6 +69,10 @@ public:
         loc=_loc;
     }
     ~DoubleExpr() {}
+
+    virtual void print();
+    virtual void toXML();
+    virtual llvm::Value* codeGen();
 };
 
 class IntegerExpr : public Expression

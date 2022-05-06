@@ -1,4 +1,3 @@
-#include "AST.h"
 std::string getJsonString(std::string name) {
     return "{ \"name\" : \"" + name + "\" }";
 }
@@ -34,27 +33,27 @@ std::string getJsonString(std::string name, std::string value, vector<std::strin
 }
 std::string DoubleExpr::toXML()
 {
-    return getJsonString("DoubleExpr", getJsonString(std::to_string(Value));
+    return getJsonString("DoubleExpr", getJsonString(to_string(Value));
 }
 
 std::string IntegerExpr::toXML()
 {
-    return getJsonString("IntegerExpr", getJsonString(std::to_string(Value));
+    return getJsonString("IntegerExpr", getJsonString(to_string(Value));
 }
 
 std::string UnsignedIntegerExpr::toXML()
 {
-    return getJsonString("UnsignedIntegerExpr", getJsonString(std::to_string(Value));
+    return getJsonString("UnsignedIntegerExpr", getJsonString(to_string(Value));
 }
 
 std::string BooleanExpr::toXML()
 {
-    return getJsonString("BooleanExpr", getJsonString(std::to_string(Value));
+    return getJsonString("BooleanExpr", getJsonString(to_string(Value));
 }
 
 std::string CharExpr::toXML()
 {
-    return getJsonString("CharExpr", getJsonString(std::to_string(Value));
+    return getJsonString("CharExpr", getJsonString(to_string(Value));
 }
 
 std::string IdentifierExpr::toXML()
@@ -64,31 +63,30 @@ std::string IdentifierExpr::toXML()
 
 std::string BinaryOperatorExpr::toXML()
 {
-    vector<std::string> children;
-    children.push_back(LHS->toXML());
-    //opString¶ÔÓ¦·ûºÅ
+    vector<string> children;
+    children.push_back(LHS->getJson());
     children.push_back(getJsonString(opString[Type]));
-    children.push_back(RHS->toXML());
+    children.push_back(RHS->getJson());
     return getJsonString("BinaryOperatorExpr", children);
 }
 
 std::string ThreeOperatorExpr::toXML()
 {
-    vector<std::string> children;
-    children.push_back(LHS->toXML());
-    children.push_back(MHS->toXML());
-    children.push_back(RHS->toXML());
+    vector<string> children;
+    children.push_back(LHS->getJson());
+    children.push_back(MHS->getJson());
+    children.push_back(RHS->getJson());
     children.push_back(getJsonString(opString[Type]));
     return getJsonString("ThreeOperatorExpr", children);
 }
 
 std::string FunctionCallExpr::toXML()
 {
-    vector<std::string> children;
-    children.push_back(FunctionName->toXML());
-    vector<std::string> ArgsJson;
+    vector<string> children;
+    children.push_back(FunctionName->getJson());
+    vector<string> ArgsJson;
     for (auto& Arg : *Args) {
-        ArgsJson.push_back(Arg->toXML());
+        ArgsJson.push_back(Arg->getJson());
     }
     children.push_back(getJsonString("ExpressionList", ArgsJson));
     return getJsonString("FunctionCallExpr", children);
@@ -96,42 +94,42 @@ std::string FunctionCallExpr::toXML()
 
 std::string SingleVariableDeclarationStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(VariableType->toXML());
-    children.push_back(VariableName->toXML());
+    vector<string> children;
+    children.push_back(VariableType->getJson());
+    children.push_back(VariableName->getJson());
     return getJsonString("SingleVariableDeclarationStatement", children);
 }
 
 std::string ArrayDeclarationStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(ArrayType->toXML());
-    children.push_back(ArrayName->toXML());
-    children.push_back(ArraySize->toXML());
+    vector<string> children;
+    children.push_back(ArrayType->getJson());
+    children.push_back(ArrayName->getJson());
+    children.push_back(ArraySize->getJson());
     return getJsonString("ArrayDeclarationStatement", children);
 }
 
 std::string AssignmentStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(LHS->toXML());
-    children.push_back(RHS->toXML());
+    vector<string> children;
+    children.push_back(LHS->getJson());
+    children.push_back(RHS->getJson());
     return getJsonString("AssignmentStatement", children);
 }
 
 std::string FunctionDeclarationStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(ReturnType->toXML());
-    children.push_back(FunctionName->toXML());
+    vector<string> children;
+    children.push_back(ReturnType->getJson());
+    children.push_back(FunctionName->getJson());
     vector<string> ArgsJson;
     for (auto& Arg : *Args) {
-        ArgsJson.push_back(Arg->toXML());
+        ArgsJson.push_back(Arg->getJson());
     }
     children.push_back(getJsonString("VariableList", ArgsJson));
-    vector<std::string> ContentJson;
+    vector<string> ContentJson;
     for (auto& Con : *Content) {
-        ContentJson.push_back(Con->toXML());
+        ContentJson.push_back(Con->getJson());
     }
     children.push_back(getJsonString("StatementList", ContentJson));
     return getJsonString("FunctionDeclarationStatement", children);
@@ -139,16 +137,16 @@ std::string FunctionDeclarationStatement::toXML()
 
 std::string StructDeclarationStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Name->toXML());
-    vector<std::string> MembersJson;
+    vector<string> children;
+    children.push_back(Name->getJson());
+    vector<string> MembersJson;
     for (auto& Mem : *Members) {
-        MembersJson.push_back(Mem->toXML());
+        MembersJson.push_back(Mem->getJson());
     }
     children.push_back(getJsonString("VariableList", MembersJson));
-    vector<std::string> FuncMembersJson;
+    vector<string> FuncMembersJson;
     for (auto& Func : *FuncMembers) {
-        FuncMembersJson.push_back(Fun->toXML());
+        FuncMembersJson.push_back(Fun->getJson());
     }
     children.push_back(getJsonString("FunctionList", FuncMembersJson));
     return getJsonString("StructDeclarationStatement", children);
@@ -156,24 +154,24 @@ std::string StructDeclarationStatement::toXML()
 
 std::string TypedefStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(LHS->toXML());
-    children.push_back(RHS->toXML());
+    vector<string> children;
+    children.push_back(LHS->getJson());
+    children.push_back(RHS->getJson());
     return getJsonString("TypedefStatement", children);
 }
 
 std::string IfStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Condition->toXML());
-    vector<std::string> TrueBlockJson;
+    vector<string> children;
+    children.push_back(Condition->getJson());
+    vector<string> TrueBlockJson;
     for (auto& T : *TrueBlock) {
-        TrueBlockJson.push_back(T->toXML());
+        TrueBlockJson.push_back(T->getJson());
     }
     children.push_back(getJsonString("StatementList", TrueBlockJson));
-    vector<std::string> FalseBlockJson;
+    vector<string> FalseBlockJson;
     for (auto& F : *FalseBlock) {
-        FalseBlockJson.push_back(F->toXML());
+        FalseBlockJson.push_back(F->getJson());
     }
     children.push_back(getJsonString("StatementList", FalseBlockJson));
     return getJsonString("IfStatement", children);
@@ -181,11 +179,11 @@ std::string IfStatement::toXML()
 
 std::string WhileStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Condition->toXML());
-    vector<std::string> BlockJson;
+    vector<string> children;
+    children.push_back(Condition->getJson());
+    vector<string> BlockJson;
     for (auto& B : *Block) {
-        BlockJson.push_back(B->toXML());
+        BlockJson.push_back(B->getJson());
     }
     children.push_back(getJsonString("StatementList", BlockJson));
     return getJsonString("WhileStatement", children);
@@ -203,11 +201,11 @@ std::string ContinueStatement::toXML()
 
 std::string  NameSpaceStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Name->toXML());
-    vector<std::string> BlockJson;
+    vector<string> children;
+    children.push_back(Name->getJson());
+    vector<string> BlockJson;
     for (auto& B : *Block) {
-        BlockJson.push_back(B->toXML());
+        BlockJson.push_back(B->getJson());
     }
     children.push_back(getJsonString("StatementList", BlockJson));
     return getJsonString("NameSpaceStatement", children);
@@ -215,29 +213,29 @@ std::string  NameSpaceStatement::toXML()
 
 std::string  UseStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Name->toXML());
+    vector<string> children;
+    children.push_back(Name->getJson());
     return getJsonString("UseStatement", children);
 }
 
 std::string  ImportStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Name->toXML());
+    vector<string> children;
+    children.push_back(Name->getJson());
     return getJsonString("ImportStatement", children);
 }
 
 std::string FromStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(FromName->toXML());
-    children.push_back(ImportName->toXML());
+    vector<string> children;
+    children.push_back(FromName->getJson());
+    children.push_back(ImportName->getJson());
     return getJsonString("FromStatement", children);
 }
 
 std::string  ExportStatement::toXML()
 {
-    vector<std::string> children;
-    children.push_back(Name->toXML());
+    vector<string> children;
+    children.push_back(Name->getJson());
     return getJsonString("ExportStatement", children);
 }
