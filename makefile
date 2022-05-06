@@ -1,8 +1,8 @@
 export
 
-CC = g++
+CC = clang++
 CFLAG = -std=c++17 -Wall 
-INCLUDE = -I$(shell pwd)/include
+INCLUDE = -I$(shell pwd)/include -I$(shell pwd)/lex
 DEFINE = -Dregister
 FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
 YFLAGS = -d -Wno-yacc

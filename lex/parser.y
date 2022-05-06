@@ -15,6 +15,11 @@
 	#include "position.hh"
 	#include "rmm_types.hh"
 	#include "rmm_utility.hh"
+	#include "AST.hh"
+
+	typedef make_unique<rmmc::ASTNode> make_node;
+	typedef make_unique<rmmc::Expression> make_expr;
+	#define dloc (*(driver.location))
 }
 
 %code provides
@@ -150,7 +155,9 @@ as
 "~"
 
 %type <std::string> str var_name
-
+%type <char> character
+%type <std::unique_ptr<rmmc::Expression>> const_value exp assignment_exp conditional_exp logical_or_exp logical_and_exp inclusive_or_exp exclusive_or_exp and_exp equality_exp relational_exp shift_expression additive_exp mult_exp cast_exp unary_exp postfix_exp
+%type <rmmc::SingleOperator> unary_operator
 
 %%
 STATEMENTS:
@@ -202,10 +209,19 @@ let
 /* string preprocess */
 str: rawstr
 {
-	$$ = str_process($1);	
+	$$ = rmmc::str_process($1);	
 }
 
 character: rawchar
+{
+	auto c = rmmc::char_process($1);
+	if(!c){
+		error(*(driver.location), "Invalid char literal: " + $1);
+		$$ = '\0';
+	}else{
+		$$ = *c;
+	}
+}
 
 /* variable trait*/
 variable_traits:
@@ -230,13 +246,13 @@ init_statement:
 "=" exp
 
 const_value:
-long_
-| float_
+long_ { $$ = make_node(new IntegerExpr($1, dloc)); }
+| float_ { $$ = make_node(new Doublexpr($1, dloc)); }
 | str
-| character
-| true_
-| false_
-| nullptr_
+| character { $$ = make_node(new CharExpr($1, dloc)); }
+| true_ { $$ = make_node(new BooleanExpr(false, dloc); }
+| false_ { $$ = make_node(new BooleanExpr(false, dloc); }
+| nullptr_ 
 
 
 /* This part deal with typename */
@@ -335,77 +351,165 @@ use_statement:
 use var_name
 
 /* expression */ 
-exp: assignment_exp
+exp: assignment_exp { $$ = std::move($1); }
 | exp "," assignment_exp
 
-assignment_exp: conditional_exp
+assignment_exp: conditional_exp { $$ = std::move($1); }
 | unary_exp "=" assignment_exp
 
-conditional_exp: logical_or_exp
+conditional_exp: logical_or_exp { $$ = std::move($1); }
 | logical_or_exp "?" exp ":" conditional_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::E, dloc)); 
+}
 
-logical_or_exp: logical_and_exp
+logical_or_exp: logical_and_exp { $$ = std::move($1); }
 | logical_or_exp "||" logical_and_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::LOGICAL_OR, dloc)); 
+}
 
-logical_and_exp: inclusive_or_exp
+logical_and_exp: inclusive_or_exp { $$ = std::move($1); }
 | logical_and_exp "&&" inclusive_or_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::LOGICAL_AND, dloc)); 
+}
 
-inclusive_or_exp: exclusive_or_exp
+inclusive_or_exp: exclusive_or_exp { $$ = std::move($1); }
 | inclusive_or_exp "|" exclusive_or_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::E, dloc)); 
+}
 
-exclusive_or_exp: and_exp
+exclusive_or_exp: and_exp { $$ = std::move($1); }
 | exclusive_or_exp "^" and_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::E, dloc)); 
+}
 
-and_exp: equality_exp
+and_exp: equality_exp { $$ = std::move($1); }
 | and_exp "&" equality_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::E, dloc)); 
+}
 
-equality_exp: relational_exp
+equality_exp: relational_exp { $$ = std::move($1); }
 | equality_exp "==" relational_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::E, dloc)); 
+}
 | equality_exp "!=" relational_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::NE, dloc)); 
+}
 
-relational_exp: shift_expression
+relational_exp: shift_expression { $$ = std::move($1); }
 | relational_exp "<" shift_expression
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::LT, dloc)); 
+}
 | relational_exp ">" shift_expression
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::GT, dloc)); 
+}
 | relational_exp "<=" shift_expression
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::ELT, dloc)); 
+}
 | relational_exp ">=" shift_expression
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::EGT, dloc)); 
+}
 
-shift_expression: additive_exp
+shift_expression: additive_exp { $$ = std::move($1); }
 | shift_expression "<<" additive_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::LEFT_SHIFT, dloc)); 
+}
 | shift_expression ">>" additive_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::RIGHT_SHIFT, dloc)); 
+}
 
-additive_exp: mult_exp
+additive_exp: mult_exp { $$ = std::move($1); }
 | additive_exp "+" mult_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::ADD, dloc)); 
+}
 | additive_exp "-" mult_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::SUB, dloc)); 
+}
 
-mult_exp: cast_exp
+mult_exp: cast_exp { $$ = std::move($1); }
 | mult_exp "*" cast_exp 
-| mult_exp "/" cast_exp
-| mult_exp "%" cast_exp
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::MUL, dloc)); 
+}
+| mult_exp "/" cast_exp 
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::DIV, dloc)); 
+}
+| mult_exp "%" cast_exp 
+{ 
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::MOD, dloc));
+}
 
-cast_exp: unary_exp
+cast_exp: unary_exp { $$ = std::move($1); }
 | cast_exp as typename
+{
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($3), BinaryOperator::AS, dloc));
+}
 
-unary_exp: postfix_exp
+unary_exp: postfix_exp { $$ = std::move($1); }
 | unary_operator unary_exp
+{
+	$$ = make_expr(new SingleOperatorExpr (std::move($1), std::move($2), BinaryOperator::AS, dloc));
+}
 
-unary_operator: "&" | "*" | "+" | "-" | "~" | "!" | move
+unary_operator: "&" { $$ = SingleOperator::ADDRESS_OF; }
+| "*" { $$ = SingleOperator::INDIRECTION; }
+| "+" 
+| "-" 
+| "~" { $$ = SingleOperator::BITWISE_NOT; }
+| "!" { $$ = SingleOperator::LOGICAL_NOT; }
+| move { $$ = SingleOperator::move; }
 
 postfix_exp: primary_exp
 | postfix_exp "[" exp "]"
+{
+	$$ = make_expr(new SingleOperatorExpr (std::move($1), std::move($2), BinaryOperator::AS, dloc));
+}
 | postfix_exp "(" argument_exp_list ")"
+{
+	$$ = make_expr(new FunctionCallExpr(std::move($1), std::move($3), dloc));
+}
 | postfix_exp "("			")"
+{
+	$$ = make_expr(new FunctionCallExpr(std::move($1), dloc));
+}
+
 | postfix_exp "." id
+{
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($2), BinaryOperator::MEMBER_ACCESS, dloc));
+}
 | postfix_exp "->" id
+{
+	$$ = make_expr(new BinaryOperatorExpr(std::move($1), std::move($2), BinaryOperator::MEMBER_ACCESS_PTR, dloc));
+}
 
 argument_exp_list: assignment_exp
 | argument_exp_list "," assignment_exp
 
 primary_exp: var_name
-| const_value
-| "(" exp ")"
-| function_literal
-| array_literal
-| compound_literal
+{
+	$$ = make_expr(new IdentifierExpr($1, dloc));
+}
+| const_value { $$ = std::move($1); }
+| "(" exp ")" { $$ = std::move($2); }
+| function_literal { $$ = std::move($1); }
+| array_literal { $$ = std::move($1); }
+| compound_literal { $$ = std::move($1); }
 
 array_literal:
 "[" init_list_array "]"
@@ -424,9 +528,9 @@ init_list_comp:
 
 /* functional */ 
 function_literal:
-"<" parameters_list ";" func_para_traits typename ">" "{" function_body "}"
-| "<" void_ ";" func_para_traits typename ">" "{" function_body "}"
-| "<" ";" typename ">" "{" function_body "}"
+"<" parameters_list ";" func_para_traits typename ">" function_block
+| "<" void_ ";" func_para_traits typename ">" function_block
+| "<" ";" typename ">" function_block
 {
 	error(*(driver.location), "Parameter list cannot be empty. Use 'void' instead.");
 }
@@ -442,6 +546,9 @@ function_body:
 /* empty */
 | function_body function_statement
 
+function_block:
+"{" function_body "}"
+
 function_statement:
 branch_statement ";"
 | declare_statement ";"
@@ -450,6 +557,7 @@ branch_statement ";"
 | type_statement ";"
 | use_statement ";"
 | jump_statement ";"
+| function_block ";"
 | error_statement
 
 /* branch statements */
@@ -459,7 +567,7 @@ if_statement
 | match_statement
 
 if_statement: 
-if_ "(" exp ")" "{" function_body "}" elif_statement else_statement
+if_ "(" exp ")" function_block elif_statement else_statement
 | if_ "(" exp ")" exp elif_statement else_statement
 {
 	error(*(driver.location), "if statement must be in a code block");
@@ -467,7 +575,7 @@ if_ "(" exp ")" "{" function_body "}" elif_statement else_statement
 
 elif_statement:
 /* empty */
-| elif_statement elif "(" exp ")"  "{" function_body "}"
+| elif_statement elif "(" exp ")"  function_block
 | elif_statement elif "(" exp ")" exp
 {
 	error(*(driver.location), "elif statement must be in a code block");
@@ -475,14 +583,14 @@ elif_statement:
 
 else_statement:
 /* empty */
-| else_ "{" function_body "}"
+| else_ function_block
 | else_ exp
 {
 	error(*(driver.location), "else statement must be in a code block");
 }
 
 while_statement:
-while_  "(" exp ")" "{" function_body "}"
+while_  "(" exp ")" function_block
 
 match_statement:
 match  "(" exp ")" "{" match_list "}"
@@ -492,7 +600,7 @@ match_list:
 | match_list match_item
 
 match_item:
-match_type ":" "{" function_body "}" ";"
+match_type ":" function_block ";"
 
 match_type:
 /* empty */
