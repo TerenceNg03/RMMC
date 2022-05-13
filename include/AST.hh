@@ -28,8 +28,9 @@ typedef std::vector<std::unique_ptr<FunctionDeclarationStatement>> FunctionList;
 
 class ASTNode
 {
-public:
+protected:
     location loc;
+public:
     virtual ~ASTNode();
 
     virtual void print() =0; 
@@ -63,9 +64,9 @@ public:
  */
 class DoubleExpr : public Expression
 {
-public:
     double Value;
 
+public:
     DoubleExpr(double _value, location _loc): Value(_value){
         loc=_loc;
     }
@@ -80,9 +81,9 @@ public:
 
 class IntegerExpr : public Expression
 {
-public:
     long long Value;
 
+public:
     IntegerExpr(long long _value, location _loc): Value(_value) {
         loc=_loc;
     }
@@ -112,16 +113,16 @@ public:
 //<--------------To-Do------------------>
 class BooleanExpr : public Expression
 {
-public:
     bool Value;
 
+public:
     BooleanExpr(bool _value, location _loc): Value(_value) {
         loc=_loc;
     }
     ~BooleanExpr() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen();
 };
 
@@ -159,9 +160,9 @@ public:
 
 class IdentifierExpr : public Expression
 {
-public:
     std::string Name;
 
+public:
     IdentifierExpr(std::string _name, location _loc): Name(_name) {
         loc=_loc;
     }
@@ -179,7 +180,8 @@ enum BinaryOperator
 {
     SCOPE,          //::
     ARRAY_INDEX,    //[]
-    MEMBER_ACCESS,  //. ->
+    STRUCT_REF,		//.
+	STRUCT_DEREF,	//->
     AS,             //as
     ADD,
     SUB,
@@ -217,13 +219,14 @@ enum ThreeOperator
 
 class SingleOperatorExpr : public Expression
 {
-public:
     SingleOperator Type;
     std::unique_ptr<Expression> Expr;
 
+public:
     SingleOperatorExpr(std::unique_ptr<Expression> _Expr, SingleOperator _Type, location _loc)
-            : Expr(std::move(_Expr)) ,
-              Type(_Type) {
+            : Type(_Type) ,
+			Expr(std::move(_Expr))
+              {
         loc=_loc;
     }
     ~SingleOperatorExpr() {}
@@ -239,15 +242,16 @@ public:
 
 class BinaryOperatorExpr : public Expression
 {
-public:
     BinaryOperator Type;
     std::unique_ptr<Expression> LHS;
     std::unique_ptr<Expression> RHS;
 
+public:
     BinaryOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _RHS, BinaryOperator _Type, location _loc)
-            : LHS{ std::move(_LHS) } ,
-              RHS{ std::move(_RHS) } ,
-              Type(_Type){
+            : Type(_Type) ,
+			  LHS{ std::move(_LHS) } ,
+              RHS{ std::move(_RHS) }
+              {
         loc=_loc;
     }
     ~BinaryOperatorExpr() {}
@@ -263,17 +267,18 @@ public:
 
 class ThreeOperatorExpr : public Expression
 {
-public:
     ThreeOperator Type;
     std::unique_ptr<Expression> LHS;
     std::unique_ptr<Expression> MHS;
     std::unique_ptr<Expression> RHS;
 
+public:
     ThreeOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _MHS, std::unique_ptr<Expression> _RHS, ThreeOperator _Type, location _loc)
-            : LHS{std::move(_LHS)},
+            : Type(_Type) ,
+			  LHS{std::move(_LHS)},
               MHS{std::move(_MHS)},
-              RHS{std::move(_RHS)},
-              Type(_Type){
+              RHS{std::move(_RHS)}
+              {
         loc=_loc;
     }
     ~ThreeOperatorExpr() {}
@@ -285,10 +290,10 @@ public:
 
 class FunctionCallExpr : public Expression
 {
-public:
     std::unique_ptr<IdentifierExpr> FunctionName;
     std::unique_ptr<ExpressionList> Args ;
 
+public:
     FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, location _loc)
             : FunctionName{std::move(_FunctionName)} {
         loc=_loc;
@@ -355,9 +360,9 @@ public:
 
 class SingleVariableDeclarationStatement : public VariableDeclarationStatement
 {
-public:
     std::unique_ptr<IdentifierExpr> VariableType;
     std::unique_ptr<IdentifierExpr> VariableName;
+public:
 
     SingleVariableDeclarationStatement(std::unique_ptr<IdentifierExpr> _VariableType,
                                        std::unique_ptr<IdentifierExpr> _VariableName, 
@@ -390,7 +395,6 @@ public:
 
 class ArrayDeclarationStatement : public VariableDeclarationStatement
 {
-public:
     std::unique_ptr<IdentifierExpr> ArrayType;
     std::unique_ptr<IdentifierExpr> ArrayName;
     std::unique_ptr<IntegerExpr> ArraySize;
@@ -483,13 +487,13 @@ public:
 
 class FunctionDeclarationStatement : public Statement
 {
-public:
     std::unique_ptr<IdentifierExpr> ReturnType;
     std::unique_ptr<IdentifierExpr> FunctionName;
     std::unique_ptr<VariableList> Args;
     std::unique_ptr<BlockStatement> Content;
     std::unique_ptr<ReturnStatement> Return;
 
+public:
     FunctionDeclarationStatement(std::unique_ptr<IdentifierExpr> _ReturnType,
                                  std::unique_ptr<IdentifierExpr> _FunctionName,
                                  std::unique_ptr<VariableList> _Args,
@@ -519,10 +523,10 @@ public:
 
 class TypedefStatement: public Statement
 {
-public:
     std::unique_ptr<IdentifierExpr> LHS;
     std::unique_ptr<IdentifierExpr> RHS;
 
+public:
     TypedefStatement(std::unique_ptr<IdentifierExpr> LHS, std::unique_ptr<IdentifierExpr> RHS, location _loc)
         : LHS{std::move(LHS)},
           RHS{std::move(RHS)}{
@@ -537,11 +541,11 @@ public:
 
 class IfStatement : public Statement
 {
-public:
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<StatementList> TrueBlock ;
     std::unique_ptr<StatementList> FalseBlock ;
 
+public:
     IfStatement(std::unique_ptr<Expression> Condition,
                 std::unique_ptr<StatementList> TrueBlock,
                 std::unique_ptr<StatementList> FalseBlock,
@@ -560,10 +564,10 @@ public:
 
 class WhileStatement : public Statement
 {
-public:
     std::unique_ptr<Expression> Condition;
     std::unique_ptr<StatementList> Block;
 
+public:
     WhileStatement(std::unique_ptr<Expression> Condition,
                    std::unique_ptr<StatementList> Block,
                    location _loc)
@@ -581,7 +585,6 @@ public:
 class BreakStatement : public Statement
 {
 public:
-    BreakStatement() = default;
     BreakStatement(location _loc){
         loc=_loc;
     }
@@ -595,7 +598,6 @@ public:
 class ContinueStatement : public Statement
 {
 public:
-    ContinueStatement() = default;
     ContinueStatement(location _loc){
         loc=_loc;
     }
@@ -608,10 +610,10 @@ public:
 
 class NameSpaceStatement : public Statement
 {
-public:
     std::unique_ptr<IdentifierExpr> Name;
     std::unique_ptr<StatementList> Block;
 
+public:
     NameSpaceStatement(std::unique_ptr<IdentifierExpr> Name,
                        std::unique_ptr<StatementList> Block,
                        location _loc)
@@ -628,9 +630,9 @@ public:
 
 class UseStatement : public Statement
 {
-public:
     std::unique_ptr<IdentifierExpr> Name;
 
+public:
     UseStatement(std::unique_ptr<IdentifierExpr> Name, location _loc)
         : Name{std::move(Name)}{
         loc=_loc;
@@ -644,9 +646,9 @@ public:
 
 class ImportStatement : public Statement
 {
-public:
     std::unique_ptr<Expression> Name;
 
+public:
     ImportStatement(std::unique_ptr<Expression> Name, location _loc)
         : Name{std::move(Name)}{
         loc=_loc;
@@ -660,10 +662,10 @@ public:
 
 class FromStatement : public Statement
 {
-public:
     std::unique_ptr<Expression> FromName;
     std::unique_ptr<Expression> ImportName;
 
+public:
     FromStatement(std::unique_ptr<Expression> FromName,
                   std::unique_ptr<Expression> ImportName,
                   location _loc)
@@ -680,9 +682,9 @@ public:
 
 class ExportStatement : public Statement
 {
-public:
     std::unique_ptr<Expression> Name;
 
+public:
     ExportStatement(std::unique_ptr<Expression> Name, location _loc)
         : Name{std::move(Name)}{
         loc=_loc;
