@@ -15,6 +15,9 @@ type:
 SDT:
 	${MAKE} -C SDT_tests
 
+ast:
+	${MAKE} -C ast_tests
+
 clean:
 	${MAKE} -C parser_tests clean
 	${MAKE} -C type_tests clean

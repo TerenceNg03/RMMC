@@ -1,12 +1,5 @@
 .PHONY: run clean
-# CC = clang++
-# CFLAG = -std=c++17 -Wall 
-# INCLUDE = -I$(shell pwd)/../../include
-# DEFINE = -Dregister
-# FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
-# YFLAGS = -d -Wno-yacc
-# OBJ_PATH = $(shell pwd)/../..//bin
-# ROOT_DIR = $(shell pwd)/../../
+FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
 
 run: test.out
 	./test.out

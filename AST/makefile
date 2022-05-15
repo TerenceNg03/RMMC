@@ -1,5 +1,5 @@
 .PHONY: clean
-FLAGS += -I$(shell llvm-config --includedir) -I${ROOT_DIR}/lex
+FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
 
 ast.o : _ast.o xml.o
 	${LD} ${LFLAGS} _ast.o xml.o -o ast.o

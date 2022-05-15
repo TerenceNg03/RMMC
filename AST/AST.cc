@@ -11,7 +11,7 @@
 
 #include "AST.hh"
 #include "CodeGen.hh"
-#include "TypeSystem.hh"
+// #include "TypeSystem.hh"
 
 typedef llvm::Type *TypePtr;
 typedef llvm::ArrayType *ArrayTypePtr;
@@ -22,6 +22,14 @@ typedef llvm::Value *ValuePtr;
 // using namespace llvm;
 using namespace llvm;
 using namespace rmmc;
+
+llvm::Type *getLLVMType(std::shared_ptr<IdentifierExpr> type, rmmc::CodeGenContext &context)
+{
+    std::string name = type->getName();
+    if (name.compare("int"))
+        return llvm::Type::getInt64Ty(context.theContext);
+    return nullptr;
+}
 
 llvm::Value *rmmc::DoubleExpr::codeGen(CodeGenContext &context)
 {

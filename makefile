@@ -8,6 +8,7 @@ FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
 YFLAGS = -d -Wno-yacc
 OBJ_PATH = $(shell pwd)/bin
 ROOT_DIR = $(shell pwd)
+FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
 
 LD = ld
 LFLAGS = -r
@@ -41,6 +42,9 @@ test-parser: all
 
 test-SDT: all
 	${MAKE} -C test SDT
+
+test-ast: all
+	${MAKE} -C test ast
 
 subdir:
 	${MAKE} -C lex lex.o

@@ -1,5 +1,5 @@
 .PHONY: clean
-FLAGS += -I$(shell llvm-config --includedir) -I${ROOT_DIR}/lex
+FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
 
 gen.o: codegen.o
 	${LD} ${LFLAGS} codegen.o -o gen.o
