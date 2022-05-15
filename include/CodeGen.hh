@@ -5,6 +5,17 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/DynamicLibrary.h>
+#include <llvm/Target/TargetMachine.h>
 
 #include <vector>
 #include <memory>
@@ -34,7 +45,7 @@ namespace rmmc
     public:
         std::vector<CodeGenBlockPtr> blockStack;
 
-        static llvm::LLVMContext theContext;
+        llvm::LLVMContext theContext;
         llvm::IRBuilder<> theBuilder;
         std::unique_ptr<llvm::Module> theModule;
 

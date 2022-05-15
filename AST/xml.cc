@@ -220,3 +220,100 @@ std::string  ExportStatement::toXML()
 	else
 		return to_xml("export", {});
 }
+
+std::string FunctionDeclarationStatement::toXML()
+{
+	std::string content="";
+	if(FunctionName) content += to_xml("Function", FunctionName->toXML());
+	else content += to_xml("Function", {});
+
+	std::string Arg_content = "";
+	int i=0l;
+	for (auto& Arg : *Args){
+		if(Arg) Arg_content += to_xml("Arg#"+std::to_string(i++), Arg->toXML());
+		else
+			Arg_content += to_xml("Arg#" + std::to_string(i++), {});
+	}
+	content += Arg_content;
+	return to_xml("FunctionDeclaration", content);
+}
+
+std::string ReturnStatement::toXML()
+{
+	std::string content="";
+	if(ReturnValue) content = to_xml("Return Expression", ReturnValue->toXML());
+	else content = to_xml("Return Expression", {});
+	return to_xml("Return", content);
+}
+
+std::string SingleVariableDeclarationStatement::toXML()
+{
+	std::string content="";
+
+	if (VariableType)
+		content += to_xml("Variable Type", VariableType->toXML());
+	else
+		content += to_xml("Variable Type", {});
+	if (VariableName)
+		content += to_xml("Variable Name", VariableName->toXML());
+	else
+		content += to_xml("Variable Name", {});
+	return to_xml("Single Variable Declaration", content);
+}
+
+std::string ArrayDeclarationStatement::toXML()
+{
+	std::string content = "";
+
+	if (ArrayType)
+		content += to_xml("Array Type", ArrayType->toXML());
+	else
+		content += to_xml("Array Type", {});
+	if (ArrayName)
+		content += to_xml("Array Name", ArrayName->toXML());
+	else
+		content += to_xml("Array Name", {});
+	if (ArraySize)
+		content += to_xml("Array Size", ArraySize->toXML());
+	else
+		content += to_xml("Array Size", {});
+	return to_xml("Array Declaration", content);
+}
+
+std::string StructDeclarationStatement::toXML()
+{
+	std::string content = "";
+	if (Name)
+		content += to_xml("Struct Name", Name->toXML());
+	else
+		content += to_xml("Struct Name", {});
+	std::string mem_content ="";
+	int i=0;
+	for (auto& member : *Members){
+		if (member)
+			mem_content += to_xml("Member#" + std::to_string(i++), member->toXML());
+		else
+			mem_content += to_xml("Member#" + std::to_string(i++), {});
+	}
+	for (auto &member : *FuncMembers){
+		if (member)
+			mem_content += to_xml("FuncMember#" + std::to_string(i++), member->toXML());
+		else
+			mem_content += to_xml("FuncMember#" + std::to_string(i++), {});
+	}
+	content+=mem_content;
+	return to_xml("Struct Declaration", content);
+}
+
+std::string BlockStatement::toXML()
+{
+	std::string content = "";
+	int i=0;
+	for(auto& perContent : *Content){
+		if (perContent)
+			content += to_xml("Statement#" + std::to_string(i++), perContent->toXML());
+		else
+			content += to_xml("Statement#" + std::to_string(i++), {});
+	}
+	return to_xml("Block", content);
+}
