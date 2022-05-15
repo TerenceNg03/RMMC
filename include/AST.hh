@@ -426,11 +426,11 @@ namespace rmmc
         }
         virtual ~SingleVariableDeclarationStatement() {}
 
-        virtual std::shared_ptr<IdentifierExpr> getType()
+        virtual std::shared_ptr<IdentifierExpr> getType() override
         {
             return VariableType;
         }
-        virtual IdentifierExpr getName()
+        virtual IdentifierExpr getName() override
         {
             return (*VariableName);
         }
@@ -466,11 +466,11 @@ namespace rmmc
         }
         virtual ~ArrayDeclarationStatement() {}
 
-        virtual std::shared_ptr<IdentifierExpr> getType()
+        virtual std::shared_ptr<IdentifierExpr> getType() override
         {
             return ArrayType;
         }
-        virtual IdentifierExpr getName()
+        virtual IdentifierExpr getName() override
         {
             return (*ArrayName);
         }
@@ -522,7 +522,7 @@ namespace rmmc
             : Content(std::move(_Content)) {}
         virtual ~BlockStatement() {}
 
-        virtual void print(){
+        virtual void print() override{
 
         }
         virtual std::string toXML() override;

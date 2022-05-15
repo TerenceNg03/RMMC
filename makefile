@@ -46,6 +46,7 @@ subdir:
 	${MAKE} -C lex lex.o
 	${MAKE} -C frontend frontend.o
 	${MAKE} -C AST ast.o
+	${MAKE} -C codegen gen.o
 
 main.o: main.cpp
 	${CC} ${FLAGS} -c main.cpp
@@ -55,6 +56,7 @@ clean:
 	${MAKE} -C frontend clean
 	${MAKE} -C test clean
 	${MAKE} -C AST clean
+	${MAKE} -C codegen clean
 	${RM} *.o
 	${RM} *.log
 	${RM} *.xml

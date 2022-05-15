@@ -12,6 +12,8 @@
 
 typedef llvm::Type *TypePtr;
 typedef llvm::FunctionType *FunctionTypePtr;
+	
+llvm::LLVMContext rmmc::CodeGenContext::theContext;
 
 void rmmc::CodeGenContext::CodeGen(std::shared_ptr<rmmc::ASTNode> root)
 {

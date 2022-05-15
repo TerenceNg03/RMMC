@@ -80,5 +80,6 @@ namespace rmmc
             return nullptr;
         }
     };
+    
 }
 #endif

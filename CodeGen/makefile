@@ -1,10 +1,13 @@
 .PHONY: clean
 FLAGS += -I$(shell llvm-config --includedir) -I${ROOT_DIR}/lex
 
-codegen.o: CodeGen.cc
-	${CC} ${FLAGS} -c CodeGen.cc
+gen.o: codegen.o
+	${LD} ${LFLAGS} codegen.o -o gen.o
 	mkdir -p ${OBJ_PATH}
-	cp codegen.o ${OBJ_PATH}/
+	cp gen.o ${OBJ_PATH}/
+
+codegen.o: codegen.cc
+	${CC} ${FLAGS} -c codegen.cc
 
 clean:
 	${RM} *.o

@@ -20,8 +20,8 @@ typedef llvm::Function *FunctionPtr;
 typedef llvm::Value *ValuePtr;
 
 // using namespace llvm;
-using namespace rmmc;
 using namespace llvm;
+using namespace rmmc;
 
 llvm::Value *rmmc::DoubleExpr::codeGen(CodeGenContext &context)
 {
