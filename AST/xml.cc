@@ -19,20 +19,20 @@ std::string IntegerExpr::toXML()
     return to_xml("IntegerExpr", std::to_string(Value));
 }
 
-std::string UnsignedIntegerExpr::toXML()
-{
-    return to_xml("UnsignedIntegerExpr", std::to_string(Value));
-}
+// std::string UnsignedIntegerExpr::toXML()
+// {
+//     return to_xml("UnsignedIntegerExpr", std::to_string(Value));
+// }
 
 std::string BooleanExpr::toXML()
 {
     return to_xml("BooleanExpr", std::to_string(Value));
 }
 
-std::string CharExpr::toXML()
-{
-    return to_xml("CharExpr", std::to_string(Value));
-}
+// std::string CharExpr::toXML()
+// {
+//     return to_xml("CharExpr", std::to_string(Value));
+// }
 
 std::string IdentifierExpr::toXML()
 {

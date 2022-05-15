@@ -13,6 +13,8 @@
 
 #include "AST.hh"
 
+namespace rmmc{
+
 typedef llvm::BasicBlock* BasicBlockPtr;
 typedef llvm::Value* ValuePtr;
 typedef llvm::Type* TypePtr;
@@ -22,14 +24,18 @@ class CodeGenBlock{
 public:
     BasicBlockPtr block;
     std::map<std::string, ValuePtr> SymbolTable;
-    std::map<std::string, rmmc::IdentifierExpr> SymbolType;
+    std::map<std::string, IdentifierExpr> SymbolType;
 };
+
+
+
+
 
 class CodeGenContext{
 public:
     std::vector<CodeGenBlockPtr> blockStack;
 
-    llvm::LLVMContext theContext;
+    static llvm::LLVMContext theContext;
     llvm::IRBuilder<> theBuilder;
     std::unique_ptr<llvm::Module> theModule;
 
@@ -38,7 +44,7 @@ public:
     }
 
 
-    void CodeGen(std::unique_ptr<rmmc::ASTNode> root);
+    void CodeGen(std::unique_ptr<ASTNode> root);
 
     void pushBlock(BasicBlockPtr block)
     {
@@ -58,7 +64,7 @@ public:
     {
         blockStack.back()->SymbolTable[name]=alloca;
     }
-    void setSymbolType(std::string name, rmmc::IdentifierExpr type)
+    void setSymbolType(std::string name, IdentifierExpr type)
     {
         blockStack.back()->SymbolType[name] = type;
     }
@@ -75,5 +81,5 @@ public:
 
     
 };
-
+}
 #endif

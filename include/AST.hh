@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstring>
 #include "location.hh"
-#include "CodeGen.hh"
 
 namespace rmmc{
 
@@ -20,6 +19,8 @@ class Statement;
 class Expression;
 class VariableDeclarationStatement;
 class FunctionDeclarationStatement;
+class CodeGenBlock;
+class CodeGenContext;
 
 typedef std::vector<std::unique_ptr<Statement>> StatementList;
 typedef std::vector<std::unique_ptr<Expression>> ExpressionList;
@@ -34,7 +35,7 @@ public:
     virtual ~ASTNode();
 
     virtual void print() =0; 
-    virtual void toXML() =0;
+    virtual std::string toXML() =0;
     virtual llvm::Value *codeGen(CodeGenContext &context) = 0;
 };
 
@@ -44,7 +45,7 @@ public:
     virtual ~Statement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context) ;
 };
 
@@ -54,7 +55,7 @@ public:
     virtual ~Expression() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context) ;
 };
 
@@ -75,8 +76,12 @@ public:
     virtual void print(){
         std::cout<<"Generate constant double = "<<Value<<std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
+
+    double getValue() const{
+        return this->Value;
+    }
 };
 
 class IntegerExpr : public Expression
@@ -92,8 +97,12 @@ public:
     virtual void print(){
         std::cout << "Generate constant integer = " << Value << std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
+
+    long long getValue() const{
+        return this->Value;
+    }
 };
 
 // class UnsignedIntegerExpr : public Expression
@@ -123,14 +132,18 @@ public:
 
     virtual void print();
     virtual std::string toXML();
-    virtual llvm::Value *codeGen();
+    virtual llvm::Value *codeGen(CodeGenContext &context);
+
+    bool getValue() const{
+        return this->Value;
+    }
 };
 
 class StringExpr : public Expression
 {
-public:
     std::string Value;
 
+public:
     StringExpr(std::string _value, location _loc) : Value(_value) {
         loc=_loc;
     }
@@ -139,8 +152,12 @@ public:
     virtual void print(){
         std::cout << "Generate constant string = " << Value << std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
+
+    std::string getValue() const{
+        return this->Value;
+    }
 };
 
 // class CharExpr : public Expression
@@ -172,8 +189,12 @@ public:
                  <<Name<<" "
                  <<std::endl;
     }
-    virtual void toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
+    virtual std::string toXML();
+    virtual llvm::Value *codeGen(CodeGenContext &context) override;
+
+    std::string getName() const{
+        return this->Name;
+    }
 };
 
 enum BinaryOperator
@@ -236,7 +257,7 @@ public:
                  <<Type
                  <<std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -261,7 +282,7 @@ public:
                   << Type
                   << std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -284,16 +305,16 @@ public:
     ~ThreeOperatorExpr() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
 class FunctionCallExpr : public Expression
 {
+public:
     std::unique_ptr<IdentifierExpr> FunctionName;
     std::unique_ptr<ExpressionList> Args ;
-
-public:
+    
     FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, location _loc)
             : FunctionName{std::move(_FunctionName)} {
         loc=_loc;
@@ -307,10 +328,10 @@ public:
 
     virtual void print(){
         std::cout<<"Generate functin call :"
-                 <<FunctionName->Name<<" "
+                 <<FunctionName->getName()<<" "
                  <<std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -330,7 +351,7 @@ public:
     ~AssignmentExpression() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -354,7 +375,7 @@ public:
 
     virtual ~VariableDeclarationStatement() {}
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -386,10 +407,10 @@ public:
     {
         std::cout << "Generating single varible declaration: " 
         <<this->dType << " " 
-        << this->VariableType->Name << " "
-        << this->VariableName->Name << std::endl;
+        << this->VariableType->getName() << " "
+        << this->VariableName->getName() << std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -422,12 +443,12 @@ class ArrayDeclarationStatement : public VariableDeclarationStatement
     virtual void print(){
         std::cout << "Generating array varible declaration: "
                   << this->dType << " "
-                  << this->ArrayType->Name << " "
-                  << this->ArrayName->Name << " "
-                  << this->ArraySize->Value
+                  << this->ArrayType->getName() << " "
+                  << this->ArrayName->getName() << " "
+                  << this->ArraySize->getValue()
                   << std::endl;
-    }   
-    virtual void toXML();
+    }
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -450,7 +471,7 @@ public:
     ~StructDeclarationStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -463,7 +484,7 @@ public:
     ~BlockStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -481,7 +502,7 @@ public:
         std::cout<<"Generate Return"
                  <<std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -503,21 +524,21 @@ public:
             : ReturnType{std::move(_ReturnType)},
               FunctionName{std::move(_FunctionName)},
               Args{std::move(_Args)},
-              Content{std::move(_Content)} 
+              Content{std::move(_Content)},
               Return{std::move(_Return)}{
         loc=_loc;
     }
 
     virtual void print(){
         std::cout<<"Function Decalration :"
-        <<ReturnType->Name<<"  "
-        <<FunctionName->Name<<"  ";
+        <<ReturnType->getName()<<"  "
+        <<FunctionName->getName()<<"  ";
         for(auto &perArg : *Args){
             perArg->print();
         }
         std::cout<<std::endl;
     }
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context) ;
 };
 
@@ -535,7 +556,7 @@ public:
     ~TypedefStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -558,7 +579,7 @@ public:
     ~IfStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -578,7 +599,7 @@ public:
     ~WhileStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -591,7 +612,7 @@ public:
     virtual ~BreakStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -604,7 +625,7 @@ public:
     virtual ~ContinueStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -624,7 +645,7 @@ public:
     ~NameSpaceStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -640,7 +661,7 @@ public:
     ~UseStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -656,7 +677,7 @@ public:
     ~ImportStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -676,7 +697,7 @@ public:
     ~FromStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 
@@ -692,7 +713,7 @@ public:
     ~ExportStatement() {}
 
     virtual void print();
-    virtual void toXML();
+    virtual std::string toXML();
     virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 }

@@ -7,10 +7,14 @@
  * 
  * return llvm::Type*  
  */
-llvm::Type* getLLVMType(rmmc::IdentifierExpr type, CodeGenContext &context)
-{
-    
-    return nullptr;
+namespace rmmc{
+    llvm::Type* getLLVMType(rmmc::IdentifierExpr type, rmmc::CodeGenContext &context)
+    {
+        std::string name=type.getName();
+        if( name.compare("int") )
+            return llvm::Type::getInt64Ty(context.theContext);
+        return nullptr;
+    }
 }
 
 #endif

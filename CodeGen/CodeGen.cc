@@ -9,12 +9,11 @@
 #include <vector>
 
 #include "CodeGen.hh"
-#include "AST.hh"
 
 typedef llvm::Type* TypePtr;
 typedef llvm::FunctionType* FunctionTypePtr;
 
-void CodeGenContext::CodeGen(std::unique_ptr<rmmc::ASTNode> root)
+void rmmc::CodeGenContext::CodeGen(std::unique_ptr<rmmc::ASTNode> root)
 {
     root->codeGen(*this);
 }
