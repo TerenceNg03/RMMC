@@ -158,7 +158,7 @@ int main(int argc, char *const *argv)
 	//code.CodeGen(move(main));
 	string xml=main->toXML();
 	//cout<<xml<<endl;
-	fstream out("AST.xml");
+	ofstream out("AST.xml");
 	if(out.is_open()){
 		out<<xml;
 		out.close();
