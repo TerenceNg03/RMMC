@@ -10,10 +10,10 @@
 
 #include "CodeGen.hh"
 
-typedef llvm::Type* TypePtr;
-typedef llvm::FunctionType* FunctionTypePtr;
+typedef llvm::Type *TypePtr;
+typedef llvm::FunctionType *FunctionTypePtr;
 
-void rmmc::CodeGenContext::CodeGen(std::unique_ptr<rmmc::ASTNode> root)
+void rmmc::CodeGenContext::CodeGen(std::shared_ptr<rmmc::ASTNode> root)
 {
     root->codeGen(*this);
 }

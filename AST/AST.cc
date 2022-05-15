@@ -9,6 +9,7 @@
 #include <vector>
 #include <cstdlib>
 
+#include "AST.hh"
 #include "CodeGen.hh"
 #include "TypeSystem.hh"
 
@@ -32,6 +33,11 @@ llvm::Value *rmmc::IntegerExpr::codeGen(CodeGenContext &context)
 {
     this->print();
     return llvm::ConstantInt::get(llvm::Type::getInt64Ty(context.theContext), this->Value);
+}
+
+llvm::Value *rmmc::BooleanExpr::codeGen(CodeGenContext &context)
+{
+    return nullptr;
 }
 
 llvm::Value *rmmc::StringExpr::codeGen(CodeGenContext &context)
@@ -104,15 +110,11 @@ llvm::Value *rmmc::BinaryOperatorExpr::codeGen(CodeGenContext &context)
     return nullptr;
 }
 
-llvm::Value *rmmc::BlockStatement::codeGen(CodeGenContext &context)
+llvm::Value *rmmc::ThreeOperatorExpr::codeGen(CodeGenContext &context)
 {
-    StatementList::iterator it;
-    for (it = this->Content->begin(); it != this->Content->end(); it++)
-    {
-        (*it)->codeGen(context);
-    }
     return nullptr;
 }
+
 
 llvm::Value *rmmc::FunctionCallExpr::codeGen(CodeGenContext &context)
 {
@@ -137,11 +139,12 @@ llvm::Value *rmmc::FunctionCallExpr::codeGen(CodeGenContext &context)
     }
 }
 
-llvm::Value *rmmc::ReturnStatement::codeGen(CodeGenContext &context)
+llvm::Value *rmmc::AssignmentExpression::codeGen(CodeGenContext &context)
 {
-    ValuePtr returnVal = this->ReturnValue->codeGen(context);
-    return returnVal;
+    return nullptr;
 }
+
+
 
 llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context)
 {
@@ -154,7 +157,7 @@ llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context
         funcArgs.push_back(getLLVMType((*it)->getType(), context));
     }
     // Construct function return type
-    TypePtr retType = getLLVMType(*ReturnType, context);
+    TypePtr retType = getLLVMType(ReturnType, context);
     // get function type and construct function
     FunctionTypePtr funcType = llvm::FunctionType::get(retType, funcArgs, false);
     FunctionPtr func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, this->FunctionName->getName().c_str(), context.theModule.get());
@@ -189,11 +192,11 @@ llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context
 llvm::Value *rmmc::SingleVariableDeclarationStatement::codeGen(CodeGenContext &context)
 {
     this->print();
-    TypePtr type = getLLVMType(*this->VariableType, context);
+    TypePtr type = getLLVMType(this->VariableType, context);
     ValuePtr alloca = context.theBuilder.CreateAlloca(type);
 
     context.setSymbolTable(this->VariableName->getName(), alloca);
-    context.setSymbolType(this->VariableName->getName(), *this->VariableType);
+    context.setSymbolType(this->VariableName->getName(), this->VariableType);
 
     return alloca;
 }
@@ -201,11 +204,82 @@ llvm::Value *rmmc::SingleVariableDeclarationStatement::codeGen(CodeGenContext &c
 llvm::Value *rmmc::ArrayDeclarationStatement::codeGen(CodeGenContext &context)
 {
     this->print();
-    ArrayTypePtr type = llvm::ArrayType::get(getLLVMType(*this->ArrayType, context), ArraySize->getValue());
+    ArrayTypePtr type = llvm::ArrayType::get(getLLVMType(this->ArrayType, context), ArraySize->getValue());
     ValuePtr alloca = context.theBuilder.CreateAlloca(type);
 
     context.setSymbolTable(this->ArrayName->getName(), alloca);
-    context.setSymbolType(this->ArrayName->getName(), *this->ArrayType);
+    context.setSymbolType(this->ArrayName->getName(), this->ArrayType);
 
     return alloca;
+}
+
+llvm::Value *rmmc::StructDeclarationStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::BlockStatement::codeGen(CodeGenContext &context)
+{
+    StatementList::iterator it;
+    for (it = this->Content->begin(); it != this->Content->end(); it++)
+    {
+        (*it)->codeGen(context);
+    }
+    return nullptr;
+}
+
+llvm::Value *rmmc::ReturnStatement::codeGen(CodeGenContext &context)
+{
+    ValuePtr returnVal = this->ReturnValue->codeGen(context);
+    return returnVal;
+}
+
+llvm::Value *rmmc::TypedefStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::IfStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::WhileStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::BreakStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::ContinueStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::NameSpaceStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::UseStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::ImportStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::FromStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
+}
+
+llvm::Value *rmmc::ExportStatement::codeGen(CodeGenContext &context)
+{
+    return nullptr;
 }

@@ -34,6 +34,11 @@ std::string BooleanExpr::toXML()
 //     return to_xml("CharExpr", std::to_string(Value));
 // }
 
+std::string StringExpr::toXML()
+{
+	return to_xml("StringExpr", Value);
+}
+
 std::string IdentifierExpr::toXML()
 {
     return to_xml("Identifier", Name);

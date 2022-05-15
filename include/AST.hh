@@ -13,710 +13,785 @@
 #include <cstring>
 #include "location.hh"
 
-namespace rmmc{
-
-class Statement;
-class Expression;
-class VariableDeclarationStatement;
-class FunctionDeclarationStatement;
-class CodeGenBlock;
-class CodeGenContext;
-
-typedef std::vector<std::unique_ptr<Statement>> StatementList;
-typedef std::vector<std::unique_ptr<Expression>> ExpressionList;
-typedef std::vector<std::unique_ptr<VariableDeclarationStatement>> VariableList;
-typedef std::vector<std::unique_ptr<FunctionDeclarationStatement>> FunctionList;
-
-class ASTNode
+namespace rmmc
 {
-protected:
-    location loc;
-public:
-    virtual ~ASTNode();
 
-    virtual void print() =0; 
-    virtual std::string toXML() =0;
-    virtual llvm::Value *codeGen(CodeGenContext &context) = 0;
-};
+    class Statement;
+    class Expression;
+    class VariableDeclarationStatement;
+    class FunctionDeclarationStatement;
+    class CodeGenBlock;
+    class CodeGenContext;
 
-class Statement : public ASTNode
-{
-public:
-    virtual ~Statement() {}
+    typedef std::vector<std::shared_ptr<Statement>> StatementList;
+    typedef std::vector<std::shared_ptr<Expression>> ExpressionList;
+    typedef std::vector<std::shared_ptr<VariableDeclarationStatement>> VariableList;
+    typedef std::vector<std::shared_ptr<FunctionDeclarationStatement>> FunctionList;
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context) ;
-};
+    class ASTNode
+    {
+    protected:
+        location loc;
 
-class Expression : public ASTNode
-{
-public:    
-    virtual ~Expression() {}
+    public:
+        virtual ~ASTNode() {}
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context) ;
-};
+        virtual void print() = 0;
+        virtual std::string toXML() = 0;
+        virtual llvm::Value *codeGen(CodeGenContext &context) = 0;
+    };
 
-/***
- * Constant Value : Double Integer UnsignedInteger Boolean
- *
- */
-class DoubleExpr : public Expression
-{
-    double Value;
+    class Statement : public ASTNode
+    {
+    public:
+        virtual ~Statement() {}
 
-public:
-    DoubleExpr(double _value, location _loc): Value(_value){
-        loc=_loc;
-    }
-    ~DoubleExpr() {}
+        virtual void print() =0;
+        virtual std::string toXML() =0;
+        virtual llvm::Value *codeGen(CodeGenContext &context) =0;
+    };
 
-    virtual void print(){
-        std::cout<<"Generate constant double = "<<Value<<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
+    class Expression : public ASTNode
+    {
+    public:
+        virtual ~Expression() {}
 
-    double getValue() const{
-        return this->Value;
-    }
-};
+        virtual void print() =0;
+        virtual std::string toXML() =0;
+        virtual llvm::Value *codeGen(CodeGenContext &context) =0;
+    };
 
-class IntegerExpr : public Expression
-{
-    long long Value;
+    /***
+     * Constant Value : Double Integer UnsignedInteger Boolean
+     *
+     */
+    class DoubleExpr : public Expression
+    {
+        double Value;
 
-public:
-    IntegerExpr(long long _value, location _loc): Value(_value) {
-        loc=_loc;
-    }
-    ~IntegerExpr() {}
+    public:
+        DoubleExpr(double _value, location _loc) : Value(_value)
+        {
+            loc = _loc;
+        }
+        virtual ~DoubleExpr() {}
 
-    virtual void print(){
-        std::cout << "Generate constant integer = " << Value << std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
+        virtual void print() override
+        {
+            std::cout << "Generate constant double = " << Value << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
-    long long getValue() const{
-        return this->Value;
-    }
-};
+        double getValue() const
+        {
+            return this->Value;
+        }
+    };
 
-// class UnsignedIntegerExpr : public Expression
-// {
-// public:
-//     unsigned long long Value;
+    class IntegerExpr : public Expression
+    {
+        long long Value;
 
-//     UnsignedIntegerExpr(unsigned long long _value, location _loc): Value(_value) {
-//         loc=_loc;
-//     }
-//     ~UnsignedIntegerExpr() {}
+    public:
+        IntegerExpr(long long _value, location _loc) : Value(_value)
+        {
+            loc = _loc;
+        }
+        virtual ~IntegerExpr() {}
 
-//     virtual void print();
-//     virtual void toXML();
-//     virtual llvm::Value *codeGen();
-// };
-//<--------------To-Do------------------>
-class BooleanExpr : public Expression
-{
-    bool Value;
+        virtual void print() override
+        {
+            std::cout << "Generate constant integer = " << Value << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
-public:
-    BooleanExpr(bool _value, location _loc): Value(_value) {
-        loc=_loc;
-    }
-    ~BooleanExpr() {}
+        long long getValue() const
+        {
+            return this->Value;
+        }
+    };
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
+    // class UnsignedIntegerExpr : public Expression
+    // {
+    // public:
+    //     unsigned long long Value;
 
-    bool getValue() const{
-        return this->Value;
-    }
-};
+    //     UnsignedIntegerExpr(unsigned long long _value, location _loc): Value(_value) {
+    //         loc=_loc;
+    //     }
+    //     ~UnsignedIntegerExpr() {}
 
-class StringExpr : public Expression
-{
-    std::string Value;
+    //     virtual void print();
+    //     virtual void toXML();
+    //     virtual llvm::Value *codeGen();
+    // };
+    //<--------------To-Do------------------>
+    class BooleanExpr : public Expression
+    {
+        bool Value;
 
-public:
-    StringExpr(std::string _value, location _loc) : Value(_value) {
-        loc=_loc;
-    }
-    ~StringExpr() {}
+    public:
+        BooleanExpr(bool _value, location _loc) : Value(_value)
+        {
+            loc = _loc;
+        }
+        virtual ~BooleanExpr() {}
 
-    virtual void print(){
-        std::cout << "Generate constant string = " << Value << std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
+        virtual void print() override
+        {
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
-    std::string getValue() const{
-        return this->Value;
-    }
-};
+        bool getValue() const
+        {
+            return this->Value;
+        }
+    };
 
-// class CharExpr : public Expression
-// {
-// public:
-//     char Value;
+    class StringExpr : public Expression
+    {
+        std::string Value;
 
-//     CharExpr(char _value, location _loc) : Value(_value) {
-//         loc=_loc;
-//     }
-//     ~CharExpr() {}
+    public:
+        StringExpr(std::string _value, location _loc) : Value(_value)
+        {
+            loc = _loc;
+        }
+        virtual ~StringExpr() {}
 
-//     virtual void print();
-//     virtual void toXML();
-//     virtual llvm::Value *codeGen();
-// };
+        virtual void print() override
+        {
+            std::cout << "Generate constant string = " << Value << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
-class IdentifierExpr : public Expression
-{
-    std::string Name;
+        std::string getValue() const
+        {
+            return this->Value;
+        }
+    };
 
-public:
-    IdentifierExpr(std::string _name, location _loc): Name(_name) {
-        loc=_loc;
-    }
+    // class CharExpr : public Expression
+    // {
+    // public:
+    //     char Value;
 
-    virtual void print(){
-        std::cout<<"Generate identifier "
-                 <<Name<<" "
-                 <<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    //     CharExpr(char _value, location _loc) : Value(_value) {
+    //         loc=_loc;
+    //     }
+    //     ~CharExpr() {}
 
-    std::string getName() const{
-        return this->Name;
-    }
-};
+    //     virtual void print();
+    //     virtual void toXML();
+    //     virtual llvm::Value *codeGen();
+    // };
 
-enum BinaryOperator
-{
-    SCOPE,          //::
-    ARRAY_INDEX,    //[]
-    STRUCT_REF,		//.
-	STRUCT_DEREF,	//->
-    AS,             //as
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,            //%
-    LEFT_SHIFT,
-    RIGHT_SHIFT,
-    LT,             //<
-    ELT,            //<=
-    GT,             //>
-    EGT,            //>=
-    E,              //==
-    NE,             //!=
-    AND,            //&
-    XOR,            //^
-    OR,             //|
-    LOGICAL_AND,    //&&
-    LOGICAL_OR,     //||
-};
+    class IdentifierExpr : public Expression
+    {
+        std::string Name;
 
-enum SingleOperator
-{
-    LOGICAL_NOT, //
-    BITWISE_NOT, //~
-    INDIRECTION, //*
-    ADDRESS_OF,  //&
-    MOVE,        //move
-};
+    public:
+        IdentifierExpr(std::string _name, location _loc) : Name(_name)
+        {
+            loc = _loc;
+        }
+        virtual ~IdentifierExpr() {}
 
-enum ThreeOperator
-{
-    CONDITION  //? : ;
-};
+        virtual void print() override
+        {
+            std::cout << "Generate identifier "
+                      << Name << " "
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
-class SingleOperatorExpr : public Expression
-{
-    SingleOperator Type;
-    std::unique_ptr<Expression> Expr;
+        std::string getName() const
+        {
+            return this->Name;
+        }
+    };
 
-public:
-    SingleOperatorExpr(std::unique_ptr<Expression> _Expr, SingleOperator _Type, location _loc)
-            : Type(_Type) ,
-			Expr(std::move(_Expr))
-              {
-        loc=_loc;
-    }
-    ~SingleOperatorExpr() {}
+    enum BinaryOperator
+    {
+        SCOPE,        //::
+        ARRAY_INDEX,  //[]
+        STRUCT_REF,   //.
+        STRUCT_DEREF, //->
+        AS,           // as
+        ADD,
+        SUB,
+        MUL,
+        DIV,
+        MOD, //%
+        LEFT_SHIFT,
+        RIGHT_SHIFT,
+        LT,          //<
+        ELT,         //<=
+        GT,          //>
+        EGT,         //>=
+        E,           //==
+        NE,          //!=
+        AND,         //&
+        XOR,         //^
+        OR,          //|
+        LOGICAL_AND, //&&
+        LOGICAL_OR,  //||
+    };
 
-    virtual void print(){
-        std::cout<<"Generate single operator "
-                 <<Type
-                 <<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    enum SingleOperator
+    {
+        LOGICAL_NOT, //
+        BITWISE_NOT, //~
+        INDIRECTION, //*
+        ADDRESS_OF,  //&
+        MOVE,        // move
+    };
 
-class BinaryOperatorExpr : public Expression
-{
-    BinaryOperator Type;
-    std::unique_ptr<Expression> LHS;
-    std::unique_ptr<Expression> RHS;
+    enum ThreeOperator
+    {
+        CONDITION //? : ;
+    };
 
-public:
-    BinaryOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _RHS, BinaryOperator _Type, location _loc)
-            : Type(_Type) ,
-			  LHS{ std::move(_LHS) } ,
-              RHS{ std::move(_RHS) }
-              {
-        loc=_loc;
-    }
-    ~BinaryOperatorExpr() {}
+    class SingleOperatorExpr : public Expression
+    {
+        SingleOperator Type;
+        std::shared_ptr<Expression> Expr = nullptr;
 
-    virtual void print(){
-        std::cout << "Generate binary operator "
-                  << Type
-                  << std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    public:
+        SingleOperatorExpr(std::shared_ptr<Expression> _Expr, SingleOperator _Type, location _loc)
+            : Type(_Type),
+              Expr(std::move(_Expr))
+        {
+            loc = _loc;
+        }
+        virtual ~SingleOperatorExpr() {}
 
-class ThreeOperatorExpr : public Expression
-{
-    ThreeOperator Type;
-    std::unique_ptr<Expression> LHS;
-    std::unique_ptr<Expression> MHS;
-    std::unique_ptr<Expression> RHS;
+        virtual void print() override
+        {
+            std::cout << "Generate single operator "
+                      << Type
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-public:
-    ThreeOperatorExpr(std::unique_ptr<Expression> _LHS, std::unique_ptr<Expression> _MHS, std::unique_ptr<Expression> _RHS, ThreeOperator _Type, location _loc)
-            : Type(_Type) ,
-			  LHS{std::move(_LHS)},
+    class BinaryOperatorExpr : public Expression
+    {
+        BinaryOperator Type;
+        std::shared_ptr<Expression> LHS = nullptr;
+        std::shared_ptr<Expression> RHS = nullptr;
+
+    public:
+        BinaryOperatorExpr(std::shared_ptr<Expression> _LHS, std::shared_ptr<Expression> _RHS, BinaryOperator _Type, location _loc)
+            : Type(_Type),
+              LHS{std::move(_LHS)},
+              RHS{std::move(_RHS)}
+        {
+            loc = _loc;
+        }
+        virtual ~BinaryOperatorExpr() {}
+
+        virtual void print() override
+        {
+            std::cout << "Generate binary operator "
+                      << Type
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class ThreeOperatorExpr : public Expression
+    {
+        ThreeOperator Type;
+        std::shared_ptr<Expression> LHS = nullptr;
+        std::shared_ptr<Expression> MHS = nullptr;
+        std::shared_ptr<Expression> RHS = nullptr;
+
+    public:
+        ThreeOperatorExpr(std::shared_ptr<Expression> _LHS, std::shared_ptr<Expression> _MHS, std::shared_ptr<Expression> _RHS, ThreeOperator _Type, location _loc)
+            : Type(_Type),
+              LHS{std::move(_LHS)},
               MHS{std::move(_MHS)},
               RHS{std::move(_RHS)}
-              {
-        loc=_loc;
-    }
-    ~ThreeOperatorExpr() {}
+        {
+            loc = _loc;
+        }
+        virtual ~ThreeOperatorExpr() {}
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        virtual void print() override{
 
-class FunctionCallExpr : public Expression
-{
-public:
-    std::unique_ptr<IdentifierExpr> FunctionName;
-    std::unique_ptr<ExpressionList> Args ;
-    
-    FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, location _loc)
-            : FunctionName{std::move(_FunctionName)} {
-        loc=_loc;
-    }
-    FunctionCallExpr(std::unique_ptr<IdentifierExpr> _FunctionName, std::unique_ptr<ExpressionList> _Args, location _loc)
-            : FunctionName{std::move(_FunctionName)},
-              Args{std::move(_Args)} {
-        loc=_loc;
-    }
-    ~FunctionCallExpr() {}
-
-    virtual void print(){
-        std::cout<<"Generate functin call :"
-                 <<FunctionName->getName()<<" "
-                 <<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
-
-class AssignmentExpression : public Expression
-{
-public:
-    std::unique_ptr<Expression> LHS;
-    std::unique_ptr<Expression> RHS;
-
-    AssignmentExpression(std::unique_ptr<Expression> _LHS,
-                         std::unique_ptr<Expression> _RHS,
-                         location _loc)
-            : LHS{ std::move(_LHS) } ,
-              RHS{ std::move(_RHS) } {
-        loc=_loc;
-    }
-    ~AssignmentExpression() {}
-
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
-
-/***
- * Statement
- *
- */
-
-
-class VariableDeclarationStatement : public Statement
-{
-public:
-    enum DeclareType{
-        MUTABLE,
-        NOT_MUTABLE
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
-    DeclareType dType;
 
-    virtual IdentifierExpr getType();
-    virtual IdentifierExpr getName();
-
-    virtual ~VariableDeclarationStatement() {}
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
-
-class SingleVariableDeclarationStatement : public VariableDeclarationStatement
-{
-    std::unique_ptr<IdentifierExpr> VariableType;
-    std::unique_ptr<IdentifierExpr> VariableName;
-public:
-
-    SingleVariableDeclarationStatement(std::unique_ptr<IdentifierExpr> _VariableType,
-                                       std::unique_ptr<IdentifierExpr> _VariableName, 
-                                       location _loc,
-                                       DeclareType _dType)
-            : VariableType{ std::move(_VariableType) } ,
-              VariableName{ std::move(_VariableName) } {
-        loc=_loc;
-        dType=_dType;
-    }
-    ~SingleVariableDeclarationStatement() {}
-
-    virtual IdentifierExpr getType(){
-        return (*VariableType);
-    }
-    virtual IdentifierExpr getName(){
-        return (*VariableName);
-    }
-
-    virtual void print()
+    class FunctionCallExpr : public Expression
     {
-        std::cout << "Generating single varible declaration: " 
-        <<this->dType << " " 
-        << this->VariableType->getName() << " "
-        << this->VariableName->getName() << std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    public:
+        std::shared_ptr<IdentifierExpr> FunctionName = nullptr;
+        std::shared_ptr<ExpressionList> Args = nullptr;
 
-class ArrayDeclarationStatement : public VariableDeclarationStatement
-{
-    std::unique_ptr<IdentifierExpr> ArrayType;
-    std::unique_ptr<IdentifierExpr> ArrayName;
-    std::unique_ptr<IntegerExpr> ArraySize;
+        FunctionCallExpr(std::shared_ptr<IdentifierExpr> _FunctionName, location _loc)
+            : FunctionName{std::move(_FunctionName)}
+        {
+            loc = _loc;
+        }
+        FunctionCallExpr(std::shared_ptr<IdentifierExpr> _FunctionName, std::shared_ptr<ExpressionList> _Args, location _loc)
+            : FunctionName{std::move(_FunctionName)},
+              Args{std::move(_Args)}
+        {
+            loc = _loc;
+        }
+        virtual ~FunctionCallExpr() {}
 
-    ArrayDeclarationStatement(std::unique_ptr<IdentifierExpr> _ArrayType, 
-                              std::unique_ptr<IdentifierExpr> _ArrayName,
-                              std::unique_ptr<IntegerExpr> _ArraySize,
-                              location _loc,
-                              DeclareType _dType)
-        : ArrayType{std::move(_ArrayType)},
-          ArrayName{std::move(_ArrayName)},
-          ArraySize{std::move(_ArraySize)}{
-        loc=_loc;
-        dType=_dType;
-    }
-    ~ArrayDeclarationStatement() {}
+        virtual void print() override
+        {
+            std::cout << "Generate functin call :"
+                      << FunctionName->getName() << " "
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-    virtual IdentifierExpr getType(){
-        return (*ArrayType);
-    }
-    virtual IdentifierExpr getName(){
-        return (*ArrayName);
-    }
+    class AssignmentExpression : public Expression
+    {
+    public:
+        std::shared_ptr<Expression> LHS = nullptr;
+        std::shared_ptr<Expression> RHS = nullptr;
 
-    virtual void print(){
-        std::cout << "Generating array varible declaration: "
-                  << this->dType << " "
-                  << this->ArrayType->getName() << " "
-                  << this->ArrayName->getName() << " "
-                  << this->ArraySize->getValue()
-                  << std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        AssignmentExpression(std::shared_ptr<Expression> _LHS,
+                             std::shared_ptr<Expression> _RHS,
+                             location _loc)
+            : LHS{std::move(_LHS)},
+              RHS{std::move(_RHS)}
+        {
+            loc = _loc;
+        }
+        virtual ~AssignmentExpression() {}
 
-class StructDeclarationStatement : public Statement
-{
-public:
-    std::unique_ptr<IdentifierExpr> Name;
-    std::unique_ptr<VariableList> Members ;
-    std::unique_ptr<FunctionList> FuncMembers;
+        virtual void print() override
+        {
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-    StructDeclarationStatement(std::unique_ptr<IdentifierExpr> Name,
-                               std::unique_ptr<VariableList> Members,
-                               std::unique_ptr<FunctionList> FuncMembers,
-                               location _loc)
-        : Name{std::move(Name)},
-          Members{std::move(Members)},
-          FuncMembers{std::move(FuncMembers)}{
-        loc=_loc;
-    }
-    ~StructDeclarationStatement() {}
+    /***
+     * Statement
+     *
+     */
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    class VariableDeclarationStatement : public Statement
+    {
+    public:
+        enum DeclareType
+        {
+            MUTABLE,
+            NOT_MUTABLE
+        };
+        DeclareType dType;
 
-class BlockStatement : public Statement
-{
-public:
-    std::unique_ptr<StatementList> Content;
-    BlockStatement(std::unique_ptr<StatementList> _Content)
-                : Content( std::move(_Content) ) {}
-    ~BlockStatement() {}
+        virtual std::shared_ptr<IdentifierExpr> getType() =0;
+        virtual IdentifierExpr getName() =0;
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        virtual ~VariableDeclarationStatement() {}
+        virtual void print() =0;
+        virtual std::string toXML() =0;
+        virtual llvm::Value *codeGen(CodeGenContext &context) =0;
+    };
 
-class ReturnStatement : public Statement
-{
-public:
-    std::unique_ptr<Expression> ReturnValue;
-    ReturnStatement(std::unique_ptr<Expression> _ReturnValue, location _loc)
-        : ReturnValue(std::move(_ReturnValue)) {
-            loc=_loc;
-    }
-    ~ReturnStatement() {}
+    class SingleVariableDeclarationStatement : public VariableDeclarationStatement
+    {
+        std::shared_ptr<IdentifierExpr> VariableType = nullptr;
+        std::shared_ptr<IdentifierExpr> VariableName = nullptr;
 
-    virtual void print(){
-        std::cout<<"Generate Return"
-                 <<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    public:
+        SingleVariableDeclarationStatement(std::shared_ptr<IdentifierExpr> _VariableType,
+                                           std::shared_ptr<IdentifierExpr> _VariableName,
+                                           location _loc,
+                                           DeclareType _dType)
+            : VariableType{std::move(_VariableType)},
+              VariableName{std::move(_VariableName)}
+        {
+            loc = _loc;
+            dType = _dType;
+        }
+        virtual ~SingleVariableDeclarationStatement() {}
 
-class FunctionDeclarationStatement : public Statement
-{
-    std::unique_ptr<IdentifierExpr> ReturnType;
-    std::unique_ptr<IdentifierExpr> FunctionName;
-    std::unique_ptr<VariableList> Args;
-    std::unique_ptr<BlockStatement> Content;
-    std::unique_ptr<ReturnStatement> Return;
+        virtual std::shared_ptr<IdentifierExpr> getType()
+        {
+            return VariableType;
+        }
+        virtual IdentifierExpr getName()
+        {
+            return (*VariableName);
+        }
 
-public:
-    FunctionDeclarationStatement(std::unique_ptr<IdentifierExpr> _ReturnType,
-                                 std::unique_ptr<IdentifierExpr> _FunctionName,
-                                 std::unique_ptr<VariableList> _Args,
-                                 std::unique_ptr<BlockStatement> _Content,
-                                 std::unique_ptr<ReturnStatement> _Return,
-                                 location _loc)
+        virtual void print() override
+        {
+            std::cout << "Generating single varible declaration: "
+                      << this->dType << " "
+                      << this->VariableType->getName() << " "
+                      << this->VariableName->getName() << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class ArrayDeclarationStatement : public VariableDeclarationStatement
+    {
+        std::shared_ptr<IdentifierExpr> ArrayType = nullptr;
+        std::shared_ptr<IdentifierExpr> ArrayName = nullptr;
+        std::shared_ptr<IntegerExpr> ArraySize = nullptr;
+
+        ArrayDeclarationStatement(std::shared_ptr<IdentifierExpr> _ArrayType,
+                                  std::shared_ptr<IdentifierExpr> _ArrayName,
+                                  std::shared_ptr<IntegerExpr> _ArraySize,
+                                  location _loc,
+                                  DeclareType _dType)
+            : ArrayType{std::move(_ArrayType)},
+              ArrayName{std::move(_ArrayName)},
+              ArraySize{std::move(_ArraySize)}
+        {
+            loc = _loc;
+            dType = _dType;
+        }
+        virtual ~ArrayDeclarationStatement() {}
+
+        virtual std::shared_ptr<IdentifierExpr> getType()
+        {
+            return ArrayType;
+        }
+        virtual IdentifierExpr getName()
+        {
+            return (*ArrayName);
+        }
+
+        virtual void print() override
+        {
+            std::cout << "Generating array varible declaration: "
+                      << this->dType << " "
+                      << this->ArrayType->getName() << " "
+                      << this->ArrayName->getName() << " "
+                      << this->ArraySize->getValue()
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class StructDeclarationStatement : public Statement
+    {
+    public:
+        std::shared_ptr<IdentifierExpr> Name = nullptr;
+        std::shared_ptr<VariableList> Members = nullptr;
+        std::shared_ptr<FunctionList> FuncMembers = nullptr;
+
+        StructDeclarationStatement(std::shared_ptr<IdentifierExpr> Name,
+                                   std::shared_ptr<VariableList> Members,
+                                   std::shared_ptr<FunctionList> FuncMembers,
+                                   location _loc)
+            : Name{std::move(Name)},
+              Members{std::move(Members)},
+              FuncMembers{std::move(FuncMembers)}
+        {
+            loc = _loc;
+        }
+        virtual ~StructDeclarationStatement() {}
+
+        virtual void print() override
+        {
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class BlockStatement : public Statement
+    {
+    public:
+        std::shared_ptr<StatementList> Content = nullptr;
+        BlockStatement(std::shared_ptr<StatementList> _Content)
+            : Content(std::move(_Content)) {}
+        virtual ~BlockStatement() {}
+
+        virtual void print(){
+
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class ReturnStatement : public Statement
+    {
+    public:
+        std::shared_ptr<Expression> ReturnValue = nullptr;
+        ReturnStatement(std::shared_ptr<Expression> _ReturnValue, location _loc)
+            : ReturnValue(std::move(_ReturnValue))
+        {
+            loc = _loc;
+        }
+        virtual ~ReturnStatement() {}
+
+        virtual void print() override
+        {
+            std::cout << "Generate Return"
+                      << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class FunctionDeclarationStatement : public Statement
+    {
+        std::shared_ptr<IdentifierExpr> ReturnType = nullptr;
+        std::shared_ptr<IdentifierExpr> FunctionName = nullptr;
+        std::shared_ptr<VariableList> Args = nullptr;
+        std::shared_ptr<BlockStatement> Content = nullptr;
+        std::shared_ptr<ReturnStatement> Return = nullptr;
+
+    public:
+        FunctionDeclarationStatement(std::shared_ptr<IdentifierExpr> _ReturnType,
+                                     std::shared_ptr<IdentifierExpr> _FunctionName,
+                                     std::shared_ptr<VariableList> _Args,
+                                     std::shared_ptr<BlockStatement> _Content,
+                                     std::shared_ptr<ReturnStatement> _Return,
+                                     location _loc)
             : ReturnType{std::move(_ReturnType)},
               FunctionName{std::move(_FunctionName)},
               Args{std::move(_Args)},
               Content{std::move(_Content)},
-              Return{std::move(_Return)}{
-        loc=_loc;
-    }
-
-    virtual void print(){
-        std::cout<<"Function Decalration :"
-        <<ReturnType->getName()<<"  "
-        <<FunctionName->getName()<<"  ";
-        for(auto &perArg : *Args){
-            perArg->print();
+              Return{std::move(_Return)}
+        {
+            loc = _loc;
         }
-        std::cout<<std::endl;
-    }
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context) ;
-};
 
-class TypedefStatement: public Statement
-{
-    std::unique_ptr<IdentifierExpr> LHS;
-    std::unique_ptr<IdentifierExpr> RHS;
+        virtual void print() override
+        {
+            std::cout << "Function Decalration :"
+                      << ReturnType->getName() << "  "
+                      << FunctionName->getName() << "  ";
+            for (auto &perArg : *Args)
+            {
+                perArg->print();
+            }
+            std::cout << std::endl;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-public:
-    TypedefStatement(std::unique_ptr<IdentifierExpr> LHS, std::unique_ptr<IdentifierExpr> RHS, location _loc)
-        : LHS{std::move(LHS)},
-          RHS{std::move(RHS)}{
-        loc=_loc;
-    }
-    ~TypedefStatement() {}
+    class TypedefStatement : public Statement
+    {
+        std::shared_ptr<IdentifierExpr> LHS = nullptr;
+        std::shared_ptr<IdentifierExpr> RHS = nullptr;
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    public:
+        TypedefStatement(std::shared_ptr<IdentifierExpr> LHS, std::shared_ptr<IdentifierExpr> RHS, location _loc)
+            : LHS{std::move(LHS)},
+              RHS{std::move(RHS)}
+        {
+            loc = _loc;
+        }
+        virtual ~TypedefStatement() {}
 
-class IfStatement : public Statement
-{
-    std::unique_ptr<Expression> Condition;
-    std::unique_ptr<StatementList> TrueBlock ;
-    std::unique_ptr<StatementList> FalseBlock ;
+        virtual void print() override{
 
-public:
-    IfStatement(std::unique_ptr<Expression> Condition,
-                std::unique_ptr<StatementList> TrueBlock,
-                std::unique_ptr<StatementList> FalseBlock,
-                location _loc)
-        : Condition{std::move(Condition)},
-          TrueBlock{std::move(TrueBlock)},
-          FalseBlock{std::move(FalseBlock)}{
-        loc=_loc;
-    }
-    ~IfStatement() {}
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    class IfStatement : public Statement
+    {
+        std::shared_ptr<Expression> Condition = nullptr;
+        std::shared_ptr<StatementList> TrueBlock = nullptr;
+        std::shared_ptr<StatementList> FalseBlock = nullptr;
 
-class WhileStatement : public Statement
-{
-    std::unique_ptr<Expression> Condition;
-    std::unique_ptr<StatementList> Block;
+    public:
+        IfStatement(std::shared_ptr<Expression> Condition,
+                    std::shared_ptr<StatementList> TrueBlock,
+                    std::shared_ptr<StatementList> FalseBlock,
+                    location _loc)
+            : Condition{std::move(Condition)},
+              TrueBlock{std::move(TrueBlock)},
+              FalseBlock{std::move(FalseBlock)}
+        {
+            loc = _loc;
+        }
+        virtual ~IfStatement() {}
 
-public:
-    WhileStatement(std::unique_ptr<Expression> Condition,
-                   std::unique_ptr<StatementList> Block,
-                   location _loc)
-        : Condition{std::move(Condition)},
-          Block{std::move(Block)}{
-        loc=_loc;
-    }
-    ~WhileStatement() {}
+        virtual void print() override{
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override; 
+    };
 
-class BreakStatement : public Statement
-{
-public:
-    BreakStatement(location _loc){
-        loc=_loc;
-    }
-    virtual ~BreakStatement() {}
+    class WhileStatement : public Statement
+    {
+        std::shared_ptr<Expression> Condition = nullptr;
+        std::shared_ptr<StatementList> Block = nullptr;
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
-
-class ContinueStatement : public Statement
-{
-public:
-    ContinueStatement(location _loc){
-        loc=_loc;
-    }
-    virtual ~ContinueStatement() {}
-
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
-
-class NameSpaceStatement : public Statement
-{
-    std::unique_ptr<IdentifierExpr> Name;
-    std::unique_ptr<StatementList> Block;
-
-public:
-    NameSpaceStatement(std::unique_ptr<IdentifierExpr> Name,
-                       std::unique_ptr<StatementList> Block,
+    public:
+        WhileStatement(std::shared_ptr<Expression> Condition,
+                       std::shared_ptr<StatementList> Block,
                        location _loc)
-        : Name{std::move(Name)},
-          Block{std::move(Block)}{
-        loc=_loc;
-    }
-    ~NameSpaceStatement() {}
+            : Condition{std::move(Condition)},
+              Block{std::move(Block)}
+        {
+            loc = _loc;
+        }
+        virtual ~WhileStatement() {}
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        virtual void print() override{
 
-class UseStatement : public Statement
-{
-    std::unique_ptr<IdentifierExpr> Name;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-public:
-    UseStatement(std::unique_ptr<IdentifierExpr> Name, location _loc)
-        : Name{std::move(Name)}{
-        loc=_loc;
-    }
-    ~UseStatement() {}
+    class BreakStatement : public Statement
+    {
+    public:
+        BreakStatement(location _loc)
+        {
+            loc = _loc;
+        }
+        virtual ~BreakStatement() {}
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        virtual void print() override
+        {
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-class ImportStatement : public Statement
-{
-    std::unique_ptr<Expression> Name;
+    class ContinueStatement : public Statement
+    {
+    public:
+        ContinueStatement(location _loc)
+        {
+            loc = _loc;
+        }
+        virtual ~ContinueStatement() {}
 
-public:
-    ImportStatement(std::unique_ptr<Expression> Name, location _loc)
-        : Name{std::move(Name)}{
-        loc=_loc;
-    }
-    ~ImportStatement() {}
+        virtual void print() override{
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-class FromStatement : public Statement
-{
-    std::unique_ptr<Expression> FromName;
-    std::unique_ptr<Expression> ImportName;
+    class NameSpaceStatement : public Statement
+    {
+        std::shared_ptr<IdentifierExpr> Name = nullptr;
+        std::shared_ptr<StatementList> Block = nullptr;
 
-public:
-    FromStatement(std::unique_ptr<Expression> FromName,
-                  std::unique_ptr<Expression> ImportName,
-                  location _loc)
-        : FromName{std::move(FromName)},
-          ImportName{std::move(ImportName)}{
-        loc=_loc;
-    }
-    ~FromStatement() {}
+    public:
+        NameSpaceStatement(std::shared_ptr<IdentifierExpr> Name,
+                           std::shared_ptr<StatementList> Block,
+                           location _loc)
+            : Name{std::move(Name)},
+              Block{std::move(Block)}
+        {
+            loc = _loc;
+        }
+        ~NameSpaceStatement() {}
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+        virtual void print() override{
 
-class ExportStatement : public Statement
-{
-    std::unique_ptr<Expression> Name;
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 
-public:
-    ExportStatement(std::unique_ptr<Expression> Name, location _loc)
-        : Name{std::move(Name)}{
-        loc=_loc;
-    }
-    ~ExportStatement() {}
+    class UseStatement : public Statement
+    {
+        std::shared_ptr<IdentifierExpr> Name = nullptr;
 
-    virtual void print();
-    virtual std::string toXML();
-    virtual llvm::Value *codeGen(CodeGenContext &context);
-};
+    public:
+        UseStatement(std::shared_ptr<IdentifierExpr> Name, location _loc)
+            : Name{std::move(Name)}
+        {
+            loc = _loc;
+        }
+        ~UseStatement() {}
+
+        virtual void print() override{
+
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class ImportStatement : public Statement
+    {
+        std::shared_ptr<Expression> Name = nullptr;
+
+    public:
+        ImportStatement(std::shared_ptr<Expression> Name, location _loc)
+            : Name{std::move(Name)}
+        {
+            loc = _loc;
+        }
+        ~ImportStatement() {}
+
+        virtual void print() override{
+
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class FromStatement : public Statement
+    {
+        std::shared_ptr<Expression> FromName = nullptr;
+        std::shared_ptr<Expression> ImportName = nullptr;
+
+    public:
+        FromStatement(std::shared_ptr<Expression> FromName,
+                      std::shared_ptr<Expression> ImportName,
+                      location _loc)
+            : FromName{std::move(FromName)},
+              ImportName{std::move(ImportName)}
+        {
+            loc = _loc;
+        }
+        ~FromStatement() {}
+
+        virtual void print() override
+        {
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
+
+    class ExportStatement : public Statement
+    {
+        std::shared_ptr<Expression> Name = nullptr;
+
+    public:
+        ExportStatement(std::shared_ptr<Expression> Name, location _loc)
+            : Name{std::move(Name)}
+        {
+            loc = _loc;
+        }
+        ~ExportStatement() {}
+
+        virtual void print() override{
+
+        }
+        virtual std::string toXML() override;
+        virtual llvm::Value *codeGen(CodeGenContext &context) override;
+    };
 }
-
 
 #endif

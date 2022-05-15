@@ -7,38 +7,34 @@ using namespace rmmc;
 using namespace llvm;
 int main()
 {
-    cout<<"Hello World"<<endl;
+    cout << "Hello World" << endl;
     //<---------------Case1------------->
     location loc;
-    unique_ptr<IdentifierExpr> ReturnType = make_unique<IdentifierExpr>("int", loc);
-    unique_ptr<IdentifierExpr> FunctionName = make_unique<IdentifierExpr>("main", loc);
-    //unique_ptr<VariableDeclarationStatement> arg1 = make_unique<VariableDeclarationStatement>();
-    unique_ptr<VariableList> Args = make_unique<VariableList>();
-    unique_ptr<Statement> st1 = make_unique<SingleVariableDeclarationStatement>(
-        move( make_unique<IdentifierExpr>("int") ),
-        move( make_unique<IdentifierExpr>("a") ),
+    shared_ptr<IdentifierExpr> ReturnType = make_shared<IdentifierExpr>("int", loc);
+    shared_ptr<IdentifierExpr> FunctionName = make_shared<IdentifierExpr>("main", loc);
+    // unique_ptr<VariableDeclarationStatement> arg1 = make_shared<VariableDeclarationStatement>();
+    shared_ptr<VariableList> Args = make_shared<VariableList>();
+    shared_ptr<Statement> st1 = make_shared<SingleVariableDeclarationStatement>(
+        move(make_shared<IdentifierExpr>("int")),
+        move(make_shared<IdentifierExpr>("a")),
         loc,
-        VariableDeclarationStatement::MUTABLE
-    );
-    //unique_ptr<Statement> st2 = make_unique<AssignmentExpression>()
-    unique_ptr<StatementList> contentList = make_unique<StatementList>();
+        VariableDeclarationStatement::MUTABLE);
+    // unique_ptr<Statement> st2 = make_shared<AssignmentExpression>()
+    shared_ptr<StatementList> contentList = make_shared<StatementList>();
     contentList->push_back(st1);
-    unique_ptr<BlockStatement> Content = make_unique<BlockStatement>(move(contentList), loc);
-    unique_ptr<ReturnStatement> Return = make_unique<ReturnStatement>(
-        move(make_unique<IntegerExpr>(0, loc)),
-        loc
-    );
-    unique_ptr<FunctionDeclarationStatement> main= make_unique<FunctionDeclarationStatement>(
+    shared_ptr<BlockStatement> Content = make_shared<BlockStatement>(move(contentList), loc);
+    shared_ptr<ReturnStatement> Return = make_shared<ReturnStatement>(
+        move(make_shared<IntegerExpr>(0, loc)),
+        loc);
+    shared_ptr<FunctionDeclarationStatement> main = make_shared<FunctionDeclarationStatement>(
         move(ReturnType),
         move(FunctionName),
         move(Args),
         move(Content),
         move(Return),
-        loc
-    );
+        loc);
     CodeGenContext code;
     code.CodeGen(move(main));
     code.theModule->dump();
     return 0;
 }
-

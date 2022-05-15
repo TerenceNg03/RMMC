@@ -8,9 +8,9 @@
  * return llvm::Type*  
  */
 namespace rmmc{
-    llvm::Type* getLLVMType(rmmc::IdentifierExpr type, rmmc::CodeGenContext &context)
+    llvm::Type* getLLVMType(std::shared_ptr<IdentifierExpr> type, rmmc::CodeGenContext &context)
     {
-        std::string name=type.getName();
+        std::string name=type->getName();
         if( name.compare("int") )
             return llvm::Type::getInt64Ty(context.theContext);
         return nullptr;
