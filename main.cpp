@@ -156,11 +156,11 @@ int main(int argc, char *const *argv)
 		loc);
 	CodeGenContext code;
 	//code.CodeGen(move(main));
-	string xml=main->toXML();
+	string json=main->toJSON();
 	//cout<<xml<<endl;
-	ofstream out("AST.xml");
+	ofstream out("AST.json");
 	if(out.is_open()){
-		out<<xml;
+		out<<json;
 		out.close();
 	}
 	//dfs(main);
