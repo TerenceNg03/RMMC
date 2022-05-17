@@ -63,6 +63,6 @@ clean:
 	${MAKE} -C codegen clean
 	${RM} *.o
 	${RM} *.log
-	${RM} *.xml
+	${RM} *.json
 	${RM} rmmc.out
 	${RM} -r bin/

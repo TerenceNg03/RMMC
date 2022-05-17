@@ -37,7 +37,7 @@ namespace rmmc
         virtual ~ASTNode() {}
 
         virtual void print() = 0;
-        virtual std::string toXML() = 0;
+        virtual std::string toJSON() = 0;
         virtual llvm::Value *codeGen(CodeGenContext &context) = 0;
     };
 
@@ -47,7 +47,7 @@ namespace rmmc
         virtual ~Statement() {}
 
         virtual void print() =0;
-        virtual std::string toXML() =0;
+        virtual std::string toJSON() =0;
         virtual llvm::Value *codeGen(CodeGenContext &context) =0;
     };
 
@@ -57,7 +57,7 @@ namespace rmmc
         virtual ~Expression() {}
 
         virtual void print() =0;
-        virtual std::string toXML() =0;
+        virtual std::string toJSON() =0;
         virtual llvm::Value *codeGen(CodeGenContext &context) =0;
     };
 
@@ -80,7 +80,7 @@ namespace rmmc
         {
             std::cout << "Generate constant double = " << Value << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
         double getValue() const
@@ -104,7 +104,7 @@ namespace rmmc
         {
             std::cout << "Generate constant integer = " << Value << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
         long long getValue() const
@@ -142,7 +142,7 @@ namespace rmmc
         virtual void print() override
         {
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
         bool getValue() const
@@ -166,7 +166,7 @@ namespace rmmc
         {
             std::cout << "Generate constant string = " << Value << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
         std::string getValue() const
@@ -207,7 +207,7 @@ namespace rmmc
                       << Name << " "
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
 
         std::string getName() const
@@ -277,7 +277,7 @@ namespace rmmc
                       << Type
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -303,7 +303,7 @@ namespace rmmc
                       << Type
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -328,7 +328,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -357,7 +357,7 @@ namespace rmmc
                       << FunctionName->getName() << " "
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -381,7 +381,7 @@ namespace rmmc
         {
             std::cout<<"Generate Assignment Statement"<<std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -405,7 +405,7 @@ namespace rmmc
 
         virtual ~VariableDeclarationStatement() {}
         virtual void print() =0;
-        virtual std::string toXML() =0;
+        virtual std::string toJSON() =0;
         virtual llvm::Value *codeGen(CodeGenContext &context) =0;
     };
 
@@ -443,7 +443,7 @@ namespace rmmc
                       << this->VariableType->getName() << " "
                       << this->VariableName->getName() << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -485,7 +485,7 @@ namespace rmmc
                       << this->ArraySize->getValue()
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -511,7 +511,7 @@ namespace rmmc
         virtual void print() override
         {
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -526,7 +526,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -546,7 +546,7 @@ namespace rmmc
             std::cout << "Generate Return"
                       << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -589,7 +589,7 @@ namespace rmmc
             std::cout << std::endl;
             std::cout << "Function Decalration Finished" << std::endl;
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -610,7 +610,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -636,7 +636,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override; 
     };
 
@@ -659,7 +659,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -675,7 +675,7 @@ namespace rmmc
         virtual void print() override
         {
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -691,7 +691,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -714,7 +714,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -733,7 +733,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -752,7 +752,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -775,7 +775,7 @@ namespace rmmc
         virtual void print() override
         {
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
@@ -794,7 +794,7 @@ namespace rmmc
         virtual void print() override{
 
         }
-        virtual std::string toXML() override;
+        virtual std::string toJSON() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 }
