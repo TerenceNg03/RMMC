@@ -332,7 +332,7 @@ namespace rmmc
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
-    class FunctionCallExpr : public Expression
+    class FunctionCallExpr : public Statement
     {
     public:
         std::shared_ptr<IdentifierExpr> FunctionName = nullptr;
@@ -361,13 +361,13 @@ namespace rmmc
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
     };
 
-    class AssignmentExpression : public Expression
+    class AssignmentExpression : public Statement
     {
     public:
-        std::shared_ptr<Expression> LHS = nullptr;
+        std::shared_ptr<IdentifierExpr> LHS = nullptr;
         std::shared_ptr<Expression> RHS = nullptr;
 
-        AssignmentExpression(std::shared_ptr<Expression> _LHS,
+        AssignmentExpression(std::shared_ptr<IdentifierExpr> _LHS,
                              std::shared_ptr<Expression> _RHS,
                              location _loc)
             : LHS{std::move(_LHS)},
@@ -379,6 +379,7 @@ namespace rmmc
 
         virtual void print() override
         {
+            std::cout<<"Generate Assignment Statement"<<std::endl;
         }
         virtual std::string toXML() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;
@@ -556,6 +557,7 @@ namespace rmmc
         std::shared_ptr<VariableList> Args = nullptr;
         std::shared_ptr<BlockStatement> Content = nullptr;
         std::shared_ptr<ReturnStatement> Return = nullptr;
+        bool isExternal = false;
 
     public:
         FunctionDeclarationStatement(std::shared_ptr<IdentifierExpr> _ReturnType,
@@ -563,6 +565,7 @@ namespace rmmc
                                      std::shared_ptr<VariableList> _Args,
                                      std::shared_ptr<BlockStatement> _Content,
                                      std::shared_ptr<ReturnStatement> _Return,
+                                     bool _isExternal,
                                      location _loc)
             : ReturnType{std::move(_ReturnType)},
               FunctionName{std::move(_FunctionName)},
@@ -570,6 +573,7 @@ namespace rmmc
               Content{std::move(_Content)},
               Return{std::move(_Return)}
         {
+            isExternal = _isExternal;
             loc = _loc;
         }
 
@@ -583,6 +587,7 @@ namespace rmmc
                 perArg->print();
             }
             std::cout << std::endl;
+            std::cout << "Function Decalration Finished" << std::endl;
         }
         virtual std::string toXML() override;
         virtual llvm::Value *codeGen(CodeGenContext &context) override;

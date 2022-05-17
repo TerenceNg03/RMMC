@@ -4,19 +4,22 @@ using namespace rmmc;
 
 typedef std::pair<std::string, std::string> attribute_t;
 
-std::string to_xml(const std::string& tag, const std::optional<std::string>& content, const std::vector<attribute_t>& attributes = {}){
-	std::string tag_head = "<"+tag;
-	for(auto &p: attributes){
-		tag_head += " "+p.first+"="+p.second;
+std::string to_xml(const std::string &tag, const std::optional<std::string> &content, const std::vector<attribute_t> &attributes = {})
+{
+	std::string tag_head = "<" + tag;
+	for (auto &p : attributes)
+	{
+		tag_head += " " + p.first + "=" + p.second;
 	}
-	if(!content)return tag_head+"/>";
+	if (!content)
+		return tag_head + "/>";
 
-	return tag_head + ">" + *content+ "</" + tag + ">";
+	return tag_head + ">" + *content + "</" + tag + ">";
 };
 
 std::string IntegerExpr::toXML()
 {
-    return to_xml("IntegerExpr", std::to_string(Value));
+	return to_xml("IntegerExpr", std::to_string(Value));
 }
 
 // std::string UnsignedIntegerExpr::toXML()
@@ -26,7 +29,7 @@ std::string IntegerExpr::toXML()
 
 std::string BooleanExpr::toXML()
 {
-    return to_xml("BooleanExpr", std::to_string(Value));
+	return to_xml("BooleanExpr", std::to_string(Value));
 }
 
 // std::string CharExpr::toXML()
@@ -41,162 +44,188 @@ std::string StringExpr::toXML()
 
 std::string IdentifierExpr::toXML()
 {
-    return to_xml("Identifier", Name);
+	return to_xml("Identifier", Name);
 }
 
 std::string BinaryOperatorExpr::toXML()
 {
 	std::string content = "";
-	if(LHS)content += to_xml("LHS", LHS->toXML());
-	else content += to_xml("LHS", {});
-	if(RHS)content += to_xml("RHS", RHS->toXML());
-	else content += to_xml("RHS", {});
+	if (LHS)
+		content += to_xml("LHS", LHS->toXML());
+	else
+		content += to_xml("LHS", {});
+	if (RHS)
+		content += to_xml("RHS", RHS->toXML());
+	else
+		content += to_xml("RHS", {});
 	std::string opname;
-	switch(Type){
-		case BinaryOperator::SCOPE:
-			opname = "::";
-		case BinaryOperator::ARRAY_INDEX:
-			opname = "[]";
-		case BinaryOperator::STRUCT_REF:
-			opname = ".";
-		case BinaryOperator::STRUCT_DEREF:
-			opname = "&gt";
-		case BinaryOperator::AS:
-			opname = "as";
-		case BinaryOperator::ADD:
-			opname = "+";
-		case BinaryOperator::SUB:
-			opname = "-";
-		case BinaryOperator::MUL:
-			opname = "*";
-		case BinaryOperator::DIV:
-			opname = "/";
-		case BinaryOperator::MOD:
-			opname = "%";
-		case BinaryOperator::LEFT_SHIFT:
-			opname = "&lt&lt";
-		case BinaryOperator::RIGHT_SHIFT:
-			opname = "&gt&gt";
-		case BinaryOperator::LT:
-			opname = "&lt";
-		case BinaryOperator::ELT:
-			opname = "&lt=";
-		case BinaryOperator::GT:
-			opname = "&gt";
-		case BinaryOperator::EGT:
-			opname = "&gt=";
-		case BinaryOperator::E:
-			opname = "==";
-		case BinaryOperator::NE:
-			opname = "!=";
-		case BinaryOperator::AND:
-			opname = "&amp";
-		case BinaryOperator::XOR:
-			opname = "^";
-		case BinaryOperator::OR:
-			opname = "|";
-		case BinaryOperator::LOGICAL_AND:
-			opname = "&amp&amp";
-		case BinaryOperator::LOGICAL_OR:
-			opname = "||";
+	switch (Type)
+	{
+	case BinaryOperator::SCOPE:
+		opname = "::";
+	case BinaryOperator::ARRAY_INDEX:
+		opname = "[]";
+	case BinaryOperator::STRUCT_REF:
+		opname = ".";
+	case BinaryOperator::STRUCT_DEREF:
+		opname = "&gt";
+	case BinaryOperator::AS:
+		opname = "as";
+	case BinaryOperator::ADD:
+		opname = "+";
+	case BinaryOperator::SUB:
+		opname = "-";
+	case BinaryOperator::MUL:
+		opname = "*";
+	case BinaryOperator::DIV:
+		opname = "/";
+	case BinaryOperator::MOD:
+		opname = "%";
+	case BinaryOperator::LEFT_SHIFT:
+		opname = "&lt&lt";
+	case BinaryOperator::RIGHT_SHIFT:
+		opname = "&gt&gt";
+	case BinaryOperator::LT:
+		opname = "&lt";
+	case BinaryOperator::ELT:
+		opname = "&lt=";
+	case BinaryOperator::GT:
+		opname = "&gt";
+	case BinaryOperator::EGT:
+		opname = "&gt=";
+	case BinaryOperator::E:
+		opname = "==";
+	case BinaryOperator::NE:
+		opname = "!=";
+	case BinaryOperator::AND:
+		opname = "&amp";
+	case BinaryOperator::XOR:
+		opname = "^";
+	case BinaryOperator::OR:
+		opname = "|";
+	case BinaryOperator::LOGICAL_AND:
+		opname = "&amp&amp";
+	case BinaryOperator::LOGICAL_OR:
+		opname = "||";
 	};
-    return to_xml("BinaryOperator", content, {make_pair("op", opname)});
+	return to_xml("BinaryOperator", content, {make_pair("op", opname)});
 }
 
 std::string ThreeOperatorExpr::toXML()
 {
 	std::string content = "";
-	if(LHS)content += to_xml("LHS", LHS->toXML());
-	else content += to_xml("LHS", {});
-	if(MHS)content += to_xml("MHS", MHS->toXML());
-	else content += to_xml("MHS", {});
-	if(RHS)content += to_xml("RHS", RHS->toXML());
-	else content += to_xml("RHS", {});
+	if (LHS)
+		content += to_xml("LHS", LHS->toXML());
+	else
+		content += to_xml("LHS", {});
+	if (MHS)
+		content += to_xml("MHS", MHS->toXML());
+	else
+		content += to_xml("MHS", {});
+	if (RHS)
+		content += to_xml("RHS", RHS->toXML());
+	else
+		content += to_xml("RHS", {});
 	std::string opname;
-	switch(Type){
-		case ThreeOperator::CONDITION:
-			opname = "?:";
+	switch (Type)
+	{
+	case ThreeOperator::CONDITION:
+		opname = "?:";
 	}
-    return to_xml("ThreeOperator", content, {make_pair("op", opname)});
+	return to_xml("ThreeOperator", content, {make_pair("op", opname)});
 }
 
 std::string FunctionCallExpr::toXML()
 {
 	std::string content;
-	if(FunctionName) content += to_xml("Function", FunctionName->toXML());
-	else content += to_xml("Function", {});
+	if (FunctionName)
+		content += to_xml("Function", FunctionName->toXML());
+	else
+		content += to_xml("Function", {});
 
 	std::string Arg_content = "";
-	int i=0;
-    for (auto& Arg : *Args) {
-       if(Arg) Arg_content += to_xml("Arg#"+std::to_string(i++), Arg->toXML());
-	   else Arg_content += to_xml("Arg#"+std::to_string(i++), {});
-    }
+	int i = 0;
+	for (auto &Arg : *Args)
+	{
+		if (Arg)
+			Arg_content += to_xml("Arg#" + std::to_string(i++), Arg->toXML());
+		else
+			Arg_content += to_xml("Arg#" + std::to_string(i++), {});
+	}
 
 	content += Arg_content;
-    return to_xml("FunctionCall", content);
+	return to_xml("FunctionCall", content);
 }
 
 std::string TypedefStatement::toXML()
 {
 	std::string content = "";
-	if(LHS)content += to_xml("LHS", LHS->toXML());
-	else content += to_xml("LHS", {});
-	if(RHS)content += to_xml("RHS", RHS->toXML());
-	else content += to_xml("RHS", {});
-    return to_xml("type", content);
+	if (LHS)
+		content += to_xml("LHS", LHS->toXML());
+	else
+		content += to_xml("LHS", {});
+	if (RHS)
+		content += to_xml("RHS", RHS->toXML());
+	else
+		content += to_xml("RHS", {});
+	return to_xml("type", content);
 }
 
 std::string IfStatement::toXML()
 {
 
 	std::string content = "";
-	if(Condition)content += to_xml("Condition", Condition->toXML());
-	else content += to_xml("Condition", {});
+	if (Condition)
+		content += to_xml("Condition", Condition->toXML());
+	else
+		content += to_xml("Condition", {});
 	/*** Chnage later ***/
-    return to_xml("if", content);
+	return to_xml("if", content);
 }
 
 std::string WhileStatement::toXML()
 {
 	std::string content = "";
-	if(Condition)content += to_xml("Condition", Condition->toXML());
-	else content += to_xml("Condition", {});
+	if (Condition)
+		content += to_xml("Condition", Condition->toXML());
+	else
+		content += to_xml("Condition", {});
 	/*** Chnage later ***/
-    return to_xml("while", content);
+	return to_xml("while", content);
 }
 
 std::string BreakStatement::toXML()
 {
-    return to_xml("break", {});
+	return to_xml("break", {});
 }
 
 std::string ContinueStatement::toXML()
 {
-    return to_xml("continue", {});
+	return to_xml("continue", {});
 }
 
-std::string  NameSpaceStatement::toXML()
+std::string NameSpaceStatement::toXML()
 {
 	std::string content = "";
-	if(Name)content += to_xml("mod_id", Name->toXML());
-	else content += to_xml("mod_id", {});
+	if (Name)
+		content += to_xml("mod_id", Name->toXML());
+	else
+		content += to_xml("mod_id", {});
 	/*** Chnage later ***/
-    return to_xml("mod", content);
+	return to_xml("mod", content);
 }
 
-std::string  UseStatement::toXML()
+std::string UseStatement::toXML()
 {
-	if(Name)
+	if (Name)
 		return to_xml("use", Name->toXML());
 	else
 		return to_xml("use", {});
-
 }
 
-std::string  ImportStatement::toXML()
+std::string ImportStatement::toXML()
 {
-	if(Name)
+	if (Name)
 		return to_xml("import", Name->toXML());
 	else
 		return to_xml("import", {});
@@ -205,17 +234,21 @@ std::string  ImportStatement::toXML()
 std::string FromStatement::toXML()
 {
 	std::string content = "";
-	if(FromName) content += to_xml("source", FromName->toXML());
-	else content += to_xml("source", {});
-	if(ImportName) content += to_xml("source", ImportName->toXML());
-	else content += to_xml("source", {});
+	if (FromName)
+		content += to_xml("source", FromName->toXML());
+	else
+		content += to_xml("source", {});
+	if (ImportName)
+		content += to_xml("source", ImportName->toXML());
+	else
+		content += to_xml("source", {});
 
-    return to_xml("from", content);
+	return to_xml("from", content);
 }
 
-std::string  ExportStatement::toXML()
+std::string ExportStatement::toXML()
 {
-	if(Name)
+	if (Name)
 		return to_xml("export", Name->toXML());
 	else
 		return to_xml("export", {});
@@ -223,42 +256,59 @@ std::string  ExportStatement::toXML()
 
 std::string FunctionDeclarationStatement::toXML()
 {
-	std::string content="";
-	if(FunctionName) content += to_xml("Function", FunctionName->toXML());
-	else content += to_xml("Function", {});
+	std::string content = "";
+	if (FunctionName)
+		content += to_xml("Function", FunctionName->toXML());
+	else
+		content += to_xml("Function", {});
+	if (ReturnType)
+		content += to_xml("ReturnType", ReturnType->toXML());
+	else
+		content += to_xml("ReturnType", {});
+	if (Return)
+		content += to_xml("ReturnExpr", Return->toXML());
+	else
+		content += to_xml("ReturnExpr", {});
 
 	std::string Arg_content = "";
-	int i=0l;
-	for (auto& Arg : *Args){
-		if(Arg) Arg_content += to_xml("Arg#"+std::to_string(i++), Arg->toXML());
+	int i = 0l;
+	for (auto &Arg : *Args)
+	{
+		if (Arg)
+			Arg_content += to_xml("Arg#" + std::to_string(i++), Arg->toXML());
 		else
 			Arg_content += to_xml("Arg#" + std::to_string(i++), {});
 	}
 	content += Arg_content;
+
+	content += to_xml("FuncContent", Content->toXML());
+
 	return to_xml("FunctionDeclaration", content);
 }
 
 std::string ReturnStatement::toXML()
 {
-	std::string content="";
-	if(ReturnValue) content = to_xml("Return Expression", ReturnValue->toXML());
-	else content = to_xml("Return Expression", {});
+	std::string content = "";
+	if (ReturnValue)
+		content = to_xml("ReturnExpression", ReturnValue->toXML());
+	else
+		content = to_xml("ReturnExpression", {});
 	return to_xml("Return", content);
 }
 
 std::string SingleVariableDeclarationStatement::toXML()
 {
-	std::string content="";
+	std::string content = "";
 
 	if (VariableType)
-		content += to_xml("Variable Type", VariableType->toXML());
+		content += to_xml("VariableType", VariableType->toXML());
 	else
-		content += to_xml("Variable Type", {});
+		content += to_xml("VariableType", {});
 	if (VariableName)
-		content += to_xml("Variable Name", VariableName->toXML());
+		content += to_xml("VariableName", VariableName->toXML());
 	else
-		content += to_xml("Variable Name", {});
-	return to_xml("Single Variable Declaration", content);
+		content += to_xml("VariableName", {});
+	return to_xml("SingleVariableDeclaration", content);
 }
 
 std::string ArrayDeclarationStatement::toXML()
@@ -266,54 +316,63 @@ std::string ArrayDeclarationStatement::toXML()
 	std::string content = "";
 
 	if (ArrayType)
-		content += to_xml("Array Type", ArrayType->toXML());
+		content += to_xml("ArrayType", ArrayType->toXML());
 	else
-		content += to_xml("Array Type", {});
+		content += to_xml("ArrayType", {});
 	if (ArrayName)
-		content += to_xml("Array Name", ArrayName->toXML());
+		content += to_xml("ArrayName", ArrayName->toXML());
 	else
-		content += to_xml("Array Name", {});
+		content += to_xml("ArrayName", {});
 	if (ArraySize)
-		content += to_xml("Array Size", ArraySize->toXML());
+		content += to_xml("ArraySize", ArraySize->toXML());
 	else
-		content += to_xml("Array Size", {});
-	return to_xml("Array Declaration", content);
+		content += to_xml("ArraySize", {});
+	return to_xml("ArrayDeclaration", content);
 }
 
 std::string StructDeclarationStatement::toXML()
 {
 	std::string content = "";
 	if (Name)
-		content += to_xml("Struct Name", Name->toXML());
+		content += to_xml("StructName", Name->toXML());
 	else
-		content += to_xml("Struct Name", {});
-	std::string mem_content ="";
-	int i=0;
-	for (auto& member : *Members){
+		content += to_xml("StructName", {});
+	std::string mem_content = "";
+	int i = 0;
+	for (auto &member : *Members)
+	{
 		if (member)
-			mem_content += to_xml("Member#" + std::to_string(i++), member->toXML());
+			mem_content += to_xml("Member_" + std::to_string(i++), member->toXML());
 		else
-			mem_content += to_xml("Member#" + std::to_string(i++), {});
+			mem_content += to_xml("Member_" + std::to_string(i++), {});
 	}
-	for (auto &member : *FuncMembers){
+	for (auto &member : *FuncMembers)
+	{
 		if (member)
-			mem_content += to_xml("FuncMember#" + std::to_string(i++), member->toXML());
+			mem_content += to_xml("FuncMember_" + std::to_string(i++), member->toXML());
 		else
-			mem_content += to_xml("FuncMember#" + std::to_string(i++), {});
+			mem_content += to_xml("FuncMember_" + std::to_string(i++), {});
 	}
-	content+=mem_content;
-	return to_xml("Struct Declaration", content);
+	content += mem_content;
+	return to_xml("StructDeclaration", content);
 }
 
 std::string BlockStatement::toXML()
 {
 	std::string content = "";
-	int i=0;
-	for(auto& perContent : *Content){
+	int i = 0;
+	for (auto &perContent : *Content)
+	{
 		if (perContent)
-			content += to_xml("Statement#" + std::to_string(i++), perContent->toXML());
+			content += to_xml("Statement_" + std::to_string(i++), perContent->toXML());
 		else
-			content += to_xml("Statement#" + std::to_string(i++), {});
+			content += to_xml("Statement_" + std::to_string(i++), {});
 	}
 	return to_xml("Block", content);
+}
+
+std::string AssignmentExpression::toXML()
+{
+	std::string content="";
+	return content;
 }

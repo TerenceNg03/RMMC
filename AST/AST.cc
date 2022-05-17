@@ -5,13 +5,22 @@
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/Support/raw_ostream.h>
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
 
 #include <vector>
 #include <cstdlib>
 
-#include "AST.hh"
 #include "CodeGen.hh"
-// #include "TypeSystem.hh"
 
 typedef llvm::Type *TypePtr;
 typedef llvm::ArrayType *ArrayTypePtr;
@@ -19,15 +28,19 @@ typedef llvm::FunctionType *FunctionTypePtr;
 typedef llvm::Function *FunctionPtr;
 typedef llvm::Value *ValuePtr;
 
-// using namespace llvm;
 using namespace llvm;
 using namespace rmmc;
 
 llvm::Type *getLLVMType(std::shared_ptr<IdentifierExpr> type, rmmc::CodeGenContext &context)
 {
     std::string name = type->getName();
-    if (name.compare("int"))
-        return llvm::Type::getInt64Ty(context.theContext);
+    std::cout << "getLLVMType: " << name << std::endl;
+    // std::cout<<name.compare("int")<<std::endl;
+    if (!name.compare("int"))
+        return llvm::Type::getInt32Ty(context.theContext);
+    if (!name.compare("string"))
+        return llvm::Type::getInt8PtrTy(context.theContext);
+    std::cout << "Return nullptr" << std::endl;
     return nullptr;
 }
 
@@ -40,7 +53,7 @@ llvm::Value *rmmc::DoubleExpr::codeGen(CodeGenContext &context)
 llvm::Value *rmmc::IntegerExpr::codeGen(CodeGenContext &context)
 {
     this->print();
-    return llvm::ConstantInt::get(llvm::Type::getInt64Ty(context.theContext), this->Value);
+    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context.theContext), this->Value);
 }
 
 llvm::Value *rmmc::BooleanExpr::codeGen(CodeGenContext &context)
@@ -50,19 +63,21 @@ llvm::Value *rmmc::BooleanExpr::codeGen(CodeGenContext &context)
 
 llvm::Value *rmmc::StringExpr::codeGen(CodeGenContext &context)
 {
-    return llvm::ConstantDataArray::getString(context.theContext, this->Value, true);
+    return context.theBuilder.CreateGlobalString(this->Value, "string");
+    //return llvm::ConstantDataArray::getString(context.theContext, this->Value, true);
 }
 
 llvm::Value *rmmc::IdentifierExpr::codeGen(CodeGenContext &context)
 {
     this->print();
     ValuePtr val = context.getSymbolTable(this->Name);
-    if(val==nullptr){
+    if (val == nullptr)
+    {
+        std::cout << "The identifier not find" << std::endl;
         return nullptr;
     }
     return context.theBuilder.CreateLoad(val, false, "");
 }
-
 
 // To-Do
 llvm::Value *rmmc::SingleOperatorExpr::codeGen(CodeGenContext &context)
@@ -123,25 +138,44 @@ llvm::Value *rmmc::ThreeOperatorExpr::codeGen(CodeGenContext &context)
     return nullptr;
 }
 
-
 llvm::Value *rmmc::FunctionCallExpr::codeGen(CodeGenContext &context)
 {
     this->print();
+    // if( this->FunctionName->getName().compare("printf") == 0 ){
+    //     std::vector<llvm::Type *> putsArgs;
+    //     putsArgs.push_back(context.theBuilder.getInt8Ty()->getPointerTo());
+    //     llvm::ArrayRef<llvm::Type *> argsRef(putsArgs);
+    //     llvm::FunctionType *putsType =
+    //         llvm::FunctionType::get(context.theBuilder.getInt32Ty(), argsRef, true);
+    //     llvm::FunctionCallee putsFunc = context.theModule->getOrInsertFunction("printf", putsType);
+    //     context.theBuilder.CreateCall2(putsFunc, context.theBuilder.CreateGlobalStringPtr("%d"), this->Args->at(1)->codeGen());
+    //     return nullptr;
+    // }
     FunctionPtr callF = context.theModule->getFunction(this->FunctionName->getName());
-    if(callF==nullptr){
+    if (callF == nullptr)
+    {
+        std::cout << "Not find the function" << std::endl;
         return nullptr;
-    }else if(callF->arg_size()!=this->Args->size()){
+    }
+    else if (callF->arg_size() != this->Args->size())
+    {
+        std::cout<<callF->arg_size()<<std::endl;
+        std::cout<<this->Args->size()<<std::endl;
+        std::cout << "Function Args size different" << std::endl;
         return nullptr;
-    }else{
+    }
+    else
+    {
         ExpressionList::iterator it;
         std::vector<ValuePtr> callArgs;
-        for(it=this->Args->begin();it!=this->Args->end();it++)
+        for (it = this->Args->begin(); it != this->Args->end(); it++)
         {
             ValuePtr tmp = (*it)->codeGen(context);
-            if(tmp==nullptr){
+            if (tmp == nullptr)
+            {
                 return nullptr;
             }
-            callArgs.push_back( tmp );
+            callArgs.push_back(tmp);
         }
         return context.theBuilder.CreateCall(callF, callArgs, "callF");
     }
@@ -149,10 +183,24 @@ llvm::Value *rmmc::FunctionCallExpr::codeGen(CodeGenContext &context)
 
 llvm::Value *rmmc::AssignmentExpression::codeGen(CodeGenContext &context)
 {
-    return nullptr;
+    this->print();
+    ValuePtr l = context.getSymbolTable(this->LHS->getName());
+    auto lType = context.getSymbolType(this->LHS->getName());
+    if (l == nullptr)
+    {
+        std::cout << "Assignment LHS is nullptr" << std::endl;
+        return nullptr;
+    }
+    ValuePtr r = this->RHS->codeGen(context);
+    r = context.typeSystem.cast(r, getLLVMType(lType, context), context.currentBlock());
+    if (r == nullptr)
+    {
+        std::cout << l->getType() << " " << r->getType() << std::endl;
+        std::cout << "l  and r type different" << std::endl;
+    }
+    context.theBuilder.CreateStore(r, l);
+    return l;
 }
-
-
 
 llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context)
 {
@@ -160,15 +208,32 @@ llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context
     // Construct function params type
     std::vector<TypePtr> funcArgs;
     VariableList::iterator it;
-    for (it = this->Args->begin(); it != this->Args->end(); it++)
+    for (auto &perArg : *Args)
     {
-        funcArgs.push_back(getLLVMType((*it)->getType(), context));
+        funcArgs.push_back(getLLVMType(perArg->getType(), context));
     }
+    std::cout << "Args finished" << std::endl;
+    // for (it = this->Args->begin(); it != this->Args->end(); it++)
+    // {
+    //     std::cout<<"**"<<std::endl;
+    //     funcArgs.push_back(getLLVMType((*it)->getType(), context));
+    // }
     // Construct function return type
     TypePtr retType = getLLVMType(ReturnType, context);
+    if (retType == nullptr)
+        std::cout << "Return type is nullptr" << std::endl;
+    std::cout << "Return Type Finished" << std::endl;
     // get function type and construct function
-    FunctionTypePtr funcType = llvm::FunctionType::get(retType, funcArgs, false);
+    FunctionTypePtr funcType = nullptr;
+    if (this->isExternal)
+        funcType = llvm::FunctionType::get(retType, funcArgs, false);
+    else
+        funcType = llvm::FunctionType::get(retType, funcArgs, false);
+    std::cout << "Func Type Finished" << std::endl;
     FunctionPtr func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, this->FunctionName->getName().c_str(), context.theModule.get());
+    std::cout << "Func Finished" << std::endl;
+    if (this->isExternal)
+        return func;
     // entry block
     BasicBlockPtr entryBlock = llvm::BasicBlock::Create(context.theContext, "entry", func, nullptr);
     context.theBuilder.SetInsertPoint(entryBlock);
@@ -187,11 +252,16 @@ llvm::Value *rmmc::FunctionDeclarationStatement::codeGen(CodeGenContext &context
     // Generate the code of function content
     this->Content->codeGen(context);
     // Return Value
-    ValuePtr returnVal=this->Return->codeGen(context);
+    ValuePtr returnVal = this->Return->codeGen(context);
+    if (returnVal == nullptr)
+        std::cout << "Return value is nullptr" << std::endl;
     context.theBuilder.CreateRet(returnVal);
+    std::cout << "Return Value Finished" << std::endl;
     // Pop Block
     context.popBlock();
-    return nullptr;
+    llvm::verifyFunction(*func);
+    std::cout << "Function Finished" << std::endl;
+    return func;
 }
 /***
  *
@@ -239,6 +309,8 @@ llvm::Value *rmmc::BlockStatement::codeGen(CodeGenContext &context)
 llvm::Value *rmmc::ReturnStatement::codeGen(CodeGenContext &context)
 {
     ValuePtr returnVal = this->ReturnValue->codeGen(context);
+    if (returnVal == nullptr)
+        std::cout << "return value nullptr" << std::endl;
     return returnVal;
 }
 

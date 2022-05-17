@@ -1,7 +1,7 @@
 export
 
 CC = clang++
-CFLAG = -std=c++17 -Wall 
+CFLAG = -std=c++17 -Wall
 INCLUDE = -I$(shell pwd)/include
 DEFINE = -Dregister
 FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
