@@ -64,7 +64,7 @@ union return Parser::make_union_(loc);
 ref return Parser::make_ref(loc);
 match return Parser::make_match(loc);
 
-[a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_id(std::string(yytext),loc);
+[a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_rawid(std::string(yytext),loc);
 
 \"(\\.|[^\\"])*\"  return Parser::make_rawstr(std::string(yytext),loc);/* string literal (remove \") */
 \'(\\.|[^\\'])*\' return Parser::make_rawchar(std::string(yytext),loc);/* char literal (remove \') */

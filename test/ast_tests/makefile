@@ -1,5 +1,6 @@
 .PHONY: run clean
-FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
+
+all:
 
 run: test.out
 	./test.out

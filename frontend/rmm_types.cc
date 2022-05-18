@@ -383,6 +383,10 @@ namespace rmmc{
 		return t;
 	}
 
+	var_traits make_traits() noexcept{
+		return var_traits(false, false, false);
+	}	
+
 	
 
 	rmm_type make_pointer(const rmm_type& t)

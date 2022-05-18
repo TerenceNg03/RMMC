@@ -8,12 +8,9 @@ FLAGS = ${CFLAG} ${INCLUDE} ${DEFINE}
 YFLAGS = -d -Wno-yacc
 OBJ_PATH = $(shell pwd)/bin
 ROOT_DIR = $(shell pwd)
-FLAGS += -I$(shell llvm-config --includedir) -I$(shell llvm-config --bindir) -I${ROOT_DIR}/lex
 
 LD = ld
 LFLAGS = -r
-
-LDFLAGS_LLVM = $(shell llvm-config --ldflags --libs)
 
 RM = -@rm -f
 
@@ -26,7 +23,7 @@ debug: YFLAGS += -Wcex
 debug: all
 
 all: main.o subdir
-	${CC} ${CFLAGS} main.o ${OBJ_PATH}/*.o -o rmmc.out $(LDFLAGS_LLVM)
+	${CC} ${CFLAGS} main.o ${OBJ_PATH}/*.o -o rmmc.out 
 
 run: all
 	./rmmc.out
@@ -50,7 +47,6 @@ subdir:
 	${MAKE} -C lex lex.o
 	${MAKE} -C frontend frontend.o
 	${MAKE} -C AST ast.o
-	${MAKE} -C codegen gen.o
 
 main.o: main.cpp
 	${CC} ${FLAGS} -c main.cpp
@@ -60,9 +56,9 @@ clean:
 	${MAKE} -C frontend clean
 	${MAKE} -C test clean
 	${MAKE} -C AST clean
-	${MAKE} -C codegen clean
 	${RM} *.o
 	${RM} *.log
 	${RM} *.json
+	${RM} *.xml
 	${RM} rmmc.out
 	${RM} -r bin/

@@ -124,7 +124,7 @@ namespace rmmc{
 
 		bool operator==(const rmm_type& x) const;
 		bool operator!=(const rmm_type& x) const;
-		//rmm_type& operator=(const rmm_type& t);
+		rmm_type& operator=(const rmm_type& t) = delete;
 
 		std::string str() const;
 
@@ -190,6 +190,7 @@ namespace rmmc{
 
 	/* return if invalid */
 	std::optional<var_traits> make_traits(bool mut, bool ref, bool unique) noexcept;
+	var_traits make_traits() noexcept;
 
 	/* Accept a Iterator with type std::pair<var_traits, rmm_type> */
 	template <

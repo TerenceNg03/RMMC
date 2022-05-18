@@ -4,6 +4,7 @@
 
 # include <string>
 # include <fstream>
+#include "AST.hh"
 
 namespace rmmc
 {
@@ -27,6 +28,7 @@ namespace rmmc
 		Scanner*	  scanner;
 		Parser*	   parser;
 		rmmc::location*	 location;
+		std::unique_ptr<stat_block> ast_root;
 		std::string curr_file;
 		unsigned int error_count;
 		unsigned int warning_count;
