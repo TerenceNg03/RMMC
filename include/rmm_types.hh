@@ -19,9 +19,11 @@ namespace rmmc{
 		boolean
 	};
 
+	typedef std::pair<std::string, std::string> c_type_name;
+
 	class rmm_type;
 
-	class var_traits{
+	struct var_traits{
 		bool mut;
 		bool ref;
 		bool unique;
@@ -43,6 +45,7 @@ namespace rmmc{
 		bool operator==(const array_type& x) const;
 		array_type& operator =(const array_type& b) = delete;
 		std::string str() const;
+		c_type_name to_c_type() const;
 		~array_type();
 	};
 
@@ -57,6 +60,7 @@ namespace rmmc{
 		bool operator==(const compound_type& x) const;
 		compound_type& operator=(const compound_type& x) = delete;
 		std::string str() const;
+		c_type_name to_c_type() const;
 		~compound_type();
 	};
 
@@ -68,6 +72,7 @@ namespace rmmc{
 		bool operator==(const pointer_type& x) const;
 		pointer_type& operator=(const pointer_type& x) = delete;
 		std::string str() const;
+		c_type_name to_c_type() const;
 		~pointer_type();
 	};
 
@@ -81,6 +86,7 @@ namespace rmmc{
 		bool operator==(const function_type& x) const;
 		function_type& operator=(const function_type& x) = delete;
 		std::string str() const;
+		c_type_name to_c_type() const;
 		~function_type();
 	};
 
@@ -95,12 +101,13 @@ namespace rmmc{
 		bool operator==(const union_type& x) const;
 		union_type& operator=(const union_type& x) = delete;
 		std::string str() const;
+		c_type_name to_c_type() const;
 		~union_type();
 	};
 
 	/* this class represents all possible variable type */
 	class rmm_type{
-
+		public:
 		enum class TAG{
 			basic,
 			array,
@@ -109,7 +116,7 @@ namespace rmmc{
 			pointer,
 			function
 		};
-
+		private:
 		TAG tag;
 
 		std::variant<array_type, compound_type, pointer_type, function_type, basic_type, union_type> content;
@@ -124,9 +131,20 @@ namespace rmmc{
 
 		bool operator==(const rmm_type& x) const;
 		bool operator!=(const rmm_type& x) const;
-		rmm_type& operator=(const rmm_type& t) = delete;
+		rmm_type& operator=(const rmm_type& t);
 
 		std::string str() const;
+		c_type_name to_c_type() const;
+		TAG get_tag() const;
+
+		bool is_int();
+		bool is_float();
+		bool is_bool();
+		bool is_func();
+		bool is_comp();
+		bool is_union();
+		bool is_ptr();
+		bool is_array();
 
 		~rmm_type();
 	};

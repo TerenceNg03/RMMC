@@ -21,7 +21,6 @@ namespace rmmc
 		unsigned int get_warning_count() const;
 		~Driver();
 
-	private:
 		int parse();
 		int parse_file(const std::string& path);
 
@@ -32,12 +31,6 @@ namespace rmmc
 		std::string curr_file;
 		unsigned int error_count;
 		unsigned int warning_count;
-
-
-		/// Allows Parser and Scanner to access private attributes
-		/// of the Driver class
-		friend class  Parser;
-		friend class  Scanner;
 	};
 }
 

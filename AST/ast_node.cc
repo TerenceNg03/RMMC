@@ -2,7 +2,9 @@
 
 using namespace rmmc;
 
-AST_node::AST_node(location _loc): loc(_loc){};
+has_loc::has_loc(location _loc): loc(_loc){};
+
+void has_loc::set_loc(location _loc){ loc = _loc; };
 
 has_type::has_type (rmm_type _type): type(_type){};
 
@@ -56,5 +58,5 @@ exp_const::exp_const(std::unique_ptr<const_general> _value): value(std::move(_va
 
 stat_decl::stat_decl(bool _exportable, var_traits _traits, std::string name, std::unique_ptr<type_general> _type, std::unique_ptr<exp_general> init): exportable(_exportable), traits(_traits), var_name(name), type(std::move(_type)), init_value(std::move(init)){};
 
-stat_block::stat_block(std::vector<std::unique_ptr<stat_general>> _stats) : stats(std::move(_stats)){};
+stat_block::stat_block(Driver* driver, std::vector<std::unique_ptr<stat_general>> _stats) : stat_context(driver), stats(std::move(_stats)){};
 

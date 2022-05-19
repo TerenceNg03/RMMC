@@ -154,7 +154,7 @@ as
 "!"
 "~"
 
-%type <std::string> str var_name _var_name id
+%type <std::string> str var_name id
 %type <std::unique_ptr<const_general>> const_value 
 %type <std::vector<std::unique_ptr<stat_general>>> STATEMENTS
 %type <std::unique_ptr<stat_general>> STATEMENT declare_statement // import_statement type_statement mod_statement use_statement 
@@ -187,7 +187,7 @@ STATEMENTS:
 	if(!driver.get_error_count())std::cout<<"[DEBUG] Parsing step succeeded with no error\n";
 #endif
 	if(driver.get_error_count())std::cout<<"\033[1;31mAborting\033[0m: \033[1;31m"<<driver.get_error_count()<<" fatal errors \033[0mencountered.\n";
-	driver.ast_root = std::make_unique<stat_block>(std::move($1));
+	driver.ast_root = std::make_unique<stat_block>(&driver, std::move($1));
 	YYACCEPT;
 }
 
@@ -208,7 +208,7 @@ declare opt_export variable_traits id ":" typename_incomplete "=" exp
 	auto _traits = make_traits($1, $3&1, $3&2);
 	var_traits traits = make_traits();
 	if(!_traits){
-		error(*(driver.location), "Variable traits conflict detected");
+		error(@3, "Variable traits conflict detected");
 	}else{
 		traits = *_traits;
 	}
@@ -219,7 +219,7 @@ declare opt_export variable_traits id ":" typename_incomplete "=" exp
 	auto _traits = make_traits($1, $3&1, $3&2);
 	var_traits traits = make_traits();
 	if(!_traits){
-		error(*(driver.location), "Variable traits conflict detected");
+		error(@3, "Variable traits conflict detected");
 	}else{
 		traits = *_traits;
 	}
@@ -230,7 +230,7 @@ declare opt_export variable_traits id ":" typename_incomplete "=" exp
 	auto _traits = make_traits($1, $3&1, $3&2);
 	var_traits traits = make_traits();
 	if(!_traits){
-		error(*(driver.location), "Variable traits conflict detected");
+		error(@3, "Variable traits conflict detected");
 	}else{
 		traits = *_traits;
 	}
@@ -246,12 +246,12 @@ declare opt_export variable_traits id ":" typename_incomplete "=" exp
 }
 | declare opt_export variable_traits id ":" typename_incomplete
 {
-	error(*(driver.location), "Incomplete type must have an initial value");
+	error(@6, "Incomplete type must have an initial value");
 	$$ = std::make_unique<stat_dummy>(stat_dummy()); 
 }
 | declare opt_export variable_traits id
 {
-	error(*(driver.location), "Type must be specified");
+	error(@4, "Type must be specified");
 	$$ = std::make_unique<stat_dummy>(stat_dummy()); 
 }
 
@@ -270,7 +270,7 @@ character: rawchar
 {
 	std::string __tmp =  str_process($1);
 	if(__tmp.length() != 1){
-		error(*(driver.location), "Invalid char litheral : " + $1);
+		error(@1, "Invalid char litheral : " + $1);
 		$$ = '\0';
 	}else{
 		$$ = __tmp[0];
@@ -297,11 +297,8 @@ unique { $$ = 2; }
 | ref { $$ = 1; }
 
 /* namespace */
-var_name: _var_name
-{ $$ = "USER_" + $1; }
-
-_var_name: 
-_var_name "::" id { $$ = $1 + "_" + $3; }
+var_name: 
+var_name "::" id { $$ = $1 + "_" + $3; }
 | id { $$ = $1; }
 
 /* This part deal with init value */
@@ -400,7 +397,7 @@ comp_decl_item:
 func_para_traits id ":" typename ";"
 | func_para_traits id "::" var_name ":" typename ";"
 {
-	error(*(driver.location), "Qualified id not allowed here");
+	error(@2, "Qualified id not allowed here");
 }
 
 func_para_typelist:
@@ -650,7 +647,7 @@ function_literal:
 | "<" void_ ";" func_para_traits void_ ">" "{" function_body "}"
 | "<" ";" typename ">" "{" function_body "}"
 {
-	error(*(driver.location), "Parameter list cannot be empty. Use 'void' instead.");
+	error(@1+@2+@3+@4, "Parameter list cannot be empty. Use 'void' instead.");
 }
 
 parameters_list:
@@ -684,7 +681,7 @@ if_statement:
 if_ "(" exp ")" "{" function_body "}" elif_statement else_statement
 | if_ "(" exp ")" exp elif_statement else_statement
 {
-	error(*(driver.location), "if statement must be in a code block");
+	error(@5, "if statement must be in a code block");
 }
 
 elif_statement:
@@ -692,7 +689,7 @@ elif_statement:
 | elif_statement elif "(" exp ")"  "{" function_body "}"
 | elif_statement elif "(" exp ")" exp
 {
-	error(*(driver.location), "elif statement must be in a code block");
+	error(@6, "elif statement must be in a code block");
 }
 
 else_statement:
@@ -700,7 +697,7 @@ else_statement:
 | else_ "{" function_body "}"
 | else_ exp
 {
-	error(*(driver.location), "else statement must be in a code block");
+	error(@2, "else statement must be in a code block");
 }
 
 while_statement:
