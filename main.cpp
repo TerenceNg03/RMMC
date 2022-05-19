@@ -122,4 +122,5 @@ int main(int argc, char *const *argv)
 
 	//setup driver
 	rmmc::Driver driver(input_file);
+	driver.generate_c("out.c");
 }

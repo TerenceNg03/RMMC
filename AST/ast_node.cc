@@ -26,15 +26,15 @@ rmm_type type_array::get_type(const context& cont){
 	return make_array(inner_type->get_type(cont), array_length);
 }
 
-const_basic::const_basic(rmm_type _type, long long _value): type(_type), value(_value){};
-const_basic::const_basic(rmm_type _type, double _value): type(_type), value(_value){};
+const_basic::const_basic(rmm_type _type, long long _value): has_type(_type), value(_value){};
+const_basic::const_basic(rmm_type _type, double _value): has_type(_type), value(_value){};
 
-const_array::const_array(std::string str): type(make_u8()){
+const_array::const_array(std::string str): has_type(make_u8()){
 	for(auto c: str){
 		values.push_back(std::make_unique<const_basic>(const_basic(make_u8(), (long long)c)));
 	}
 };
-const_array::const_array(rmm_type inner_type, std::vector<std::unique_ptr<const_general>> _values) : type(inner_type){
+const_array::const_array(rmm_type inner_type, std::vector<std::unique_ptr<const_general>> _values) : has_type(inner_type){
 	values = std::move(_values);
 };
 
@@ -54,7 +54,7 @@ exp_funct_call::exp_funct_call(std::unique_ptr<exp_general> _callable, std::vect
 
 exp_id::exp_id(std::string _id): id(_id){};
 
-exp_const::exp_const(std::unique_ptr<const_general> _value): value(std::move(_value)){};
+exp_const::exp_const(std::unique_ptr<const_general> _value): value(std::move(_value)){ type = make_i64(); };
 
 stat_decl::stat_decl(bool _exportable, var_traits _traits, std::string name, std::unique_ptr<type_general> _type, std::unique_ptr<exp_general> init): exportable(_exportable), traits(_traits), var_name(name), type(std::move(_type)), init_value(std::move(init)){};
 

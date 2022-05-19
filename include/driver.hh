@@ -23,6 +23,7 @@ namespace rmmc
 
 		int parse();
 		int parse_file(const std::string& path);
+		void generate_c(const std::string& path);
 
 		Scanner*	  scanner;
 		Parser*	   parser;

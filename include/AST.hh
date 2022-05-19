@@ -100,14 +100,13 @@ namespace rmmc{
 
 	/***** const value **************/
 
-	class const_general : public has_loc, public emittable{
+	class const_general : virtual public has_type ,public has_loc, public emittable{
 		public:
 		virtual emit_code emit_c_code(context& cont) = 0;
 		virtual ~const_general(){};
 	};
 
 	class const_basic : public const_general{
-		rmm_type type;
 		std::variant<long long, double> value;
 		public:
 		const_basic(rmm_type _type, long long _value);
@@ -119,7 +118,6 @@ namespace rmmc{
 
 	class const_array : public const_general{
 		std::vector<std::unique_ptr<const_general>> values;
-		rmm_type type;
 		public:
 		const_array(std::string str);
 		const_array(rmm_type inner_type, std::vector<std::unique_ptr<const_general>> _values);
@@ -137,7 +135,7 @@ namespace rmmc{
 		exp_general(){};
 		public:
 		void set_parentheses();
-		virtual emit_code emit_c_code(context& cont);
+		virtual emit_code emit_c_code(context& cont) = 0;
 		virtual ~exp_general(){};
 	};
 
@@ -254,7 +252,7 @@ namespace rmmc{
 
 	class stat_general : public has_loc, virtual public emittable{
 		public:
-		virtual emit_code emit_c_code(context& cont);
+		virtual emit_code emit_c_code(context& cont) = 0;
 		virtual ~stat_general(){};
 	};
 

@@ -49,4 +49,13 @@ namespace rmmc
 
 		return return_code;
 	}
+
+	void Driver::generate_c(const std::string& path){
+		std::ofstream s(path.c_str(), std::ofstream::out);
+		context cont_no_use(this);
+		auto code = ast_root ? ast_root->emit_c_code(cont_no_use) : emit_code();
+		const std::string c_include = "#include<stdlib.h>\n";
+		s << c_include << code.exec;
+		s.close();
+	}
 }

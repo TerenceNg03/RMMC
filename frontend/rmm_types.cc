@@ -150,7 +150,7 @@ namespace rmmc{
 	bool rmm_type::is_int(){
 		if(tag != rmm_type::TAG::basic)return false;
 		auto b_tag = std::get<basic_type>(content);
-		return (b_tag != rmmc::basic_type::f32) && (b_tag != rmmc::basic_type::f64) && (b_tag != rmmc::basic_type::boolean);
+		return (b_tag != rmmc::basic_type::f32) && (b_tag != rmmc::basic_type::f64);
 	};
 	bool rmm_type::is_float(){
 		if(tag != rmm_type::TAG::basic)return false;

@@ -38,8 +38,8 @@ namespace rmmc{
 
 	class array_type{
 		size_t length;
-		rmm_type* content_type;
 		public:
+		rmm_type* content_type;
 		array_type(const size_t length, const rmm_type& t);
 		array_type(const array_type& arr_t);
 		bool operator==(const array_type& x) const;
@@ -116,11 +116,9 @@ namespace rmmc{
 			pointer,
 			function
 		};
-		private:
 		TAG tag;
 
 		std::variant<array_type, compound_type, pointer_type, function_type, basic_type, union_type> content;
-		public:
 		rmm_type(const array_type& t);
 		rmm_type(const compound_type& t);
 		rmm_type(const pointer_type& t);
