@@ -11,8 +11,6 @@ let compound: auto = mycomp {
 
 let arr: auto = [32, 32, "init"];
 
-let arr: auto = [];
-
 let arr: auto = [
 	my_comp {
 		a = 98;

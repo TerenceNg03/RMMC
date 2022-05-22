@@ -14,7 +14,7 @@ LFLAGS = -r
 
 RM = -@rm -f
 
-.PHONY: subdir all run debug release test test-parser
+.PHONY: subdir all run debug release test test-parser compile
 
 release: all
 
@@ -42,6 +42,11 @@ test-SDT: all
 
 test-ast: all
 	${MAKE} -C test ast
+
+compile: all
+	./rmmc.out compile_test/test1.rmm --genAST -o compile_test/test1.c
+	@echo "\n>>>>> test1.c <<<<<<<\n"
+	@cat compile_test/test1.c
 
 subdir:
 	${MAKE} -C lex lex.o

@@ -24,10 +24,11 @@ namespace rmmc{
 	class rmm_type;
 
 	struct var_traits{
-		bool mut;
-		bool ref;
-		bool unique;
+		bool mut = false;
+		bool ref = false;
+		bool unique = false;
 		public:
+		var_traits() = default;
 		var_traits(const bool mut, const bool ref, const bool unique);
 		var_traits(const var_traits& var_t);
 		std::string str() const;
@@ -77,10 +78,10 @@ namespace rmmc{
 	};
 
 	class function_type{
+		public:
 		std::vector<std::pair<var_traits, rmm_type*>> parameters;
 		var_traits return_traits;
 		rmm_type* return_type; //null if is void
-		public:
 		function_type(const std::vector<std::pair<var_traits, rmm_type>>& pars, const var_traits& return_traits, const std::optional<rmm_type>& ret);
 		function_type(const function_type& t);
 		bool operator==(const function_type& x) const;

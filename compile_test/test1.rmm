@@ -1,0 +1,17 @@
+let a: i64 = 9;
+let unique b: f32 = 9.8 + 8&6 - (9-5);
+var ref c: i8 = b+ a , a = 7; 
+let m: auto = [ 1, 2, 3, 9 ];
+let _e: f32 = m[9] + 10 + [1,2,3][9.8];
+let str: auto = "ascd\\c";
+
+let func_1: auto = <p1: u32, p2: bool; i32>{
+	let unique uni_1: i32 = 1;
+	let unique uni_2: i32 = uni_1;
+	let unique uni_3: i32 = move uni_1;
+	return p1 + p2;
+};
+
+let func_2: auto = <para1: i8; void>{
+	let func1_para: auto = func_1( para1 );
+};

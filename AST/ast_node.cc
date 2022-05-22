@@ -31,10 +31,12 @@ const_basic::const_basic(rmm_type _type, double _value): has_type(_type), value(
 
 const_array::const_array(std::string str): has_type(make_u8()){
 	for(auto c: str){
-		values.push_back(std::make_unique<const_basic>(const_basic(make_u8(), (long long)c)));
+		std::unique_ptr<const_general> cons = std::make_unique<const_basic>(const_basic(make_u8(), (long long)c));
+		std::unique_ptr<exp_general> exp = std::make_unique<exp_const>(exp_const(std::move(cons)));
+		values.push_back(std::move(exp));
 	}
 };
-const_array::const_array(rmm_type inner_type, std::vector<std::unique_ptr<const_general>> _values) : has_type(inner_type){
+const_array::const_array(std::vector<std::unique_ptr<exp_general>> _values) {
 	values = std::move(_values);
 };
 
@@ -57,6 +59,14 @@ exp_id::exp_id(std::string _id): id(_id){};
 exp_const::exp_const(std::unique_ptr<const_general> _value): value(std::move(_value)){ type = make_i64(); };
 
 stat_decl::stat_decl(bool _exportable, var_traits _traits, std::string name, std::unique_ptr<type_general> _type, std::unique_ptr<exp_general> init): exportable(_exportable), traits(_traits), var_name(name), type(std::move(_type)), init_value(std::move(init)){};
+	
+stat_ret::stat_ret(std::unique_ptr<exp_general> _ret_val): ret_val(std::move(_ret_val)) {};
+
+stat_func_decl::stat_func_decl(var_traits _traits, std::string name, std::unique_ptr<type_general> _type): traits(_traits), var_name(name), type(std::move(_type)){};
+
+const_function::const_function(std::vector<std::unique_ptr<stat_func_decl>> _parameters, std::unique_ptr<stat_func_decl> _return_var, std::unique_ptr<stat_block> _body) : parameters(std::move(_parameters)), return_var(std::move(_return_var)), body(std::move(_body)){};
+
+stat_exp::stat_exp(std::unique_ptr<exp_general> _expr): expr(std::move(_expr)){};
 
 stat_block::stat_block(Driver* driver, std::vector<std::unique_ptr<stat_general>> _stats) : stat_context(driver), stats(std::move(_stats)){};
 

@@ -2,6 +2,9 @@
 #include "parser.hh"
 #include "scanner.hh"
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 using namespace std;
 
 namespace rmmc 
@@ -52,10 +55,16 @@ namespace rmmc
 
 	void Driver::generate_c(const std::string& path){
 		std::ofstream s(path.c_str(), std::ofstream::out);
-		context cont_no_use(this);
-		auto code = ast_root ? ast_root->emit_c_code(cont_no_use) : emit_code();
-		const std::string c_include = "#include<stdlib.h>\n";
-		s << c_include << code.exec;
+		auto code = ast_root ? ast_root->generate(fs::path(path).filename()) : "Error: AST Tree is empty";
+		s << code;
 		s.close();
 	}
+
+	void Driver::generate_ast(const std::string& path){
+		std::ofstream s(path.c_str(), std::ofstream::out);
+		auto code = ast_root ? ast_root->to_xml() : "Error: AST Tree is empty";
+		s << code;
+		s.close();
+	}
+	
 }
