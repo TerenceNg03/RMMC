@@ -64,10 +64,10 @@ union return Parser::make_union_(loc);
 ref return Parser::make_ref(loc);
 match return Parser::make_match(loc);
 
-[a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_name(std::string(yytext),loc);
+[a-z_A-Z]{1,}[0-9_a-zA-Z]* return Parser::make_rawid(std::string(yytext),loc);
 
 \"(\\.|[^\\"])*\"  return Parser::make_rawstr(std::string(yytext),loc);/* string literal (remove \") */
-\'(\\.|[^\\'])*\' return Parser::make_rawchar(std::string(yytext),loc);/* char literal (remove \r') */
+\'(\\.|[^\\'])*\' return Parser::make_rawchar(std::string(yytext),loc);/* char literal (remove \') */
 
 [0-9]{1,} return Parser::make_long_(atoi(yytext),loc); /* decimal number */
 0[xX][0-9a-fA-F]+ return Parser::make_long_(strtol(yytext, NULL, 16),loc); /* hex number */

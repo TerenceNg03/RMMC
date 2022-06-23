@@ -5,11 +5,12 @@
 #include <string>
 #include <string.h>
 #include <filesystem>
+#include <fstream>
 
 using namespace std;
 
-int main(int argc, char* const* argv) {
-
+int main(int argc, char *const *argv)
+{
 	bool use_import = false;
 	string import_path = "";
 	string output_file = "a.out";
@@ -73,7 +74,7 @@ int main(int argc, char* const* argv) {
 #if DEBUG
 				printf("[Debug info] Output file name: %s\n", optarg);
 #endif
-				import_path = optarg;
+				output_file = optarg;
 				break;
 
 			case 'I':
@@ -121,6 +122,11 @@ int main(int argc, char* const* argv) {
 
 	//setup driver
 	rmmc::Driver driver(input_file);
+	driver.generate_c(output_file);
 
-	return 0;
+	if(AST_required){
+		auto p = filesystem::path(input_file);
+		p.replace_extension(".xml");
+		driver.generate_ast(std::string(p));
+	}
 }

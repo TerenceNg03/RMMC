@@ -2,7 +2,7 @@
 type int i32;
 
 # complicated type
-var b: **(mut [**int, 6], void)->*bool;
+var b: **(mut [**int, 6], u8)->*bool;
 
 var a: [([i32, 9],mut bool)->*bool, 9];
 

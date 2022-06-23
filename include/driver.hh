@@ -4,6 +4,7 @@
 
 # include <string>
 # include <fstream>
+#include "AST.hh"
 
 namespace rmmc
 {
@@ -20,22 +21,19 @@ namespace rmmc
 		unsigned int get_warning_count() const;
 		~Driver();
 
-	private:
 		int parse();
 		int parse_file(const std::string& path);
+		void generate_c(const std::string& path);
+		void generate_ast(const std::string& path);
 
 		Scanner*	  scanner;
 		Parser*	   parser;
 		rmmc::location*	 location;
+		int context_cnt = 0;
+		std::unique_ptr<stat_block> ast_root;
 		std::string curr_file;
 		unsigned int error_count;
 		unsigned int warning_count;
-
-
-		/// Allows Parser and Scanner to access private attributes
-		/// of the Driver class
-		friend class  Parser;
-		friend class  Scanner;
 	};
 }
 
