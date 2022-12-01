@@ -1,4 +1,4 @@
-# RMMC - Rust Minus Minus Compiler
+# [[Abandoned Project]]RMMC - Rust Minus Minus Compiler
 
 [![Unit Test badge](https://github.com/TerenceNg03/RMMC/actions/workflows/AutoTest.yml/badge.svg)](https://github.com/TerenceNg03/RMMC/actions/workflows/AutoTest.yml)
 ![Ubuntu badge](https://badgen.net/badge/icon/Ubuntu?icon=terminal&label)
